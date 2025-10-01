@@ -31712,3 +31712,234 @@
 [2025-10-01T02:17:35.919Z] [INFO] Monitoring PPPoE connections: 174 active connections
 [2025-10-01T02:18:35.795Z] [INFO] Monitoring PPPoE connections: 174 active connections
 [2025-10-01T02:19:35.899Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:20:35.810Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:21:35.881Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:22:35.828Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:23:35.894Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:24:35.841Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:25:35.912Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:26:35.852Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:27:35.921Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:28:35.867Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:29:35.937Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:30:35.886Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:31:35.959Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:32:35.900Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:33:35.979Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:34:35.918Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:35:35.998Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:36:35.942Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:37:36.014Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:38:35.955Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:39:36.036Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:40:35.973Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:41:36.036Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:42:35.991Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:42:36.271Z] [INFO] PPPoE LOGOUT detected: wadi@rawagunda
+[2025-10-01T02:42:36.348Z] [INFO] Found 3 active technicians in database
+[2025-10-01T02:42:47.426Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T02:42:47.427Z] [INFO] PPPoE monitoring: 173 active connections, 0 login, 1 logout
+[2025-10-01T02:43:36.135Z] [INFO] PPPoE LOGOUT:
+[
+  "wadi@rawagunda"
+]
+[2025-10-01T02:43:36.144Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T02:44:36.016Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T02:45:36.187Z] [INFO] PPPoE LOGIN:
+[
+  "warung_elisa@laut"
+]
+[2025-10-01T02:45:36.188Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:45:36.300Z] [INFO] PPPoE LOGIN detected: warung_elisa@laut
+[2025-10-01T02:45:36.363Z] [INFO] Found 3 active technicians in database
+[2025-10-01T02:45:47.420Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T02:45:47.421Z] [INFO] PPPoE monitoring: 174 active connections, 1 login, 0 logout
+[2025-10-01T02:46:36.030Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:46:36.310Z] [INFO] PPPoE LOGIN detected: wadi@rawagunda
+[2025-10-01T02:46:36.392Z] [INFO] Found 3 active technicians in database
+[2025-10-01T02:46:47.485Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T02:46:47.486Z] [INFO] PPPoE monitoring: 175 active connections, 1 login, 0 logout
+[2025-10-01T02:47:36.189Z] [INFO] PPPoE LOGIN:
+[
+  "wadi@rawagunda"
+]
+[2025-10-01T02:47:36.190Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:48:36.046Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:49:36.130Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:50:36.072Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:51:36.152Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:52:36.087Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:52:36.355Z] [INFO] PPPoE LOGOUT detected: atam, waidah@pegagan
+[2025-10-01T02:52:36.436Z] [INFO] Found 3 active technicians in database
+[2025-10-01T02:52:47.492Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T02:52:47.492Z] [INFO] PPPoE monitoring: 173 active connections, 0 login, 2 logout
+[2025-10-01T02:53:36.227Z] [INFO] PPPoE LOGOUT:
+[
+  "atam",
+  "waidah@pegagan"
+]
+[2025-10-01T02:53:36.228Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T02:54:36.109Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T02:55:36.178Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T02:56:36.125Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T02:56:36.370Z] [INFO] PPPoE LOGOUT detected: runaeni
+[2025-10-01T02:56:36.440Z] [INFO] Found 3 active technicians in database
+[2025-10-01T02:56:47.505Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T02:56:47.506Z] [INFO] PPPoE monitoring: 172 active connections, 0 login, 1 logout
+[2025-10-01T02:57:36.264Z] [INFO] PPPoE LOGOUT:
+[
+  "runaeni"
+]
+[2025-10-01T02:57:36.265Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T02:58:36.137Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T02:59:36.281Z] [INFO] PPPoE LOGOUT:
+[
+  "nalda@pegagan"
+]
+[2025-10-01T02:59:36.282Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T02:59:36.399Z] [INFO] PPPoE LOGOUT detected: nalda@pegagan
+[2025-10-01T02:59:36.477Z] [INFO] Found 3 active technicians in database
+[2025-10-01T02:59:47.631Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T02:59:47.632Z] [INFO] PPPoE monitoring: 171 active connections, 0 login, 1 logout
+[2025-10-01T03:00:00.375Z] [INFO] Starting daily service suspension check...
+[2025-10-01T03:00:00.376Z] [INFO] Starting automatic service suspension check...
+[2025-10-01T03:00:00.377Z] [INFO] Auto suspension is disabled in settings
+[2025-10-01T03:00:00.378Z] [INFO] Daily service suspension check completed
+[2025-10-01T03:00:36.162Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T03:01:36.235Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T03:02:36.178Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T03:03:36.342Z] [INFO] PPPoE LOGIN:
+[
+  "waidah@pegagan",
+  "atam"
+]
+[2025-10-01T03:03:36.343Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:03:36.457Z] [INFO] PPPoE LOGIN detected: waidah@pegagan, atam
+[2025-10-01T03:03:36.521Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:03:47.579Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:03:47.579Z] [INFO] PPPoE monitoring: 173 active connections, 2 login, 0 logout
+[2025-10-01T03:04:36.195Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:05:36.264Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:06:36.208Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:07:36.277Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:08:36.222Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:09:36.297Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:10:36.237Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:11:36.305Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:12:36.249Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:13:36.321Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:14:36.269Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:15:36.335Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:16:36.280Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:17:36.350Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:18:36.298Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:19:36.361Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:20:36.308Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:21:36.371Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:22:36.322Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:23:36.462Z] [INFO] PPPoE LOGOUT:
+[
+  "wendy@tanjungpura"
+]
+[2025-10-01T03:23:36.462Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T03:23:36.549Z] [INFO] PPPoE LOGOUT detected: wendy@tanjungpura
+[2025-10-01T03:23:36.614Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:23:47.712Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:23:47.713Z] [INFO] PPPoE monitoring: 172 active connections, 0 login, 1 logout
+[2025-10-01T03:24:36.337Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T03:24:36.570Z] [INFO] PPPoE LOGOUT detected: darim
+[2025-10-01T03:24:36.643Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:24:47.703Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:24:47.703Z] [INFO] PPPoE monitoring: 171 active connections, 0 login, 1 logout
+[2025-10-01T03:25:36.477Z] [INFO] PPPoE LOGOUT:
+[
+  "darim"
+]
+[2025-10-01T03:25:36.477Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T03:26:36.350Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T03:27:36.511Z] [INFO] PPPoE LOGOUT:
+[
+  "ejun"
+]
+[2025-10-01T03:27:36.511Z] [INFO] Monitoring PPPoE connections: 170 active connections
+[2025-10-01T03:27:36.595Z] [INFO] PPPoE LOGOUT detected: ejun
+[2025-10-01T03:27:36.675Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:27:47.745Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:27:47.746Z] [INFO] PPPoE monitoring: 170 active connections, 0 login, 1 logout
+[2025-10-01T03:28:36.365Z] [INFO] Monitoring PPPoE connections: 170 active connections
+[2025-10-01T03:28:36.597Z] [INFO] PPPoE LOGOUT detected: elis@rawagunda
+[2025-10-01T03:28:36.673Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:28:47.740Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:28:47.741Z] [INFO] PPPoE monitoring: 169 active connections, 0 login, 1 logout
+[2025-10-01T03:29:36.501Z] [INFO] PPPoE LOGOUT:
+[
+  "elis@rawagunda"
+]
+[2025-10-01T03:29:36.501Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T03:30:36.385Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T03:31:36.457Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T03:32:36.395Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T03:33:36.472Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T03:34:36.413Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T03:34:36.665Z] [INFO] PPPoE LOGIN detected: wendy@tanjungpura, darim
+[2025-10-01T03:34:36.746Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:34:47.800Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:34:47.801Z] [INFO] PPPoE monitoring: 171 active connections, 2 login, 0 logout
+[2025-10-01T03:35:36.581Z] [INFO] PPPoE LOGIN:
+[
+  "wendy@tanjungpura",
+  "darim"
+]
+[2025-10-01T03:35:36.595Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T03:36:36.432Z] [INFO] Monitoring PPPoE connections: 171 active connections
+[2025-10-01T03:37:36.578Z] [INFO] PPPoE LOGIN:
+[
+  "ejun"
+]
+[2025-10-01T03:37:36.579Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T03:37:36.667Z] [INFO] PPPoE LOGIN detected: ejun
+[2025-10-01T03:37:36.732Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:37:47.797Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:37:47.798Z] [INFO] PPPoE monitoring: 172 active connections, 1 login, 0 logout
+[2025-10-01T03:38:36.447Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T03:38:36.676Z] [INFO] PPPoE LOGIN detected: elis@rawagunda
+[2025-10-01T03:38:36.745Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:38:47.793Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:38:47.794Z] [INFO] PPPoE monitoring: 173 active connections, 1 login, 0 logout
+[2025-10-01T03:39:09.364Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T03:39:09.541Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T03:39:09.543Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T03:39:09.545Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T03:39:09.547Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T03:39:09.549Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T03:39:09.552Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T03:39:09.554Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T03:39:09.556Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T03:40:23.514Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T03:40:23.697Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T03:40:23.704Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T03:40:23.706Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T03:40:23.709Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T03:40:23.716Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T03:40:23.720Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T03:40:23.723Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T03:40:23.725Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T03:40:24.965Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T03:40:24.968Z] [INFO] Attempting to start server on configured port: 3002
+[2025-10-01T03:40:24.971Z] [INFO] Memulai server pada port yang dikonfigurasi: 3002
+[2025-10-01T03:40:24.972Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T03:40:24.987Z] [INFO] ✅ Server berhasil berjalan pada port 3002
+[2025-10-01T03:40:25.000Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3002
+[2025-10-01T03:40:25.002Z] [INFO] Environment: development
+[2025-10-01T03:40:25.237Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-10-01T03:40:25.238Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-10-01T03:40:25.238Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-10-01T03:40:25.240Z] [INFO] WhatsApp connected successfully
+[2025-10-01T03:40:25.242Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T03:40:25.246Z] [INFO] Starting RX Power Warning monitoring (interval: 10 hours)
+[2025-10-01T03:40:25.247Z] [INFO] Starting RX Power Recap monitoring (interval: 6 hours)
+[2025-10-01T03:40:25.249Z] [INFO] Starting Offline Notification monitoring (interval: 12 hours)
+[2025-10-01T03:40:25.251Z] [INFO] IntervalManager initialized successfully
+[2025-10-01T03:40:25.253Z] [INFO] Interval Manager initialized with all monitoring systems
+[2025-10-01T03:40:25.254Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-10-01T03:40:25.255Z] [INFO] PPPoE monitoring initialized

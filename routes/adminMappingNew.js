@@ -1176,12 +1176,167 @@ router.post('/restart-onu', adminAuth, async (req, res) => {
                 status: 'initiated'
             }
         });
-        
+
     } catch (error) {
         console.error('❌ Error restarting ONU device:', error);
         res.status(500).json({
             success: false,
             message: 'Error restarting ONU device: ' + error.message
+        });
+    }
+});
+
+// API endpoint untuk mobile admin mapping - versi sederhana
+router.get('/api/mobile-mapping-data', adminAuth, async (req, res) => {
+    try {
+        console.log('📱 Mobile Mapping API - Loading simplified data...');
+
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+
+        // Load data simplified untuk mobile
+        const [
+            customers,
+            odps,
+            onuDevices
+        ] = await Promise.all([
+            // Load customers dengan koordinat
+            new Promise((resolve) => {
+                db.all(`
+                    SELECT c.id, c.name, c.phone, c.latitude, c.longitude,
+                           c.status, c.package_id, c.pppoe_username,
+                           p.name as package_name, p.price as package_price,
+                           o.name as odp_name
+                    FROM customers c
+                    LEFT JOIN packages p ON c.package_id = p.id
+                    LEFT JOIN odps o ON c.odp_id = o.id
+                    WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+                    ORDER BY c.name
+                `, [], (err, rows) => {
+                    if (err) {
+                        console.error('❌ Error loading customers:', err);
+                        resolve([]);
+                    } else {
+                        resolve(rows || []);
+                    }
+                });
+            }),
+
+            // Load ODPs
+            new Promise((resolve) => {
+                db.all(`
+                    SELECT id, name, code, latitude, longitude, address,
+                           capacity, used_ports, status, is_pole
+                    FROM odps
+                    WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+                    ORDER BY name
+                `, [], (err, rows) => {
+                    if (err) {
+                        console.error('❌ Error loading ODPs:', err);
+                        resolve([]);
+                    } else {
+                        resolve(rows || []);
+                    }
+                });
+            }),
+
+            // Load ONU devices dari GenieACS (simplified)
+            new Promise(async (resolve) => {
+                try {
+                    const { getDevicesCached } = require('../config/genieacs');
+                    const genieacsDevices = await getDevicesCached();
+
+                    if (!genieacsDevices || genieacsDevices.length === 0) {
+                        resolve([]);
+                        return;
+                    }
+
+                    const devicesWithCoords = [];
+
+                    for (const device of genieacsDevices) {
+                        try {
+                            const deviceId = getValidDeviceId(device);
+                            if (!deviceId) continue;
+
+                            // Get PPPoE username
+                            const pppoeUsername1 = getParameterValue(device, 'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username');
+                            const pppoeUsername2 = getParameterValue(device, 'VirtualParameters.pppoeUsername');
+                            const pppoeUsername = sanitizePPPoEUsername(pppoeUsername2 || pppoeUsername1);
+
+                            if (pppoeUsername && pppoeUsername !== '-') {
+                                // Find customer coordinates
+                                const customer = await new Promise((resolveCustomer) => {
+                                    db.get(`
+                                        SELECT c.latitude, c.longitude, c.name, c.phone, c.status
+                                        FROM customers c
+                                        WHERE c.pppoe_username = ? AND c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+                                    `, [pppoeUsername], (err, row) => {
+                                        if (err) {
+                                            resolveCustomer(null);
+                                        } else {
+                                            resolveCustomer(row);
+                                        }
+                                    });
+                                });
+
+                                if (customer) {
+                                    devicesWithCoords.push({
+                                        id: deviceId,
+                                        name: getParameterValue(device, 'DeviceID.ProductClass') || 'ONU',
+                                        status: getDeviceStatus(device._lastInform),
+                                        latitude: customer.latitude,
+                                        longitude: customer.longitude,
+                                        customerName: customer.name,
+                                        customerPhone: customer.phone,
+                                        customerStatus: customer.status,
+                                        pppoeUsername: pppoeUsername,
+                                        rxPower: getRXPowerValue(device) || 'N/A',
+                                        ssid: getParameterValue(device, 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID') || 'N/A'
+                                    });
+                                }
+                            }
+                        } catch (deviceError) {
+                            continue;
+                        }
+                    }
+
+                    resolve(devicesWithCoords);
+
+                } catch (error) {
+                    console.error('❌ Error loading ONU devices:', error);
+                    resolve([]);
+                }
+            })
+        ]);
+
+        db.close();
+
+        // Hitung statistik untuk mobile
+        const statistics = {
+            totalCustomers: customers.length,
+            totalONU: onuDevices.length,
+            onlineONU: onuDevices.filter(d => d.status === 'Online').length,
+            offlineONU: onuDevices.filter(d => d.status === 'Offline').length,
+            totalODP: odps.length
+        };
+
+        console.log('📱 Mobile Mapping API - Data loaded:', statistics);
+
+        res.json({
+            success: true,
+            data: {
+                customers: customers,
+                onuDevices: onuDevices,
+                odps: odps,
+                statistics: statistics
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error in mobile mapping API:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
         });
     }
 });
