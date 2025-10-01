@@ -264,7 +264,7 @@ class InvoiceScheduler {
                     const basePrice = packageData.price;
                     const taxRate = (packageData.tax_rate === 0 || (typeof packageData.tax_rate === 'number' && packageData.tax_rate > -1))
                         ? Number(packageData.tax_rate)
-                        : getSetting('default_tax_rate', 11.00); // Default dari settings.json
+                        : 0; // Default 0% jika tidak ada PPN
                     const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
                     
                     const invoiceData = {
@@ -350,7 +350,7 @@ class InvoiceScheduler {
 
                     const taxRate = (packageData.tax_rate === 0 || (typeof packageData.tax_rate === 'number' && packageData.tax_rate > -1))
                         ? Number(packageData.tax_rate)
-                        : getSetting('default_tax_rate', 11.00); // Default dari settings.json
+                        : 0; // Default 0% jika tidak ada PPN
                     const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate); // Sudah include rounding
 
                     const invoiceData = {
