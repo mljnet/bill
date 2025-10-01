@@ -1,10 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const axios = require('axios');
-const { getSetting } = require('../config/settingsManager');
-const { technicianAuth, authManager } = require('./technicianAuth');
 const logger = require('../config/logger');
 
 // Database connection
@@ -3535,12 +3530,87 @@ router.post('/settings/update-password', technicianAuth, async (req, res) => {
             message: 'Password berhasil diubah'
         });
     } catch (error) {
-        console.error('Error updating password:', error);
+        console.error('Error in technician mobile dashboard API:', error);
         res.status(500).json({
             success: false,
-            message: 'Gagal mengubah password'
+            error: error.message
         });
     }
 });
 
-module.exports = router;
+// API endpoint untuk teknisi mobile monitoring data
+router.get('/api/mobile-monitoring-data', technicianAuth, async (req, res) => {
+    try {
+        console.log('Technician Mobile Monitoring API - Loading device data...');
+
+        // Get devices dengan pagination sederhana untuk mobile
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = (page - 1) * limit;
+
+        try {
+            const { getDevicesCached } = require('../config/genieacs');
+            const devices = await getDevicesCached();
+
+            if (!devices || devices.length === 0) {
+                return res.json({
+                    success: true,
+                    data: {
+                        devices: [],
+                        pagination: { page: 1, limit: 20, total: 0, pages: 0 }
+                    }
+                });
+            }
+
+            // Process devices untuk mobile (simplified data)
+            const processedDevices = devices.slice(offset, offset + limit).map(device => {
+                const deviceId = device._id || device.id;
+                const lastInform = device._lastInform;
+                const status = lastInform && (Date.now() - new Date(lastInform).getTime()) < 3600*1000 ? 'Online' : 'Offline';
+
+                return {
+                    id: deviceId,
+                    serialNumber: device.DeviceID?.SerialNumber || 'N/A',
+                    model: device.DeviceID?.ProductClass || 'N/A',
+                    status: status,
+                    pppoeUsername: device.VirtualParameters?.pppoeUsername || 'N/A',
+                    ssid: device.VirtualParameters?.wifiSSID || 'N/A',
+                    rxPower: device.VirtualParameters?.RXPower || 'N/A',
+                    lastInform: lastInform || 'N/A'
+                };
+            });
+
+            const totalDevices = devices.length;
+            const totalPages = Math.ceil(totalDevices / limit);
+
+            console.log(`Technician Mobile Monitoring API - Loaded ${processedDevices.length} devices (page ${page}/${totalPages})`);
+
+            res.json({
+                success: true,
+                data: {
+                    devices: processedDevices,
+                    pagination: {
+                        page: page,
+                        limit: limit,
+                        total: totalDevices,
+                        pages: totalPages
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('Error loading monitoring data:', error);
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+
+    } catch (error) {
+        console.error('Error in technician mobile monitoring API:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
