@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<% 
+  var filters = (typeof filters !== 'undefined') ? filters : { from: '', to: '', collector_id: '', status: '', q: '' };
+  var payments = (typeof payments !== 'undefined') ? payments : [];
+  var collectors = (typeof collectors !== 'undefined') ? collectors : [];
+%>
+<div class="container-fluid">
+    <div class="row">
+        <%- include('../../partials/billing-sidebar') %>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content py-4">
+    <h3 class="mb-3">Transaksi Kolektor</h3>
+
+    <form class="row g-2 align-items-end mb-3">
+        <div class="col-auto">
+            <label class="form-label">Dari</label>
+            <input type="date" class="form-control" name="from" value="<%= filters.from %>">
+        </div>
+        <div class="col-auto">
+            <label class="form-label">Sampai</label>
+            <input type="date" class="form-control" name="to" value="<%= filters.to %>">
+        </div>
+        <div class="col-auto">
+            <label class="form-label">Kolektor</label>
+            <select class="form-select" name="collector_id">
+                <option value="">Semua</option>
+                <% (collectors||[]).forEach(function(col){ %>
+                    <option value="<%= col.id %>" <%= String(filters.collector_id)===String(col.id)?'selected':'' %>><%= col.name %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status">
+                <option value="">Semua</option>
+                <option value="completed" <%= filters.status==='completed'?'selected':'' %>>Completed</option>
+                <option value="received" <%= filters.status==='received'?'selected':'' %>>Remitted</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-label">Cari</label>
+            <input type="text" class="form-control" name="q" value="<%= filters.q %>" placeholder="Nama/No/Notes">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">Terapkan</button>
+            <button class="btn btn-outline-secondary" type="button" id="exportPayments">Export CSV</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Kolektor</th>
+                <th>Pelanggan</th>
+                <th>Amount</th>
+                <th>Komisi</th>
+                <th>Metode</th>
+                <th>Status</th>
+                <th>Remittance</th>
+                <th>Catatan</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% (payments||[]).forEach(function(p){ %>
+                <tr>
+                    <td><%= p.collected_at %></td>
+                    <td><%= p.collector_name %></td>
+                    <td><%= p.customer_name %> <small class="text-muted d-block"><%= p.customer_phone || '' %></small></td>
+                    <td>Rp <%= Number(p.payment_amount||p.amount||0).toLocaleString('id-ID') %></td>
+                    <td>Rp <%= Number(p.commission_amount||0).toLocaleString('id-ID') %></td>
+                    <td><%= p.payment_method %></td>
+                    <td><span class="badge bg-<%= p.status==='completed'?'success':'secondary' %>"><%= p.status || 'completed' %></span></td>
+                    <td><span class="badge bg-<%= (p.remittance_status==='received' || !p.collector_id)?'primary':'warning' %>"><%= (p.remittance_status && p.collector_id) ? p.remittance_status : (!p.collector_id ? 'N/A (Admin)' : 'pending') %></span></td>
+                    <td><%= p.notes || '' %></td>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+        </main>
+    </div>
+</div>
+
+<script>
+document.getElementById('exportPayments').addEventListener('click', function(){
+    const headers = ['Date','Collector','Customer','Phone','Amount','Commission','Method','Status','Remittance','Notes'];
+    const rows = (<%- JSON.stringify(payments||[]) %>).map(p=>[
+        p.collected_at,
+        p.collector_name,
+        p.customer_name,
+        p.customer_phone||'',
+        p.payment_amount||p.amount||0,
+        p.commission_amount||0,
+        p.payment_method,
+        p.status,
+        p.remittance_status||'pending',
+        String(p.notes||'').replace(/\n/g,' ')
+    ]);
+    const csv = [headers].concat(rows).map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'collector-payments.csv'; a.click();
+    URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Pembayaran - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('../../partials/billing-sidebar') %>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bx bx-credit-card"></i> Riwayat Pembayaran
+                    </h1>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-muted fw-normal mt-0" title="Total Payments">Total Pembayaran</h5>
+                                        <h3 class="mt-3 mb-3"><%= payments ? payments.length : 0 %></h3>
+                                    </div>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-soft-primary rounded">
+                                            <i class="mdi mdi-cash-multiple font-20 text-primary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-muted fw-normal mt-0" title="Total Amount">Total Jumlah</h5>
+                                        <h3 class="mt-3 mb-3">
+                                            Rp <%= payments ? payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0).toLocaleString('id-ID') : '0' %>
+                                        </h3>
+                                    </div>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-soft-success rounded">
+                                            <i class="mdi mdi-currency-usd font-20 text-success"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-muted fw-normal mt-0" title="Cash Payments">Pembayaran Tunai</h5>
+                                        <h3 class="mt-3 mb-3">
+                                            <%= payments ? payments.filter(p => p.payment_method === 'cash').length : 0 %>
+                                        </h3>
+                                    </div>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-soft-info rounded">
+                                            <i class="mdi mdi-cash font-20 text-info"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-muted fw-normal mt-0" title="Digital Payments">Pembayaran Digital</h5>
+                                        <h3 class="mt-3 mb-3">
+                                            <%= payments ? payments.filter(p => ['transfer', 'qris', 'ewallet'].includes(p.payment_method)).length : 0 %>
+                                        </h3>
+                                    </div>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-soft-warning rounded">
+                                            <i class="mdi mdi-credit-card font-20 text-warning"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bx bx-list-ul"></i> Daftar Pembayaran
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="paymentsTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>No. Tagihan</th>
+                                        <th>Pelanggan</th>
+                                        <th>Jumlah</th>
+                                        <th>Metode Pembayaran</th>
+                                        <th>Referensi</th>
+                                        <th>Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (payments && payments.length > 0) { %>
+                                        <% payments.forEach(function(payment) { %>
+                                            <tr>
+                                                <td><%= new Date(payment.payment_date).toLocaleDateString('id-ID') %></td>
+                                                <td>
+                                                    <a href="/admin/billing/invoices/<%= payment.invoice_id %>" class="text-body fw-bold">
+                                                        <%= payment.invoice_number %>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <span class="text-body fw-bold"><%= payment.customer_name %></span>
+                                                    <br>
+                                                    <small class="text-muted"><%= payment.customer_phone %></small>
+                                                </td>
+                                                <td>Rp <%= parseFloat(payment.amount).toLocaleString('id-ID') %></td>
+                                                <td>
+                                                    <% if (payment.payment_method === 'cash') { %>
+                                                        <span class="badge bg-info">Tunai</span>
+                                                    <% } else if (payment.payment_method === 'transfer') { %>
+                                                        <span class="badge bg-primary">Transfer</span>
+                                                    <% } else if (payment.payment_method === 'qris') { %>
+                                                        <span class="badge bg-success">QRIS</span>
+                                                    <% } else if (payment.payment_method === 'ewallet') { %>
+                                                        <span class="badge bg-warning">E-Wallet</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary"><%= payment.payment_method %></span>
+                                                    <% } %>
+                                                </td>
+                                                <td><%= payment.reference_number || '-' %></td>
+                                                <td><%= payment.notes || '-' %></td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#paymentsTable').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json',
+                    emptyTable: "Tidak ada data yang tersedia",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+                    infoFiltered: "(disaring dari _MAX_ entri keseluruhan)",
+                    lengthMenu: "Tampilkan _MENU_ entri",
+                    loadingRecords: "Sedang memuat...",
+                    processing: "Sedang memproses...",
+                    search: "Cari:",
+                    zeroRecords: "Tidak ditemukan data yang sesuai",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    }
+                },
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                order: [[0, 'desc']] // Sort by date descending
+            });
+        });
+
+        // Show technician navigation if accessed by technician
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if this is technician view
+            const isTechnicianView = window.location.pathname.includes('/technician/') || 
+                                   document.body.classList.contains('technician-view');
+            
+            if (isTechnicianView) {
+                // Hide admin nav and show technician nav
+                const adminNav = document.querySelector('.bottom-nav');
+                const technicianNav = document.getElementById('technicianNav');
+                
+                if (adminNav) adminNav.style.display = 'none';
+                if (technicianNav) technicianNav.style.display = 'block';
+            }
+        });
+    </script>
+
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="bottom-nav d-md-none" style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, rgba(11,20,55,0.96), rgba(15,28,79,0.96)); border-top: 1px solid rgba(255,255,255,0.08); height: 70px; display: grid; grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr; z-index: 1000; backdrop-filter: blur(10px); padding: 8px 0;">
+        <a class="nav-item" href="/admin/billing/mobile/customers" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-people" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Pelanggan</span>
+        </a>
+        <a class="nav-item" href="/admin/billing/mobile/invoices" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-receipt" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Tagihan</span>
+        </a>
+        <a class="nav-item home-button" href="/admin/billing/mobile" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; width: 56px; height: 56px; margin: -8px auto 0 auto; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transform: translateY(-4px); border: 2px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;">
+            <i class="bi bi-house" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Home</span>
+        </a>
+        <a class="nav-item active" href="/admin/billing/mobile/payments" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-credit-card" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Bayar</span>
+        </a>
+        <a class="nav-item" href="/admin/billing/mobile/map" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-geo-alt" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Map</span>
+        </a>
+    </nav>
+
+    <!-- Bottom Navigation for Technician Mobile -->
+    <div class="d-md-none" id="technicianNav" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030;">
+        <nav class="navbar fixed-bottom navbar-dark bg-dark" style="background: linear-gradient(180deg, rgba(102, 126, 234, 0.96), rgba(118, 75, 162, 0.96)) !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 1030 !important;">
+            <div class="container-fluid">
+                <div class="row w-100">
+                    <div class="col text-center">
+                        <a href="/technician/dashboard" class="text-light text-decoration-none">
+                            <i class="bi bi-house d-block"></i>
+                            <small>Home</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/monitoring" class="text-light text-decoration-none">
+                            <i class="bi bi-wifi d-block"></i>
+                            <small>Monitor</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/troubletickets" class="text-light text-decoration-none">
+                            <i class="bi bi-ticket-detailed d-block" style="font-size: 1.5rem;"></i>
+                            <small>Tiket</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/customers" class="text-light text-decoration-none">
+                            <i class="bi bi-people d-block"></i>
+                            <small>Customer</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/mapping" class="text-light text-decoration-none">
+                            <i class="bi bi-geo-alt d-block"></i>
+                            <small>Map</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <style>
+        /* Bottom Navigation Styles */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(11,20,55,0.96), rgba(15,28,79,0.96));
+            border-top: 1px solid rgba(255,255,255,0.08);
+            height: 70px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        /* Special styling for Home button (center button) */
+        .nav-item.home-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            margin: -8px auto 0 auto;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 0 0 0 0 rgba(102, 126, 234, 0.4);
+            transform: translateY(-4px);
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+            animation: float-home 3s ease-in-out infinite;
+        }
+
+        .nav-item.home-button:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6), 0 0 0 0 rgba(102, 126, 234, 0.6);
+        }
+
+        .nav-item.home-button:active {
+            transform: translateY(-2px);
+        }
+
+        @keyframes float-home {
+            0%, 100% { transform: translateY(-4px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Add padding to body for mobile */
+        body {
+            padding-bottom: 80px;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+            body {
+                padding-bottom: 0;
+            }
+        }
+    </style>
+</body>
+</html>
