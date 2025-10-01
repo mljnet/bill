@@ -5593,6 +5593,242 @@ router.delete('/packages/:id', adminAuth, async (req, res) => {
     }
 });
 
-// ===== END OF PACKAGES MANAGEMENT =====
+// ===== SYSTEM UPDATE MANAGEMENT =====
+
+// API: Check for updates from GitHub
+router.get('/system/check-update', adminAuth, async (req, res) => {
+    try {
+        console.log('🔍 Checking for updates from GitHub...');
+
+        const { exec } = require('child_process');
+        const branch = req.query.branch || 'main';
+
+        // Check if git repository exists
+        try {
+            await new Promise((resolve, reject) => {
+                exec('git rev-parse --git-dir', (error, stdout, stderr) => {
+                    if (error) reject(error);
+                    else resolve(stdout);
+                });
+            });
+        } catch (error) {
+            return res.json({
+                success: false,
+                message: 'Git repository not found. Please clone the repository first.',
+                branch: branch,
+                local: 'unknown',
+                remote: 'unknown'
+            });
+        }
+
+        // Get local commit hash
+        const localCommit = await new Promise((resolve, reject) => {
+            exec('git rev-parse HEAD', (error, stdout, stderr) => {
+                if (error) reject(error);
+                else resolve(stdout.trim());
+            });
+        });
+
+        // Fetch latest changes from remote
+        await new Promise((resolve, reject) => {
+            exec('git fetch origin', (error, stdout, stderr) => {
+                if (error) reject(error);
+                else resolve(stdout);
+            });
+        });
+
+        // Get remote commit hash
+        const remoteCommit = await new Promise((resolve, reject) => {
+            exec(`git rev-parse origin/${branch}`, (error, stdout, stderr) => {
+                if (error) reject(error);
+                else resolve(stdout.trim());
+            });
+        });
+
+        // Get commit list between local and remote
+        const commits = await new Promise((resolve, reject) => {
+            if (localCommit === remoteCommit) {
+                resolve([]);
+                return;
+            }
+
+            exec(`git log --oneline ${localCommit}..origin/${branch}`, (error, stdout, stderr) => {
+                if (error) reject(error);
+                else {
+                    const commits = stdout.trim().split('\n').filter(line => line.length > 0);
+                    resolve(commits);
+                }
+            });
+        });
+
+        const hasUpdate = localCommit !== remoteCommit;
+
+        console.log('✅ Update check completed:', {
+            branch,
+            local: localCommit.substring(0, 7),
+            remote: remoteCommit.substring(0, 7),
+            hasUpdate,
+            commitsCount: commits.length
+        });
+
+        res.json({
+            success: true,
+            hasUpdate: hasUpdate,
+            branch: branch,
+            local: localCommit.substring(0, 7),
+            remote: remoteCommit.substring(0, 7),
+            commits: commits
+        });
+
+    } catch (error) {
+        console.error('❌ Error checking updates:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error checking updates: ' + error.message
+        });
+    }
+});
+
+// API: Update system from GitHub and restart
+router.post('/system/update', adminAuth, async (req, res) => {
+    try {
+        console.log('🚀 Starting system update...');
+
+        const { exec } = require('child_process');
+        const branch = req.body.branch || 'main';
+        const log = [];
+
+        // Log function
+        const logMessage = (message) => {
+            console.log(message);
+            log.push(message);
+        };
+
+        logMessage(`🔄 Starting update from branch: ${branch}`);
+
+        // Check if git repository exists
+        try {
+            await new Promise((resolve, reject) => {
+                exec('git rev-parse --git-dir', (error, stdout, stderr) => {
+                    if (error) reject(new Error('Git repository not found'));
+                    else resolve(stdout);
+                });
+            });
+        } catch (error) {
+            return res.json({
+                success: false,
+                message: 'Git repository not found. Please clone the repository first.',
+                log: log
+            });
+        }
+
+        // Backup settings.json
+        try {
+            logMessage('💾 Backing up settings.json...');
+            await new Promise((resolve, reject) => {
+                exec('cp settings.json settings.json.backup', (error, stdout, stderr) => {
+                    if (error) reject(error);
+                    else resolve(stdout);
+                });
+            });
+            logMessage('✅ Settings backup created');
+        } catch (error) {
+            logMessage('⚠️ Failed to backup settings.json: ' + error.message);
+        }
+
+        // Pull latest changes from GitHub
+        try {
+            logMessage(`📥 Pulling changes from origin/${branch}...`);
+            const pullResult = await new Promise((resolve, reject) => {
+                exec(`git pull origin ${branch}`, (error, stdout, stderr) => {
+                    if (error) reject(error);
+                    else resolve({ stdout, stderr });
+                });
+            });
+
+            logMessage('✅ Git pull completed');
+            if (pullResult.stdout) logMessage('Git output: ' + pullResult.stdout);
+            if (pullResult.stderr) logMessage('Git stderr: ' + pullResult.stderr);
+
+        } catch (error) {
+            logMessage('❌ Git pull failed: ' + error.message);
+            throw error;
+        }
+
+        // Install new dependencies
+        try {
+            logMessage('📦 Installing dependencies...');
+            const npmResult = await new Promise((resolve, reject) => {
+                exec('npm install', (error, stdout, stderr) => {
+                    if (error) reject(error);
+                    else resolve({ stdout, stderr });
+                });
+            });
+
+            logMessage('✅ Dependencies installed');
+            if (npmResult.stdout) logMessage('NPM output: ' + npmResult.stdout);
+
+        } catch (error) {
+            logMessage('⚠️ NPM install failed: ' + error.message);
+            // Don't fail the update if npm install fails, just warn
+        }
+
+        // Restart application via PM2
+        try {
+            logMessage('🔄 Restarting application...');
+
+            // Check if PM2 is available and process is running
+            const pm2Status = await new Promise((resolve) => {
+                exec('pm2 list', (error, stdout, stderr) => {
+                    resolve({ error, stdout, stderr });
+                });
+            });
+
+            if (pm2Status.error) {
+                logMessage('⚠️ PM2 not available, trying direct restart...');
+                // Try direct restart
+                exec('npm start', { detached: true, stdio: 'ignore' });
+                logMessage('✅ Application restarted directly');
+            } else {
+                // Use PM2 restart
+                const restartResult = await new Promise((resolve, reject) => {
+                    exec('pm2 restart gembok-bill', (error, stdout, stderr) => {
+                        if (error) reject(error);
+                        else resolve({ stdout, stderr });
+                    });
+                });
+
+                logMessage('✅ Application restarted via PM2');
+                if (restartResult.stdout) logMessage('PM2 output: ' + restartResult.stdout);
+            }
+
+        } catch (error) {
+            logMessage('⚠️ Restart failed: ' + error.message);
+            // Don't fail the update if restart fails
+        }
+
+        logMessage('🎉 Update completed successfully!');
+
+        // Return success response
+        res.json({
+            success: true,
+            message: 'Update completed successfully',
+            log: log
+        });
+
+        // Auto restart the server after a delay to ensure response is sent
+        setTimeout(() => {
+            process.exit(0);
+        }, 2000);
+
+    } catch (error) {
+        console.error('❌ Error in system update:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Update failed: ' + error.message,
+            log: log
+        });
+    }
+});
 
 module.exports = router;

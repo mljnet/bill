@@ -32140,3 +32140,96 @@
 [2025-10-01T03:46:25.021Z] [INFO] Monitoring PPPoE connections: 173 active connections
 [2025-10-01T03:47:25.097Z] [INFO] Monitoring PPPoE connections: 173 active connections
 [2025-10-01T03:48:25.034Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:49:25.112Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:50:25.073Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:51:25.148Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:52:25.092Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:53:25.162Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:54:25.108Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:55:25.180Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:56:25.128Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:57:25.288Z] [INFO] PPPoE LOGIN:
+[
+  "runaeni"
+]
+[2025-10-01T03:57:25.289Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T03:57:25.584Z] [INFO] PPPoE LOGIN detected: runaeni
+[2025-10-01T03:57:25.669Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:57:36.945Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:57:36.946Z] [INFO] PPPoE monitoring: 174 active connections, 1 login, 0 logout
+[2025-10-01T03:58:25.148Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T03:59:25.294Z] [INFO] PPPoE LOGOUT:
+[
+  "wendy@tanjungpura"
+]
+[2025-10-01T03:59:25.295Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T03:59:25.604Z] [INFO] PPPoE LOGOUT detected: wendy@tanjungpura
+[2025-10-01T03:59:25.678Z] [INFO] Found 3 active technicians in database
+[2025-10-01T03:59:36.794Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T03:59:36.795Z] [INFO] PPPoE monitoring: 173 active connections, 0 login, 1 logout
+[2025-10-01T04:00:00.097Z] [INFO] Starting daily service restoration check...
+[2025-10-01T04:00:00.100Z] [INFO] Starting automatic service restoration check...
+[2025-10-01T04:00:00.128Z] [INFO] Service restoration check completed. Checked: 0, Restored: 0, Errors: 0
+[2025-10-01T04:00:00.129Z] [INFO] Daily service restoration check completed
+[2025-10-01T04:00:25.171Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:01:25.231Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:02:25.177Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:02:25.631Z] [INFO] PPPoE LOGOUT detected: nalda@rawagunda2
+[2025-10-01T04:02:25.705Z] [INFO] Found 3 active technicians in database
+[2025-10-01T04:02:36.776Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T04:02:36.777Z] [INFO] PPPoE monitoring: 172 active connections, 0 login, 1 logout
+[2025-10-01T04:03:25.303Z] [INFO] PPPoE LOGOUT:
+[
+  "nalda@rawagunda2"
+]
+[2025-10-01T04:03:25.304Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T04:04:25.192Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T04:04:25.648Z] [INFO] PPPoE LOGIN detected: wendy@tanjungpura
+[2025-10-01T04:04:25.726Z] [INFO] Found 3 active technicians in database
+[2025-10-01T04:04:36.783Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T04:04:36.784Z] [INFO] PPPoE monitoring: 173 active connections, 1 login, 0 logout
+[2025-10-01T04:05:25.329Z] [INFO] PPPoE LOGIN:
+[
+  "wendy@tanjungpura"
+]
+[2025-10-01T04:05:25.330Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:06:25.198Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:07:25.267Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:08:25.215Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:09:25.274Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:10:25.227Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:11:25.301Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:12:25.245Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:13:25.318Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:14:25.254Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:15:25.311Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:16:25.258Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:17:25.335Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:18:25.279Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:19:25.342Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:20:25.290Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:21:25.361Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:22:25.296Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:23:25.367Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:24:25.310Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:25:25.459Z] [INFO] PPPoE LOGOUT:
+[
+  "winata"
+]
+[2025-10-01T04:25:25.466Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T04:25:25.915Z] [INFO] PPPoE LOGOUT detected: winata
+[2025-10-01T04:25:26.008Z] [INFO] Found 3 active technicians in database
+[2025-10-01T04:25:37.065Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T04:25:37.065Z] [INFO] PPPoE monitoring: 172 active connections, 0 login, 1 logout
+[2025-10-01T04:26:25.328Z] [INFO] Monitoring PPPoE connections: 172 active connections
+[2025-10-01T04:26:25.900Z] [INFO] PPPoE LOGIN detected: winata
+[2025-10-01T04:26:25.971Z] [INFO] Found 3 active technicians in database
+[2025-10-01T04:26:37.062Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T04:26:37.063Z] [INFO] PPPoE monitoring: 173 active connections, 1 login, 0 logout
+[2025-10-01T04:27:25.466Z] [INFO] PPPoE LOGIN:
+[
+  "winata"
+]
+[2025-10-01T04:27:25.468Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:28:25.337Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T04:29:25.416Z] [INFO] Monitoring PPPoE connections: 173 active connections
