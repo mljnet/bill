@@ -3754,3 +3754,16 @@
 [2025-10-01T02:09:45.154Z] [WARN] Error validating WhatsApp number 62838076656: Connection Closed
 [2025-10-01T02:09:45.156Z] [WARN] Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
 [2025-10-01T02:09:47.162Z] [WARN] Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:36.105Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-10-01T02:16:36.106Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:38.109Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:39.113Z] [WARN] Error validating WhatsApp number 081234567891: Connection Closed
+[2025-10-01T02:16:39.115Z] [WARN] Retry 1/2 failed for 081234567891: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:41.131Z] [WARN] Retry 2/2 failed for 081234567891: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:42.138Z] [WARN] Error validating WhatsApp number 62822180947: Connection Closed
+[2025-10-01T02:16:42.141Z] [WARN] Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:44.154Z] [WARN] Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:45.162Z] [WARN] Error validating WhatsApp number 62838076656: Connection Closed
+[2025-10-01T02:16:45.165Z] [WARN] Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:16:47.183Z] [WARN] Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+[2025-10-01T02:17:35.918Z] [WARN] No technician group configured for PPPoE notifications

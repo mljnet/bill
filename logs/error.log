@@ -2410,3 +2410,7 @@
 [2025-10-01T02:09:41.126Z] [ERROR] Failed to send PPPoE notification to 081234567891 after 2 retries
 [2025-10-01T02:09:44.137Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
 [2025-10-01T02:09:47.163Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-10-01T02:16:38.109Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-10-01T02:16:41.132Z] [ERROR] Failed to send PPPoE notification to 081234567891 after 2 retries
+[2025-10-01T02:16:44.158Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-10-01T02:16:47.184Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries

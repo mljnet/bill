@@ -9,12 +9,12 @@
     "deploy": "git pull origin main && npm install && pm2 restart gembok-bill",
     "backup": "node scripts/fix-backup-restore.js",
     "sync": "node scripts/sync-server-data.js",
-    "check": "node scripts/check-deploy-readiness.js"
+    "check": "node scripts/check-deploy-readiness.js",
+    "postinstall": "npm rebuild && npm run check-deps"
   },
   "dependencies": {
     "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "^6.7.17",
-    "axios": "^1.6.7",
     "bcrypt": "^6.0.0",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.10",

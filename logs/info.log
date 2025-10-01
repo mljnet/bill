@@ -31695,3 +31695,20 @@
 [2025-10-01T02:09:47.164Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
 [2025-10-01T02:09:47.165Z] [INFO] PPPoE monitoring: 175 active connections, 1 login, 0 logout
 [2025-10-01T02:10:35.734Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:11:35.801Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:12:35.742Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:13:35.827Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:14:35.760Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:15:35.820Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:16:35.773Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T02:16:36.028Z] [INFO] PPPoE LOGOUT detected: warung_elisa@laut
+[2025-10-01T02:16:36.103Z] [INFO] Found 3 active technicians in database
+[2025-10-01T02:16:47.195Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T02:16:47.196Z] [INFO] PPPoE monitoring: 174 active connections, 0 login, 1 logout
+[2025-10-01T02:17:35.919Z] [INFO] PPPoE LOGOUT:
+[
+  "warung_elisa@laut"
+]
+[2025-10-01T02:17:35.919Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:18:35.795Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T02:19:35.899Z] [INFO] Monitoring PPPoE connections: 174 active connections
