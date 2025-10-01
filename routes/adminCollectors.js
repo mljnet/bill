@@ -117,12 +117,34 @@ router.get('/:id/edit', adminAuth, async (req, res) => {
 // Create collector
 router.post('/', adminAuth, async (req, res) => {
     try {
-        const { name, phone, email, address, commission_rate, status } = req.body;
+        const { name, phone, email, address, commission_rate, status, password, confirm_password } = req.body;
         
         if (!name || !phone) {
             return res.status(400).json({
                 success: false,
                 message: 'Nama dan nomor telepon harus diisi'
+            });
+        }
+        
+        // Validate password for new collector
+        if (password) {
+            if (password.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Password minimal 6 karakter'
+                });
+            }
+            
+            if (password !== confirm_password) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Konfirmasi password tidak sama'
+                });
+            }
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Password harus diisi'
             });
         }
         
@@ -145,12 +167,16 @@ router.post('/', adminAuth, async (req, res) => {
             });
         }
         
+        // Hash password (gunakan bcrypt di production)
+        const bcrypt = require('bcrypt');
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
         // Insert new collector
         const collectorId = await new Promise((resolve, reject) => {
             db.run(`
-                INSERT INTO collectors (name, phone, email, address, commission_rate, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `, [name, phone, email, address, commission_rate || 5, status || 'active'], function(err) {
+                INSERT INTO collectors (name, phone, email, address, commission_rate, status, password)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `, [name, phone, email, address, commission_rate || 5, status || 'active', hashedPassword], function(err) {
                 if (err) reject(err);
                 else resolve(this.lastID);
             });
@@ -177,13 +203,30 @@ router.post('/', adminAuth, async (req, res) => {
 router.put('/:id', adminAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, email, address, commission_rate, status } = req.body;
+        const { name, phone, email, address, commission_rate, status, password, confirm_password } = req.body;
         
         if (!name || !phone) {
             return res.status(400).json({
                 success: false,
                 message: 'Nama dan nomor telepon harus diisi'
             });
+        }
+        
+        // Validate password if provided (for edit mode)
+        if (password) {
+            if (password.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Password minimal 6 karakter'
+                });
+            }
+            
+            if (password !== confirm_password) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Konfirmasi password tidak sama'
+                });
+            }
         }
         
         const dbPath = path.join(__dirname, '../data/billing.db');
@@ -205,17 +248,39 @@ router.put('/:id', adminAuth, async (req, res) => {
             });
         }
         
+        // Hash password if provided
+        let hashedPassword = null;
+        if (password) {
+            const bcrypt = require('bcrypt');
+            hashedPassword = await bcrypt.hash(password, 10);
+        }
+        
         // Update collector
-        await new Promise((resolve, reject) => {
-            db.run(`
-                UPDATE collectors 
-                SET name = ?, phone = ?, email = ?, address = ?, commission_rate = ?, status = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            `, [name, phone, email, address, commission_rate, status, id], (err) => {
-                if (err) reject(err);
-                else resolve();
+        if (password) {
+            // Update with new password
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    UPDATE collectors 
+                    SET name = ?, phone = ?, email = ?, address = ?, commission_rate = ?, status = ?, password = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                `, [name, phone, email, address, commission_rate, status, hashedPassword, id], (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
             });
-        });
+        } else {
+            // Update without password change
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    UPDATE collectors 
+                    SET name = ?, phone = ?, email = ?, address = ?, commission_rate = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                `, [name, phone, email, address, commission_rate, status, id], (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        }
         
         db.close();
         
@@ -304,5 +369,53 @@ async function getAppSettings() {
         };
     }
 }
+
+// Reset collector password
+router.post('/:id/reset-password', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { new_password } = req.body;
+        
+        if (!new_password || new_password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password baru minimal 6 karakter'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Hash new password
+        const bcrypt = require('bcrypt');
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+        
+        // Update collector password
+        await new Promise((resolve, reject) => {
+            db.run(`
+                UPDATE collectors 
+                SET password = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, [hashedPassword, id], (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            message: 'Password tukang tagih berhasil direset'
+        });
+        
+    } catch (error) {
+        console.error('Error resetting collector password:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error resetting password: ' + error.message
+        });
+    }
+});
 
 module.exports = router;

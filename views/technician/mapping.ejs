@@ -211,9 +211,9 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 10px;
-            width: 20px;
-            height: 20px;
+            font-size: 12px;
+            width: 24px;
+            height: 24px;
             transition: all 0.3s ease;
         }
         
@@ -254,9 +254,9 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
-            width: 24px;
-            height: 24px;
+            font-size: 10px;
+            width: 16px;
+            height: 16px;
             transition: all 0.3s ease;
         }
         
@@ -1425,8 +1425,8 @@
             const icon = L.divIcon({
                 className: 'custom-onu-icon',
                 html: htmlString,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
             });
             
             console.log('Created ONU icon:', icon);
@@ -1439,8 +1439,8 @@
             return L.divIcon({
                 className: 'custom-odp-icon',
                 html: `<div class="${markerClass}"><i class="${iconClass}"></i></div>`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
             });
         }
         

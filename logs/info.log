@@ -29778,3 +29778,1613 @@
   "sumi"
 ]
 [2025-10-01T00:22:31.999Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:23:31.928Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:24:31.949Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:25:31.890Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:26:31.968Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:27:31.915Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:28:09.325Z] [INFO] Package deleted: 19
+[2025-10-01T00:28:14.147Z] [INFO] Package deleted: 20
+[2025-10-01T00:28:20.153Z] [INFO] Package deleted: 17
+[2025-10-01T00:28:24.609Z] [INFO] Package deleted: 16
+[2025-10-01T00:28:31.973Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:28:54.684Z] [INFO] Package created: SILVER with tax_rate: 0
+[2025-10-01T00:29:26.002Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T00:29:26.820Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T00:29:26.821Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T00:29:26.823Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T00:29:26.825Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:29:26.827Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T00:29:26.828Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T00:29:26.830Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T00:29:26.831Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:29:31.923Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:29:32.028Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T00:29:32.029Z] [INFO] Attempting to start server on configured port: 3003
+[2025-10-01T00:29:32.030Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-10-01T00:29:32.030Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T00:30:02.320Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T00:30:02.470Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T00:30:02.471Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T00:30:02.473Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T00:30:02.475Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:30:02.477Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T00:30:02.479Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T00:30:02.481Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T00:30:02.483Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:30:03.331Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T00:30:03.332Z] [INFO] Attempting to start server on configured port: 3001
+[2025-10-01T00:30:03.333Z] [INFO] Memulai server pada port yang dikonfigurasi: 3001
+[2025-10-01T00:30:03.333Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T00:30:03.338Z] [INFO] ✅ Server berhasil berjalan pada port 3001
+[2025-10-01T00:30:03.339Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3001
+[2025-10-01T00:30:03.340Z] [INFO] Environment: development
+[2025-10-01T00:30:03.541Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-10-01T00:30:03.542Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-10-01T00:30:03.542Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-10-01T00:30:03.543Z] [INFO] WhatsApp connected successfully
+[2025-10-01T00:30:03.544Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T00:30:03.546Z] [INFO] Starting RX Power Warning monitoring (interval: 10 hours)
+[2025-10-01T00:30:03.549Z] [INFO] Starting RX Power Recap monitoring (interval: 6 hours)
+[2025-10-01T00:30:03.552Z] [INFO] Starting Offline Notification monitoring (interval: 12 hours)
+[2025-10-01T00:30:03.554Z] [INFO] IntervalManager initialized successfully
+[2025-10-01T00:30:03.555Z] [INFO] Interval Manager initialized with all monitoring systems
+[2025-10-01T00:30:03.556Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-10-01T00:30:03.557Z] [INFO] PPPoE monitoring initialized
+[2025-10-01T00:30:17.617Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-10-01T00:30:31.990Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:30:38.246Z] [INFO] Package created: GOLD with tax_rate: 0
+[2025-10-01T00:30:47.203Z] [INFO] Package updated: GOLD with tax_rate: 0
+[2025-10-01T00:30:53.864Z] [INFO] Package updated: SILVER with tax_rate: 0
+[2025-10-01T00:31:03.437Z] [INFO] PPPoE LOGIN:
+[
+  "fajar",
+  "Tarci@lor",
+  "jami@sut",
+  "gadel",
+  "kasdi@rawagunda",
+  "abibah",
+  "junanto@rawagunda",
+  "sanyo",
+  "test",
+  "adiiman",
+  "winata@laut",
+  "server@arep",
+  "darim@lor",
+  "sarwan",
+  "murba",
+  "walong@asep",
+  "elis@rawagunda",
+  "juanda",
+  "karmanda",
+  "winata",
+  "wakeng",
+  "eka",
+  "tester",
+  "opang@tanjungpura",
+  "server@yayan",
+  "suliwa",
+  "karban",
+  "codet",
+  "iman@",
+  "antony@ps",
+  "toyinah",
+  "dhea_tile@rawagunda",
+  "eva",
+  "karsih",
+  "toko@sayur",
+  "brohim",
+  "Uchi",
+  "wardi",
+  "luwih@",
+  "damar",
+  "salsa",
+  "nina@kesin",
+  "rasta",
+  "memble2",
+  "aqiel",
+  "nuriyah",
+  "nalda@rawagunda2",
+  "cecep",
+  "aldo",
+  "nadiva",
+  "dedi@aira",
+  "warungyuni@laut",
+  "atam",
+  "dasta",
+  "indah@tanjungpura",
+  "erni",
+  "alam",
+  "oland",
+  "tinih",
+  "memble@",
+  "wiwin@seblak",
+  "SDNUG1",
+  "ros_pppoe",
+  "wendy@tanjungpura",
+  "muktar@ompong",
+  "sarjo",
+  "RT-KARONI",
+  "koriya",
+  "daruni@rawagunda",
+  "nesa",
+  "newok",
+  "gunawan",
+  "rudibengkel@tanjungpura",
+  "talita",
+  "kus",
+  "dayuni",
+  "mastobari@",
+  "hany@tarsiti",
+  "erul",
+  "warung_elisa@laut",
+  "wadi@rawagunda",
+  "kasmuri",
+  "nurudin",
+  "kincling",
+  "sandi@rajan",
+  "elvano1",
+  "ejun",
+  "santo",
+  "maktub",
+  "darim",
+  "yudi",
+  "yuni@rawagunda",
+  "tarci",
+  "suminih@rawagunda",
+  "kandar",
+  "yohan@rawagunda",
+  "kendo@tanjungpura",
+  "rom@lah",
+  "tibil",
+  "mardi",
+  "yuyun",
+  "aang2",
+  "lussy",
+  "durnawi",
+  "ajri",
+  "dadang@genjong",
+  "nalda@pegagan",
+  "intan@ujungmulya",
+  "denihamdani@pegagan",
+  "eva@pegagan",
+  "novita",
+  "Endra@genjong1",
+  "sutara@pegagan",
+  "nani",
+  "gemblung",
+  "umikulsum@janggar",
+  "leha",
+  "murdani",
+  "khofik@janggar",
+  "wendy@genjong",
+  "indra@plentong",
+  "turidah",
+  "ety@pegagan",
+  "lina@ujungmulya",
+  "mangasep@janggar",
+  "surminih@pegagan",
+  "setiyadi@genjong",
+  "sudini@pegagan",
+  "sang",
+  "opang@pegagan",
+  "F663",
+  "uung@pegagan",
+  "kurnati",
+  "sarna@pegagan",
+  "anwar@janggar",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "abas@pegagan",
+  "coyih",
+  "pandi@tanjungpura",
+  "handoko",
+  "dedy@sarkim",
+  "raeni",
+  "toax",
+  "pabudi@genjong",
+  "waidah@pegagan",
+  "kanu",
+  "aang",
+  "alan@pentud",
+  "server@ilik",
+  "adineasep",
+  "durniyah@pegagan",
+  "waran",
+  "soleh@pegagan",
+  "andi",
+  "kama@",
+  "lisan@banteng",
+  "mella",
+  "tariman",
+  "durta",
+  "Zea",
+  "rintem",
+  "astri@pegagan",
+  "windah",
+  "yogi",
+  "darmini",
+  "nana",
+  "runaeni",
+  "seka",
+  "yusuf",
+  "warsana",
+  "ooh",
+  "h.juroh",
+  "icha",
+  "sumi"
+]
+[2025-10-01T00:31:03.438Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:31:03.617Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, SDNUG1, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, rom@lah, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, dadang@genjong, nalda@pegagan, intan@ujungmulya, denihamdani@pegagan, eva@pegagan, novita, Endra@genjong1, sutara@pegagan, nani, gemblung, umikulsum@janggar, leha, murdani, khofik@janggar, wendy@genjong, indra@plentong, turidah, ety@pegagan, lina@ujungmulya, mangasep@janggar, surminih@pegagan, setiyadi@genjong, sudini@pegagan, sang, opang@pegagan, F663, uung@pegagan, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, pabudi@genjong, waidah@pegagan, kanu, aang, alan@pentud, server@ilik, adineasep, durniyah@pegagan, waran, soleh@pegagan, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, astri@pegagan, windah, yogi, darmini, nana, runaeni, seka, yusuf, warsana, ooh, h.juroh, icha, sumi
+[2025-10-01T00:31:03.689Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:31:31.935Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:32:03.409Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:32:03.621Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, SDNUG1, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, rom@lah, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, dadang@genjong, nalda@pegagan, intan@ujungmulya, denihamdani@pegagan, eva@pegagan, novita, Endra@genjong1, sutara@pegagan, nani, gemblung, umikulsum@janggar, leha, murdani, khofik@janggar, wendy@genjong, indra@plentong, turidah, ety@pegagan, lina@ujungmulya, mangasep@janggar, surminih@pegagan, setiyadi@genjong, sudini@pegagan, sang, opang@pegagan, F663, uung@pegagan, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, pabudi@genjong, waidah@pegagan, kanu, aang, alan@pentud, server@ilik, adineasep, durniyah@pegagan, waran, soleh@pegagan, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, astri@pegagan, windah, yogi, darmini, nana, runaeni, seka, yusuf, warsana, ooh, h.juroh, icha, sumi
+[2025-10-01T00:32:03.695Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:32:32.009Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:33:03.366Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:33:03.627Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, SDNUG1, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, rom@lah, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, dadang@genjong, nalda@pegagan, intan@ujungmulya, denihamdani@pegagan, eva@pegagan, novita, Endra@genjong1, sutara@pegagan, nani, gemblung, umikulsum@janggar, leha, murdani, khofik@janggar, wendy@genjong, indra@plentong, turidah, ety@pegagan, lina@ujungmulya, mangasep@janggar, surminih@pegagan, setiyadi@genjong, sudini@pegagan, sang, opang@pegagan, F663, uung@pegagan, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, pabudi@genjong, waidah@pegagan, kanu, aang, alan@pentud, server@ilik, adineasep, durniyah@pegagan, waran, soleh@pegagan, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, astri@pegagan, windah, yogi, darmini, nana, runaeni, seka, yusuf, warsana, ooh, h.juroh, icha, sumi
+[2025-10-01T00:33:03.698Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:33:14.793Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:33:14.794Z] [INFO] PPPoE monitoring: 175 active connections, 175 login, 0 logout
+[2025-10-01T00:33:31.954Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:33:44.778Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:33:44.779Z] [INFO] PPPoE monitoring: 175 active connections, 175 login, 0 logout
+[2025-10-01T00:33:44.781Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:33:44.781Z] [INFO] PPPoE monitoring: 175 active connections, 175 login, 0 logout
+[2025-10-01T00:34:03.428Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:34:32.024Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:35:03.411Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:35:31.974Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:36:03.481Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:36:32.048Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:37:03.419Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:37:32.005Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:38:03.520Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:38:32.077Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:39:03.470Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:39:32.012Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:40:03.567Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:40:32.079Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:41:03.506Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:41:32.027Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:42:03.569Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:42:32.096Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:43:03.520Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:43:32.047Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:43:32.506Z] [INFO] PPPoE LOGOUT detected: SDNUG1
+[2025-10-01T00:43:32.589Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:43:43.689Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:43:43.689Z] [INFO] PPPoE monitoring: 174 active connections, 0 login, 1 logout
+[2025-10-01T00:44:03.593Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:44:32.119Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:44:32.516Z] [INFO] PPPoE LOGIN detected: SDNUG1
+[2025-10-01T00:44:32.587Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:44:43.669Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:44:43.670Z] [INFO] PPPoE monitoring: 175 active connections, 1 login, 0 logout
+[2025-10-01T00:45:03.538Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:45:32.074Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:46:03.604Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:46:32.143Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:47:03.558Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:47:32.098Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:48:03.632Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:48:32.162Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:49:03.578Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:49:32.107Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:50:03.648Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:50:32.189Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:51:03.586Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:51:32.125Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:52:03.862Z] [INFO] PPPoE LOGOUT detected: kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan
+[2025-10-01T00:52:04.060Z] [INFO] PPPoE LOGOUT:
+[
+  "kurnati",
+  "sarna@pegagan",
+  "anwar@janggar",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "abas@pegagan"
+]
+[2025-10-01T00:52:04.061Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T00:52:04.098Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:52:15.185Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:52:15.186Z] [INFO] PPPoE monitoring: 169 active connections, 0 login, 6 logout
+[2025-10-01T00:52:32.293Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:53:03.606Z] [INFO] Monitoring PPPoE connections: 169 active connections
+[2025-10-01T00:53:03.763Z] [INFO] PPPoE LOGIN detected: anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan
+[2025-10-01T00:53:03.828Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:53:14.912Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:53:14.913Z] [INFO] PPPoE monitoring: 175 active connections, 6 login, 0 logout
+[2025-10-01T00:53:32.136Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T00:54:03.800Z] [INFO] PPPoE LOGOUT detected: rom@lah
+[2025-10-01T00:54:03.810Z] [INFO] PPPoE LOGIN:
+[
+  "anwar@janggar",
+  "sarna@pegagan",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "kurnati",
+  "abas@pegagan"
+]
+[2025-10-01T00:54:03.859Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:54:03.896Z] [INFO] PPPoE LOGOUT:
+[
+  "rom@lah"
+]
+[2025-10-01T00:54:03.897Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:54:15.025Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:54:15.026Z] [INFO] PPPoE monitoring: 174 active connections, 0 login, 1 logout
+[2025-10-01T00:54:32.283Z] [INFO] PPPoE LOGOUT:
+[
+  "rom@lah"
+]
+[2025-10-01T00:54:32.286Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:54:32.602Z] [INFO] PPPoE LOGOUT detected: rom@lah
+[2025-10-01T00:54:32.686Z] [INFO] Found 3 active technicians in database
+[2025-10-01T00:54:43.823Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T00:54:43.824Z] [INFO] PPPoE monitoring: 174 active connections, 0 login, 1 logout
+[2025-10-01T00:55:03.618Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:55:32.155Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:56:03.701Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:56:32.220Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:57:03.643Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:57:32.173Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:57:56.803Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T00:57:56.964Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T00:57:56.965Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T00:57:56.967Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T00:57:56.970Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:57:56.973Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T00:57:56.976Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T00:57:56.980Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T00:57:56.982Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:57:57.919Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T00:57:57.919Z] [INFO] Attempting to start server on configured port: 3001
+[2025-10-01T00:57:57.920Z] [INFO] Memulai server pada port yang dikonfigurasi: 3001
+[2025-10-01T00:57:57.921Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T00:58:03.716Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:58:32.236Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:58:36.496Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T00:58:36.669Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T00:58:36.670Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T00:58:36.672Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T00:58:36.674Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:58:36.676Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T00:58:36.678Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T00:58:36.681Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T00:58:36.683Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T00:58:37.660Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T00:58:37.661Z] [INFO] Attempting to start server on configured port: 3002
+[2025-10-01T00:58:37.661Z] [INFO] Memulai server pada port yang dikonfigurasi: 3002
+[2025-10-01T00:58:37.662Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T00:58:37.667Z] [INFO] ✅ Server berhasil berjalan pada port 3002
+[2025-10-01T00:58:37.669Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3002
+[2025-10-01T00:58:37.670Z] [INFO] Environment: development
+[2025-10-01T00:58:37.843Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-10-01T00:58:37.844Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-10-01T00:58:37.844Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-10-01T00:58:37.845Z] [INFO] WhatsApp connected successfully
+[2025-10-01T00:58:37.847Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T00:58:37.849Z] [INFO] Starting RX Power Warning monitoring (interval: 10 hours)
+[2025-10-01T00:58:37.851Z] [INFO] Starting RX Power Recap monitoring (interval: 6 hours)
+[2025-10-01T00:58:37.852Z] [INFO] Starting Offline Notification monitoring (interval: 12 hours)
+[2025-10-01T00:58:37.853Z] [INFO] IntervalManager initialized successfully
+[2025-10-01T00:58:37.854Z] [INFO] Interval Manager initialized with all monitoring systems
+[2025-10-01T00:58:37.854Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-10-01T00:58:37.855Z] [INFO] PPPoE monitoring initialized
+[2025-10-01T00:59:32.178Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:59:37.707Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-10-01T00:59:37.934Z] [INFO] PPPoE LOGIN:
+[
+  "fajar",
+  "Tarci@lor",
+  "jami@sut",
+  "gadel",
+  "kasdi@rawagunda",
+  "abibah",
+  "junanto@rawagunda",
+  "sanyo",
+  "test",
+  "adiiman",
+  "winata@laut",
+  "server@arep",
+  "darim@lor",
+  "sarwan",
+  "murba",
+  "walong@asep",
+  "elis@rawagunda",
+  "juanda",
+  "karmanda",
+  "winata",
+  "wakeng",
+  "eka",
+  "tester",
+  "opang@tanjungpura",
+  "server@yayan",
+  "suliwa",
+  "karban",
+  "codet",
+  "iman@",
+  "antony@ps",
+  "toyinah",
+  "dhea_tile@rawagunda",
+  "eva",
+  "karsih",
+  "toko@sayur",
+  "brohim",
+  "Uchi",
+  "wardi",
+  "luwih@",
+  "damar",
+  "salsa",
+  "nina@kesin",
+  "rasta",
+  "memble2",
+  "aqiel",
+  "nuriyah",
+  "nalda@rawagunda2",
+  "cecep",
+  "aldo",
+  "nadiva",
+  "dedi@aira",
+  "warungyuni@laut",
+  "atam",
+  "dasta",
+  "indah@tanjungpura",
+  "erni",
+  "alam",
+  "oland",
+  "tinih",
+  "memble@",
+  "wiwin@seblak",
+  "ros_pppoe",
+  "wendy@tanjungpura",
+  "muktar@ompong",
+  "sarjo",
+  "RT-KARONI",
+  "koriya",
+  "daruni@rawagunda",
+  "nesa",
+  "newok",
+  "gunawan",
+  "rudibengkel@tanjungpura",
+  "talita",
+  "kus",
+  "dayuni",
+  "mastobari@",
+  "hany@tarsiti",
+  "erul",
+  "warung_elisa@laut",
+  "wadi@rawagunda",
+  "kasmuri",
+  "nurudin",
+  "kincling",
+  "sandi@rajan",
+  "elvano1",
+  "ejun",
+  "santo",
+  "maktub",
+  "darim",
+  "yudi",
+  "yuni@rawagunda",
+  "tarci",
+  "suminih@rawagunda",
+  "kandar",
+  "yohan@rawagunda",
+  "kendo@tanjungpura",
+  "tibil",
+  "mardi",
+  "yuyun",
+  "aang2",
+  "lussy",
+  "durnawi",
+  "ajri",
+  "coyih",
+  "pandi@tanjungpura",
+  "handoko",
+  "dedy@sarkim",
+  "raeni",
+  "toax",
+  "kanu",
+  "aang",
+  "alan@pentud",
+  "server@ilik",
+  "andi",
+  "kama@",
+  "lisan@banteng",
+  "mella",
+  "tariman",
+  "durta",
+  "Zea",
+  "rintem",
+  "windah",
+  "yogi",
+  "darmini",
+  "nana",
+  "runaeni",
+  "seka",
+  "warsana",
+  "ooh",
+  "h.juroh",
+  "icha",
+  "sumi",
+  "SDNUG1",
+  "khofik@janggar",
+  "lina@ujungmulya",
+  "durniyah@pegagan",
+  "indra@plentong",
+  "sang",
+  "soleh@pegagan",
+  "denihamdani@pegagan",
+  "opang@pegagan",
+  "nalda@pegagan",
+  "uung@pegagan",
+  "Endra@genjong1",
+  "surminih@pegagan",
+  "waran",
+  "pabudi@genjong",
+  "wendy@genjong",
+  "umikulsum@janggar",
+  "turidah",
+  "novita",
+  "leha",
+  "sudini@pegagan",
+  "gemblung",
+  "setiyadi@genjong",
+  "F663",
+  "nani",
+  "yusuf",
+  "sutara@pegagan",
+  "mangasep@janggar",
+  "waidah@pegagan",
+  "astri@pegagan",
+  "ety@pegagan",
+  "dadang@genjong",
+  "eva@pegagan",
+  "adineasep",
+  "intan@ujungmulya",
+  "murdani",
+  "anwar@janggar",
+  "sarna@pegagan",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "kurnati",
+  "abas@pegagan"
+]
+[2025-10-01T00:59:37.989Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T00:59:38.038Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan
+[2025-10-01T00:59:38.139Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:00:00.542Z] [INFO] Starting automatic monthly invoice generation (08:00)...
+[2025-10-01T01:00:00.557Z] [INFO] Found 1 active customers for invoice generation
+[2025-10-01T01:00:00.609Z] [INFO] Created invoice INV-202510-0723 for customer santogembokcom_300925
+[2025-10-01T01:00:00.610Z] [INFO] Automatic monthly invoice generation completed
+[2025-10-01T01:00:00.743Z] [INFO] Starting automatic monthly invoice generation (08:00)...
+[2025-10-01T01:00:00.747Z] [INFO] Found 1 active customers for invoice generation
+[2025-10-01T01:00:00.750Z] [INFO] Invoice already exists for customer santogembokcom_300925 this month
+[2025-10-01T01:00:00.751Z] [INFO] Automatic monthly invoice generation completed
+[2025-10-01T01:00:32.258Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:00:37.686Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:00:37.924Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan
+[2025-10-01T01:00:38.001Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:01:32.204Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:01:37.745Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:01:37.930Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan
+[2025-10-01T01:01:38.010Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:01:49.236Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:01:49.236Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:02:19.088Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:02:19.088Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:02:19.105Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:02:19.106Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:02:40.430Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T01:02:40.572Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T01:02:40.572Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T01:02:40.574Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T01:02:40.576Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:02:40.577Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T01:02:40.579Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T01:02:40.581Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T01:02:40.582Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:02:41.329Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:02:41.329Z] [INFO] Attempting to start server on configured port: 3002
+[2025-10-01T01:02:41.330Z] [INFO] Memulai server pada port yang dikonfigurasi: 3002
+[2025-10-01T01:02:41.331Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T01:02:41.336Z] [INFO] ✅ Server berhasil berjalan pada port 3002
+[2025-10-01T01:02:41.337Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3002
+[2025-10-01T01:02:41.338Z] [INFO] Environment: development
+[2025-10-01T01:02:41.506Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-10-01T01:02:41.506Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-10-01T01:02:41.507Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-10-01T01:02:41.508Z] [INFO] WhatsApp connected successfully
+[2025-10-01T01:02:41.509Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:02:41.511Z] [INFO] Starting RX Power Warning monitoring (interval: 10 hours)
+[2025-10-01T01:02:41.512Z] [INFO] Starting RX Power Recap monitoring (interval: 6 hours)
+[2025-10-01T01:02:41.513Z] [INFO] Starting Offline Notification monitoring (interval: 12 hours)
+[2025-10-01T01:02:41.514Z] [INFO] IntervalManager initialized successfully
+[2025-10-01T01:02:41.514Z] [INFO] Interval Manager initialized with all monitoring systems
+[2025-10-01T01:02:41.515Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-10-01T01:02:41.515Z] [INFO] PPPoE monitoring initialized
+[2025-10-01T01:02:55.936Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-10-01T01:03:41.406Z] [INFO] PPPoE LOGIN:
+[
+  "fajar",
+  "Tarci@lor",
+  "jami@sut",
+  "gadel",
+  "kasdi@rawagunda",
+  "abibah",
+  "junanto@rawagunda",
+  "sanyo",
+  "test",
+  "adiiman",
+  "winata@laut",
+  "server@arep",
+  "darim@lor",
+  "sarwan",
+  "murba",
+  "walong@asep",
+  "elis@rawagunda",
+  "juanda",
+  "karmanda",
+  "winata",
+  "wakeng",
+  "eka",
+  "tester",
+  "opang@tanjungpura",
+  "server@yayan",
+  "suliwa",
+  "karban",
+  "codet",
+  "iman@",
+  "antony@ps",
+  "toyinah",
+  "dhea_tile@rawagunda",
+  "eva",
+  "karsih",
+  "toko@sayur",
+  "brohim",
+  "Uchi",
+  "wardi",
+  "luwih@",
+  "damar",
+  "salsa",
+  "nina@kesin",
+  "rasta",
+  "memble2",
+  "aqiel",
+  "nuriyah",
+  "nalda@rawagunda2",
+  "cecep",
+  "aldo",
+  "nadiva",
+  "dedi@aira",
+  "warungyuni@laut",
+  "atam",
+  "dasta",
+  "indah@tanjungpura",
+  "erni",
+  "alam",
+  "oland",
+  "tinih",
+  "memble@",
+  "wiwin@seblak",
+  "ros_pppoe",
+  "wendy@tanjungpura",
+  "muktar@ompong",
+  "sarjo",
+  "RT-KARONI",
+  "koriya",
+  "daruni@rawagunda",
+  "nesa",
+  "newok",
+  "gunawan",
+  "rudibengkel@tanjungpura",
+  "talita",
+  "kus",
+  "dayuni",
+  "mastobari@",
+  "hany@tarsiti",
+  "erul",
+  "warung_elisa@laut",
+  "wadi@rawagunda",
+  "kasmuri",
+  "nurudin",
+  "kincling",
+  "sandi@rajan",
+  "elvano1",
+  "ejun",
+  "santo",
+  "maktub",
+  "darim",
+  "yudi",
+  "yuni@rawagunda",
+  "tarci",
+  "suminih@rawagunda",
+  "kandar",
+  "yohan@rawagunda",
+  "kendo@tanjungpura",
+  "tibil",
+  "mardi",
+  "yuyun",
+  "aang2",
+  "lussy",
+  "durnawi",
+  "ajri",
+  "coyih",
+  "pandi@tanjungpura",
+  "handoko",
+  "dedy@sarkim",
+  "raeni",
+  "toax",
+  "kanu",
+  "aang",
+  "alan@pentud",
+  "server@ilik",
+  "andi",
+  "kama@",
+  "lisan@banteng",
+  "mella",
+  "tariman",
+  "durta",
+  "Zea",
+  "rintem",
+  "windah",
+  "yogi",
+  "darmini",
+  "nana",
+  "runaeni",
+  "seka",
+  "warsana",
+  "ooh",
+  "h.juroh",
+  "icha",
+  "sumi",
+  "SDNUG1",
+  "khofik@janggar",
+  "lina@ujungmulya",
+  "durniyah@pegagan",
+  "indra@plentong",
+  "sang",
+  "soleh@pegagan",
+  "denihamdani@pegagan",
+  "opang@pegagan",
+  "nalda@pegagan",
+  "uung@pegagan",
+  "Endra@genjong1",
+  "surminih@pegagan",
+  "waran",
+  "pabudi@genjong",
+  "wendy@genjong",
+  "umikulsum@janggar",
+  "turidah",
+  "novita",
+  "leha",
+  "sudini@pegagan",
+  "gemblung",
+  "setiyadi@genjong",
+  "F663",
+  "nani",
+  "yusuf",
+  "sutara@pegagan",
+  "mangasep@janggar",
+  "waidah@pegagan",
+  "astri@pegagan",
+  "ety@pegagan",
+  "dadang@genjong",
+  "eva@pegagan",
+  "adineasep",
+  "intan@ujungmulya",
+  "murdani",
+  "anwar@janggar",
+  "sarna@pegagan",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "kurnati",
+  "abas@pegagan"
+]
+[2025-10-01T01:03:41.407Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:03:41.574Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan
+[2025-10-01T01:03:41.648Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:04:41.483Z] [INFO] PPPoE LOGIN:
+[
+  "rom@lah"
+]
+[2025-10-01T01:04:41.484Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T01:04:41.586Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah
+[2025-10-01T01:04:41.657Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:05:41.354Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T01:05:41.599Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, tarci, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah
+[2025-10-01T01:05:41.670Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:05:52.767Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:05:52.768Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:06:22.748Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:06:22.748Z] [INFO] PPPoE monitoring: 175 active connections, 175 login, 0 logout
+[2025-10-01T01:06:22.778Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:06:22.779Z] [INFO] PPPoE monitoring: 175 active connections, 175 login, 0 logout
+[2025-10-01T01:06:41.419Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T01:07:41.362Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T01:08:41.425Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T01:09:41.380Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T01:10:41.532Z] [INFO] PPPoE LOGOUT:
+[
+  "tarci"
+]
+[2025-10-01T01:10:41.533Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:10:41.639Z] [INFO] PPPoE LOGOUT detected: tarci
+[2025-10-01T01:10:41.748Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:10:53.069Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:10:53.069Z] [INFO] PPPoE monitoring: 174 active connections, 0 login, 1 logout
+[2025-10-01T01:11:41.390Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:12:41.472Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:12:53.675Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T01:12:53.844Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T01:12:53.845Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T01:12:53.847Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T01:12:53.851Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:12:53.854Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T01:12:53.857Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T01:12:53.869Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T01:12:53.871Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:12:54.997Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:12:54.998Z] [INFO] Attempting to start server on configured port: 3002
+[2025-10-01T01:12:54.999Z] [INFO] Memulai server pada port yang dikonfigurasi: 3002
+[2025-10-01T01:12:55.000Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T01:12:55.011Z] [INFO] ✅ Server berhasil berjalan pada port 3002
+[2025-10-01T01:12:55.013Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3002
+[2025-10-01T01:12:55.014Z] [INFO] Environment: development
+[2025-10-01T01:12:55.215Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-10-01T01:12:55.216Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-10-01T01:12:55.216Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-10-01T01:12:55.217Z] [INFO] WhatsApp connected successfully
+[2025-10-01T01:12:55.219Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:12:55.221Z] [INFO] Starting RX Power Warning monitoring (interval: 10 hours)
+[2025-10-01T01:12:55.223Z] [INFO] Starting RX Power Recap monitoring (interval: 6 hours)
+[2025-10-01T01:12:55.224Z] [INFO] Starting Offline Notification monitoring (interval: 12 hours)
+[2025-10-01T01:12:55.224Z] [INFO] IntervalManager initialized successfully
+[2025-10-01T01:12:55.225Z] [INFO] Interval Manager initialized with all monitoring systems
+[2025-10-01T01:12:55.228Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-10-01T01:12:55.229Z] [INFO] PPPoE monitoring initialized
+[2025-10-01T01:13:29.811Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-10-01T01:13:29.846Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-10-01T01:13:55.083Z] [INFO] PPPoE LOGIN:
+[
+  "fajar",
+  "Tarci@lor",
+  "jami@sut",
+  "gadel",
+  "kasdi@rawagunda",
+  "abibah",
+  "junanto@rawagunda",
+  "sanyo",
+  "test",
+  "adiiman",
+  "winata@laut",
+  "server@arep",
+  "darim@lor",
+  "sarwan",
+  "murba",
+  "walong@asep",
+  "elis@rawagunda",
+  "juanda",
+  "karmanda",
+  "winata",
+  "wakeng",
+  "eka",
+  "tester",
+  "opang@tanjungpura",
+  "server@yayan",
+  "suliwa",
+  "karban",
+  "codet",
+  "iman@",
+  "antony@ps",
+  "toyinah",
+  "dhea_tile@rawagunda",
+  "eva",
+  "karsih",
+  "toko@sayur",
+  "brohim",
+  "Uchi",
+  "wardi",
+  "luwih@",
+  "damar",
+  "salsa",
+  "nina@kesin",
+  "rasta",
+  "memble2",
+  "aqiel",
+  "nuriyah",
+  "nalda@rawagunda2",
+  "cecep",
+  "aldo",
+  "nadiva",
+  "dedi@aira",
+  "warungyuni@laut",
+  "atam",
+  "dasta",
+  "indah@tanjungpura",
+  "erni",
+  "alam",
+  "oland",
+  "tinih",
+  "memble@",
+  "wiwin@seblak",
+  "ros_pppoe",
+  "wendy@tanjungpura",
+  "muktar@ompong",
+  "sarjo",
+  "RT-KARONI",
+  "koriya",
+  "daruni@rawagunda",
+  "nesa",
+  "newok",
+  "gunawan",
+  "rudibengkel@tanjungpura",
+  "talita",
+  "kus",
+  "dayuni",
+  "mastobari@",
+  "hany@tarsiti",
+  "erul",
+  "warung_elisa@laut",
+  "wadi@rawagunda",
+  "kasmuri",
+  "nurudin",
+  "kincling",
+  "sandi@rajan",
+  "elvano1",
+  "ejun",
+  "santo",
+  "maktub",
+  "darim",
+  "yudi",
+  "yuni@rawagunda",
+  "suminih@rawagunda",
+  "kandar",
+  "yohan@rawagunda",
+  "kendo@tanjungpura",
+  "tibil",
+  "mardi",
+  "yuyun",
+  "aang2",
+  "lussy",
+  "durnawi",
+  "ajri",
+  "coyih",
+  "pandi@tanjungpura",
+  "handoko",
+  "dedy@sarkim",
+  "raeni",
+  "toax",
+  "kanu",
+  "aang",
+  "alan@pentud",
+  "server@ilik",
+  "andi",
+  "kama@",
+  "lisan@banteng",
+  "mella",
+  "tariman",
+  "durta",
+  "Zea",
+  "rintem",
+  "windah",
+  "yogi",
+  "darmini",
+  "nana",
+  "runaeni",
+  "seka",
+  "warsana",
+  "ooh",
+  "h.juroh",
+  "icha",
+  "sumi",
+  "SDNUG1",
+  "khofik@janggar",
+  "lina@ujungmulya",
+  "durniyah@pegagan",
+  "indra@plentong",
+  "sang",
+  "soleh@pegagan",
+  "denihamdani@pegagan",
+  "opang@pegagan",
+  "nalda@pegagan",
+  "uung@pegagan",
+  "Endra@genjong1",
+  "surminih@pegagan",
+  "waran",
+  "pabudi@genjong",
+  "wendy@genjong",
+  "umikulsum@janggar",
+  "turidah",
+  "novita",
+  "leha",
+  "sudini@pegagan",
+  "gemblung",
+  "setiyadi@genjong",
+  "F663",
+  "nani",
+  "yusuf",
+  "sutara@pegagan",
+  "mangasep@janggar",
+  "waidah@pegagan",
+  "astri@pegagan",
+  "ety@pegagan",
+  "dadang@genjong",
+  "eva@pegagan",
+  "adineasep",
+  "intan@ujungmulya",
+  "murdani",
+  "anwar@janggar",
+  "sarna@pegagan",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "kurnati",
+  "abas@pegagan",
+  "rom@lah",
+  "tarci"
+]
+[2025-10-01T01:13:55.084Z] [INFO] Monitoring PPPoE connections: 175 active connections
+[2025-10-01T01:13:55.296Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah, tarci
+[2025-10-01T01:13:55.366Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:14:55.141Z] [INFO] PPPoE LOGOUT:
+[
+  "tarci"
+]
+[2025-10-01T01:14:55.142Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:14:55.298Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah
+[2025-10-01T01:14:55.377Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:15:55.017Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:15:55.306Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, rintem, windah, yogi, darmini, nana, runaeni, seka, warsana, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah
+[2025-10-01T01:15:55.380Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:16:06.491Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:16:06.492Z] [INFO] PPPoE monitoring: 175 active connections, 175 login, 0 logout
+[2025-10-01T01:16:36.533Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:16:36.533Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:16:36.566Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:16:36.566Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:16:55.089Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:17:55.033Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:18:55.107Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:19:55.055Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:20:55.076Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:20:55.402Z] [INFO] PPPoE LOGIN detected: tarci
+[2025-10-01T01:20:55.495Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:21:06.990Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:21:06.991Z] [INFO] PPPoE monitoring: 175 active connections, 1 login, 0 logout
+[2025-10-01T01:21:55.132Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:21:55.417Z] [INFO] PPPoE LOGOUT detected: tarci
+[2025-10-01T01:21:55.497Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:22:06.684Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:22:06.704Z] [INFO] PPPoE monitoring: 174 active connections, 0 login, 1 logout
+[2025-10-01T01:22:55.072Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:23:55.139Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:24:55.083Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:25:55.155Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:26:55.100Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:27:55.175Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:28:07.351Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T01:28:07.570Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T01:28:07.571Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T01:28:07.573Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T01:28:07.576Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:28:07.578Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T01:28:07.581Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T01:28:07.584Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T01:28:07.587Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:28:08.623Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:28:08.624Z] [INFO] Attempting to start server on configured port: 3002
+[2025-10-01T01:28:08.625Z] [INFO] Memulai server pada port yang dikonfigurasi: 3002
+[2025-10-01T01:28:08.626Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T01:28:41.111Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T01:28:41.297Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T01:28:41.301Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T01:28:41.304Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T01:28:41.307Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:28:41.313Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T01:28:41.318Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T01:28:41.321Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T01:28:41.323Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:28:42.625Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:28:42.626Z] [INFO] Attempting to start server on configured port: 3003
+[2025-10-01T01:28:42.627Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-10-01T01:28:42.628Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T01:28:42.634Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-10-01T01:28:42.635Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-10-01T01:28:42.636Z] [INFO] Environment: development
+[2025-10-01T01:28:42.821Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-10-01T01:28:42.822Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-10-01T01:28:42.822Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-10-01T01:28:42.823Z] [INFO] WhatsApp connected successfully
+[2025-10-01T01:28:42.824Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:28:42.826Z] [INFO] Starting RX Power Warning monitoring (interval: 10 hours)
+[2025-10-01T01:28:42.828Z] [INFO] Starting RX Power Recap monitoring (interval: 6 hours)
+[2025-10-01T01:28:42.829Z] [INFO] Starting Offline Notification monitoring (interval: 12 hours)
+[2025-10-01T01:28:42.829Z] [INFO] IntervalManager initialized successfully
+[2025-10-01T01:28:42.830Z] [INFO] Interval Manager initialized with all monitoring systems
+[2025-10-01T01:28:42.833Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-10-01T01:28:42.834Z] [INFO] PPPoE monitoring initialized
+[2025-10-01T01:28:55.113Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:29:42.715Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-10-01T01:29:42.894Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, windah, yogi, darmini, nana, runaeni, seka, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah, warsana, rintem
+[2025-10-01T01:29:42.932Z] [INFO] PPPoE LOGIN:
+[
+  "fajar",
+  "Tarci@lor",
+  "jami@sut",
+  "gadel",
+  "kasdi@rawagunda",
+  "abibah",
+  "junanto@rawagunda",
+  "sanyo",
+  "test",
+  "adiiman",
+  "winata@laut",
+  "server@arep",
+  "darim@lor",
+  "sarwan",
+  "murba",
+  "walong@asep",
+  "elis@rawagunda",
+  "juanda",
+  "karmanda",
+  "winata",
+  "wakeng",
+  "eka",
+  "tester",
+  "opang@tanjungpura",
+  "server@yayan",
+  "suliwa",
+  "karban",
+  "codet",
+  "iman@",
+  "antony@ps",
+  "toyinah",
+  "dhea_tile@rawagunda",
+  "eva",
+  "karsih",
+  "toko@sayur",
+  "brohim",
+  "Uchi",
+  "wardi",
+  "luwih@",
+  "damar",
+  "salsa",
+  "nina@kesin",
+  "rasta",
+  "memble2",
+  "aqiel",
+  "nuriyah",
+  "nalda@rawagunda2",
+  "cecep",
+  "aldo",
+  "nadiva",
+  "dedi@aira",
+  "warungyuni@laut",
+  "atam",
+  "dasta",
+  "indah@tanjungpura",
+  "erni",
+  "alam",
+  "oland",
+  "tinih",
+  "memble@",
+  "wiwin@seblak",
+  "ros_pppoe",
+  "wendy@tanjungpura",
+  "muktar@ompong",
+  "sarjo",
+  "RT-KARONI",
+  "koriya",
+  "daruni@rawagunda",
+  "nesa",
+  "newok",
+  "gunawan",
+  "rudibengkel@tanjungpura",
+  "talita",
+  "kus",
+  "dayuni",
+  "mastobari@",
+  "hany@tarsiti",
+  "erul",
+  "warung_elisa@laut",
+  "wadi@rawagunda",
+  "kasmuri",
+  "nurudin",
+  "kincling",
+  "sandi@rajan",
+  "elvano1",
+  "ejun",
+  "santo",
+  "maktub",
+  "darim",
+  "yudi",
+  "yuni@rawagunda",
+  "suminih@rawagunda",
+  "kandar",
+  "yohan@rawagunda",
+  "kendo@tanjungpura",
+  "tibil",
+  "mardi",
+  "yuyun",
+  "aang2",
+  "lussy",
+  "durnawi",
+  "ajri",
+  "coyih",
+  "pandi@tanjungpura",
+  "handoko",
+  "dedy@sarkim",
+  "raeni",
+  "toax",
+  "kanu",
+  "aang",
+  "alan@pentud",
+  "server@ilik",
+  "andi",
+  "kama@",
+  "lisan@banteng",
+  "mella",
+  "tariman",
+  "durta",
+  "Zea",
+  "windah",
+  "yogi",
+  "darmini",
+  "nana",
+  "runaeni",
+  "seka",
+  "ooh",
+  "h.juroh",
+  "icha",
+  "sumi",
+  "SDNUG1",
+  "khofik@janggar",
+  "lina@ujungmulya",
+  "durniyah@pegagan",
+  "indra@plentong",
+  "sang",
+  "soleh@pegagan",
+  "denihamdani@pegagan",
+  "opang@pegagan",
+  "nalda@pegagan",
+  "uung@pegagan",
+  "Endra@genjong1",
+  "surminih@pegagan",
+  "waran",
+  "pabudi@genjong",
+  "wendy@genjong",
+  "umikulsum@janggar",
+  "turidah",
+  "novita",
+  "leha",
+  "sudini@pegagan",
+  "gemblung",
+  "setiyadi@genjong",
+  "F663",
+  "nani",
+  "yusuf",
+  "sutara@pegagan",
+  "mangasep@janggar",
+  "waidah@pegagan",
+  "astri@pegagan",
+  "ety@pegagan",
+  "dadang@genjong",
+  "eva@pegagan",
+  "adineasep",
+  "intan@ujungmulya",
+  "murdani",
+  "anwar@janggar",
+  "sarna@pegagan",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "kurnati",
+  "abas@pegagan",
+  "rom@lah",
+  "warsana",
+  "rintem"
+]
+[2025-10-01T01:29:42.933Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:29:42.965Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:29:55.201Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:30:42.670Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:30:42.907Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, windah, yogi, darmini, nana, runaeni, seka, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah, warsana, rintem
+[2025-10-01T01:30:42.991Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:30:55.130Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:31:42.742Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:31:42.909Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, windah, yogi, darmini, nana, runaeni, seka, ooh, h.juroh, icha, sumi, SDNUG1, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah, warsana, rintem
+[2025-10-01T01:31:42.982Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:31:54.078Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:31:54.079Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:31:55.207Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:32:24.133Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:32:24.134Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:32:24.149Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:32:24.150Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout
+[2025-10-01T01:32:42.679Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:32:55.225Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:33:42.810Z] [INFO] PPPoE LOGOUT:
+[
+  "SDNUG1"
+]
+[2025-10-01T01:33:42.812Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T01:33:42.906Z] [INFO] PPPoE LOGOUT detected: SDNUG1
+[2025-10-01T01:33:42.977Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:33:54.052Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:33:54.052Z] [INFO] PPPoE monitoring: 173 active connections, 0 login, 1 logout
+[2025-10-01T01:33:55.320Z] [INFO] PPPoE LOGOUT:
+[
+  "SDNUG1"
+]
+[2025-10-01T01:33:55.320Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T01:33:55.508Z] [INFO] PPPoE LOGOUT detected: SDNUG1
+[2025-10-01T01:33:55.571Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:34:06.669Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:34:06.670Z] [INFO] PPPoE monitoring: 173 active connections, 0 login, 1 logout
+[2025-10-01T01:34:42.690Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T01:34:42.926Z] [INFO] PPPoE LOGIN detected: SDNUG1
+[2025-10-01T01:34:42.995Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:34:54.069Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:34:54.069Z] [INFO] PPPoE monitoring: 174 active connections, 1 login, 0 logout
+[2025-10-01T01:34:55.198Z] [INFO] Monitoring PPPoE connections: 173 active connections
+[2025-10-01T01:34:55.524Z] [INFO] PPPoE LOGIN detected: SDNUG1, tarci
+[2025-10-01T01:34:55.594Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:35:06.680Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:35:06.680Z] [INFO] PPPoE monitoring: 175 active connections, 2 login, 0 logout
+[2025-10-01T01:35:42.821Z] [INFO] PPPoE LOGIN:
+[
+  "SDNUG1"
+]
+[2025-10-01T01:35:42.822Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:35:45.656Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T01:35:45.870Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T01:35:45.873Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T01:35:45.878Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T01:35:45.880Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:35:45.884Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T01:35:45.888Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T01:35:45.894Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T01:35:45.900Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:35:55.335Z] [INFO] PPPoE LOGIN:
+[
+  "SDNUG1"
+]
+[2025-10-01T01:35:55.336Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:35:55.525Z] [INFO] PPPoE LOGOUT detected: tarci
+[2025-10-01T01:35:55.592Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:36:06.718Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:36:06.719Z] [INFO] PPPoE monitoring: 174 active connections, 0 login, 1 logout
+[2025-10-01T01:36:42.703Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:36:55.213Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:37:42.768Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:37:55.281Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:38:42.712Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:38:54.450Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T01:38:54.621Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T01:38:54.622Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T01:38:54.624Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T01:38:54.626Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:38:54.629Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T01:38:54.633Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T01:38:54.636Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T01:38:54.638Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:38:55.228Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:39:42.786Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:39:59.707Z] [INFO] 🚀 CacheManager initialized with default TTL: 5 minutes
+[2025-10-01T01:39:59.849Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-10-01T01:39:59.849Z] [INFO] Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)
+[2025-10-01T01:39:59.851Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-10-01T01:39:59.856Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:39:59.858Z] [INFO] Monthly summary scheduler initialized - will run on 1st of every month at 23:59
+[2025-10-01T01:39:59.860Z] [INFO] Monthly reset scheduler initialized - will run on 1st of every month at 00:01
+[2025-10-01T01:39:59.862Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-10-01T01:39:59.864Z] [INFO] Voucher cleanup scheduler initialized - will run every 6 hours
+[2025-10-01T01:40:00.627Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:40:00.627Z] [INFO] Attempting to start server on configured port: 3002
+[2025-10-01T01:40:00.628Z] [INFO] Memulai server pada port yang dikonfigurasi: 3002
+[2025-10-01T01:40:00.629Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-10-01T01:40:00.634Z] [INFO] ✅ Server berhasil berjalan pada port 3002
+[2025-10-01T01:40:00.634Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3002
+[2025-10-01T01:40:00.635Z] [INFO] Environment: development
+[2025-10-01T01:40:00.793Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-10-01T01:40:00.794Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-10-01T01:40:00.794Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-10-01T01:40:00.795Z] [INFO] WhatsApp connected successfully
+[2025-10-01T01:40:00.796Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-10-01T01:40:00.798Z] [INFO] Starting RX Power Warning monitoring (interval: 10 hours)
+[2025-10-01T01:40:00.799Z] [INFO] Starting RX Power Recap monitoring (interval: 6 hours)
+[2025-10-01T01:40:00.800Z] [INFO] Starting Offline Notification monitoring (interval: 12 hours)
+[2025-10-01T01:40:00.801Z] [INFO] IntervalManager initialized successfully
+[2025-10-01T01:40:00.801Z] [INFO] Interval Manager initialized with all monitoring systems
+[2025-10-01T01:40:00.802Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-10-01T01:40:00.802Z] [INFO] PPPoE monitoring initialized
+[2025-10-01T01:41:00.653Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-10-01T01:41:00.828Z] [INFO] PPPoE LOGIN:
+[
+  "fajar",
+  "Tarci@lor",
+  "jami@sut",
+  "gadel",
+  "kasdi@rawagunda",
+  "abibah",
+  "junanto@rawagunda",
+  "sanyo",
+  "test",
+  "adiiman",
+  "winata@laut",
+  "server@arep",
+  "darim@lor",
+  "sarwan",
+  "murba",
+  "walong@asep",
+  "elis@rawagunda",
+  "juanda",
+  "karmanda",
+  "winata",
+  "wakeng",
+  "eka",
+  "tester",
+  "opang@tanjungpura",
+  "server@yayan",
+  "suliwa",
+  "karban",
+  "codet",
+  "iman@",
+  "antony@ps",
+  "toyinah",
+  "dhea_tile@rawagunda",
+  "eva",
+  "karsih",
+  "toko@sayur",
+  "brohim",
+  "Uchi",
+  "wardi",
+  "luwih@",
+  "damar",
+  "salsa",
+  "nina@kesin",
+  "rasta",
+  "memble2",
+  "aqiel",
+  "nuriyah",
+  "nalda@rawagunda2",
+  "cecep",
+  "aldo",
+  "nadiva",
+  "dedi@aira",
+  "warungyuni@laut",
+  "atam",
+  "dasta",
+  "indah@tanjungpura",
+  "erni",
+  "alam",
+  "oland",
+  "tinih",
+  "memble@",
+  "wiwin@seblak",
+  "ros_pppoe",
+  "wendy@tanjungpura",
+  "muktar@ompong",
+  "sarjo",
+  "RT-KARONI",
+  "koriya",
+  "daruni@rawagunda",
+  "nesa",
+  "newok",
+  "gunawan",
+  "rudibengkel@tanjungpura",
+  "talita",
+  "kus",
+  "dayuni",
+  "mastobari@",
+  "hany@tarsiti",
+  "erul",
+  "warung_elisa@laut",
+  "wadi@rawagunda",
+  "kasmuri",
+  "nurudin",
+  "kincling",
+  "sandi@rajan",
+  "elvano1",
+  "ejun",
+  "santo",
+  "maktub",
+  "darim",
+  "yudi",
+  "yuni@rawagunda",
+  "suminih@rawagunda",
+  "kandar",
+  "yohan@rawagunda",
+  "kendo@tanjungpura",
+  "tibil",
+  "mardi",
+  "yuyun",
+  "aang2",
+  "lussy",
+  "durnawi",
+  "ajri",
+  "coyih",
+  "pandi@tanjungpura",
+  "handoko",
+  "dedy@sarkim",
+  "raeni",
+  "toax",
+  "kanu",
+  "aang",
+  "alan@pentud",
+  "server@ilik",
+  "andi",
+  "kama@",
+  "lisan@banteng",
+  "mella",
+  "tariman",
+  "durta",
+  "Zea",
+  "windah",
+  "yogi",
+  "darmini",
+  "nana",
+  "runaeni",
+  "seka",
+  "ooh",
+  "h.juroh",
+  "icha",
+  "sumi",
+  "khofik@janggar",
+  "lina@ujungmulya",
+  "durniyah@pegagan",
+  "indra@plentong",
+  "sang",
+  "soleh@pegagan",
+  "denihamdani@pegagan",
+  "opang@pegagan",
+  "nalda@pegagan",
+  "uung@pegagan",
+  "Endra@genjong1",
+  "surminih@pegagan",
+  "waran",
+  "pabudi@genjong",
+  "wendy@genjong",
+  "umikulsum@janggar",
+  "turidah",
+  "novita",
+  "leha",
+  "sudini@pegagan",
+  "gemblung",
+  "setiyadi@genjong",
+  "F663",
+  "nani",
+  "yusuf",
+  "sutara@pegagan",
+  "mangasep@janggar",
+  "waidah@pegagan",
+  "astri@pegagan",
+  "ety@pegagan",
+  "dadang@genjong",
+  "eva@pegagan",
+  "adineasep",
+  "intan@ujungmulya",
+  "murdani",
+  "anwar@janggar",
+  "sarna@pegagan",
+  "yuni@ujungmulya",
+  "eryanto@pegagan",
+  "kurnati",
+  "abas@pegagan",
+  "rom@lah",
+  "warsana",
+  "rintem",
+  "SDNUG1"
+]
+[2025-10-01T01:41:00.829Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:41:00.901Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, windah, yogi, darmini, nana, runaeni, seka, ooh, h.juroh, icha, sumi, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah, warsana, rintem, SDNUG1
+[2025-10-01T01:41:00.974Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:42:00.630Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:42:00.898Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, windah, yogi, darmini, nana, runaeni, seka, ooh, h.juroh, icha, sumi, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah, warsana, rintem, SDNUG1
+[2025-10-01T01:42:00.975Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:43:00.690Z] [INFO] Monitoring PPPoE connections: 174 active connections
+[2025-10-01T01:43:00.915Z] [INFO] PPPoE LOGIN detected: fajar, Tarci@lor, jami@sut, gadel, kasdi@rawagunda, abibah, junanto@rawagunda, sanyo, test, adiiman, winata@laut, server@arep, darim@lor, sarwan, murba, walong@asep, elis@rawagunda, juanda, karmanda, winata, wakeng, eka, tester, opang@tanjungpura, server@yayan, suliwa, karban, codet, iman@, antony@ps, toyinah, dhea_tile@rawagunda, eva, karsih, toko@sayur, brohim, Uchi, wardi, luwih@, damar, salsa, nina@kesin, rasta, memble2, aqiel, nuriyah, nalda@rawagunda2, cecep, aldo, nadiva, dedi@aira, warungyuni@laut, atam, dasta, indah@tanjungpura, erni, alam, oland, tinih, memble@, wiwin@seblak, ros_pppoe, wendy@tanjungpura, muktar@ompong, sarjo, RT-KARONI, koriya, daruni@rawagunda, nesa, newok, gunawan, rudibengkel@tanjungpura, talita, kus, dayuni, mastobari@, hany@tarsiti, erul, warung_elisa@laut, wadi@rawagunda, kasmuri, nurudin, kincling, sandi@rajan, elvano1, ejun, santo, maktub, darim, yudi, yuni@rawagunda, suminih@rawagunda, kandar, yohan@rawagunda, kendo@tanjungpura, tibil, mardi, yuyun, aang2, lussy, durnawi, ajri, coyih, pandi@tanjungpura, handoko, dedy@sarkim, raeni, toax, kanu, aang, alan@pentud, server@ilik, andi, kama@, lisan@banteng, mella, tariman, durta, Zea, windah, yogi, darmini, nana, runaeni, seka, ooh, h.juroh, icha, sumi, khofik@janggar, lina@ujungmulya, durniyah@pegagan, indra@plentong, sang, soleh@pegagan, denihamdani@pegagan, opang@pegagan, nalda@pegagan, uung@pegagan, Endra@genjong1, surminih@pegagan, waran, pabudi@genjong, wendy@genjong, umikulsum@janggar, turidah, novita, leha, sudini@pegagan, gemblung, setiyadi@genjong, F663, nani, yusuf, sutara@pegagan, mangasep@janggar, waidah@pegagan, astri@pegagan, ety@pegagan, dadang@genjong, eva@pegagan, adineasep, intan@ujungmulya, murdani, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, kurnati, abas@pegagan, rom@lah, warsana, rintem, SDNUG1
+[2025-10-01T01:43:00.995Z] [INFO] Found 3 active technicians in database
+[2025-10-01T01:43:12.086Z] [INFO] PPPoE notification sent to 0/4 valid recipients (4 total)
+[2025-10-01T01:43:12.086Z] [INFO] PPPoE monitoring: 174 active connections, 174 login, 0 logout

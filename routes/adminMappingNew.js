@@ -274,7 +274,7 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                 console.log('🔍 Loading ODPs from database...');
                 db.all(`
                     SELECT id, name, code, latitude, longitude, address, 
-                           capacity, used_ports, status, installation_date
+                           capacity, used_ports, status, installation_date, is_pole
                     FROM odps 
                     ORDER BY name
                 `, [], (err, rows) => {
@@ -302,7 +302,7 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                            c.name as customer_name, c.phone as customer_phone,
                            c.latitude as customer_latitude, c.longitude as customer_longitude,
                            o.name as odp_name, o.code as odp_code,
-                           o.latitude as odp_latitude, o.longitude as odp_longitude
+                           o.latitude as odp_latitude, o.longitude as odp_longitude, o.is_pole as odp_is_pole
                     FROM cable_routes cr
                     LEFT JOIN customers c ON cr.customer_id = c.id
                     LEFT JOIN odps o ON cr.odp_id = o.id
@@ -335,8 +335,10 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                            ns.segment_type, ns.installation_date, ns.status, ns.notes,
                            start_odp.name as start_odp_name, start_odp.code as start_odp_code,
                            start_odp.latitude as start_odp_latitude, start_odp.longitude as start_odp_longitude,
+                           start_odp.is_pole as start_odp_is_pole,
                            end_odp.name as end_odp_name, end_odp.code as end_odp_code,
                            end_odp.latitude as end_odp_latitude, end_odp.longitude as end_odp_longitude,
+                           end_odp.is_pole as end_odp_is_pole,
                            'network_segments' as source_table
                     FROM network_segments ns
                     LEFT JOIN odps start_odp ON ns.start_odp_id = start_odp.id
@@ -353,8 +355,10 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                            oc.installation_date, oc.status, oc.notes,
                            from_odp.name as start_odp_name, from_odp.code as start_odp_code,
                            from_odp.latitude as start_odp_latitude, from_odp.longitude as start_odp_longitude,
+                           from_odp.is_pole as start_odp_is_pole,
                            to_odp.name as end_odp_name, to_odp.code as end_odp_code,
                            to_odp.latitude as end_odp_latitude, to_odp.longitude as end_odp_longitude,
+                           to_odp.is_pole as end_odp_is_pole,
                            'odp_connections' as source_table
                     FROM odp_connections oc
                     LEFT JOIN odps from_odp ON oc.from_odp_id = from_odp.id
