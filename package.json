@@ -1,27 +1,29 @@
 {
-  "name": "wa-admin-portal",
-  "version": "1.0.0",
-  "description": "Portal Admin WhatsApp Gateway untuk GenieACS, Mikrotik PPPoE, dan Hotspot Management",
+  "name": "gembok-bill",
+  "version": "2.1.0",
+  "description": "Sistem Manajemen ISP Terintegrasi dengan WhatsApp Gateway untuk GenieACS, Mikrotik PPPoE, dan Hotspot Management",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "deploy": "git pull origin main && npm install && pm2 restart gembok-bill",
-    "backup": "node scripts/fix-backup-restore.js",
-    "sync": "node scripts/sync-server-data.js",
-    "check": "node scripts/check-deploy-readiness.js",
-    "postinstall": "npm rebuild && npm run check-deps"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"No build process required\"",
+    "setup": "npm install && node scripts/setup-database.js"
   },
   "dependencies": {
     "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "^6.7.17",
+    "axios": "^1.6.7",
     "bcrypt": "^6.0.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.10",
     "exceljs": "^4.4.0",
     "express": "^4.18.2",
     "express-session": "^1.18.2",
     "geolib": "^3.3.4",
+    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "midtrans-client": "^1.4.3",
@@ -40,11 +42,32 @@
   },
   "devDependencies": {
     "ejs-lint": "^2.0.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "eslint": "^8.57.0"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   },
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "isp",
+    "billing",
+    "whatsapp",
+    "genieacs",
+    "mikrotik",
+    "pppoe",
+    "hotspot",
+    "nodejs",
+    "express"
+  ],
+  "author": "GEMBOK Team",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alijayanet/gembok-bill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alijayanet/gembok-bill/issues"
+  },
+  "homepage": "https://github.com/alijayanet/gembok-bill#readme"
 }

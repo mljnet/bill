@@ -63,16 +63,16 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files dengan cache
 app.use('/public', express.static(path.join(__dirname, 'public'), {
-  maxAge: getSetting('static_cache_duration', '1h'), // Cache duration dari settings.json
+  maxAge: '1h', // Cache static files untuk 1 jam
   etag: true
 }));
 app.use(session({
-  secret: getSetting('session_secret', 'fallback-session-secret'),
+  secret: 'rahasia-portal-anda', // Ganti dengan string random yang aman
   resave: false,
   saveUninitialized: false, // Optimized: tidak save session kosong
-  cookie: {
+  cookie: { 
     secure: false,
-    maxAge: parseInt(getSetting('session_timeout_hours', '24')) * 60 * 60 * 1000, // Dari settings.json
+    maxAge: 24 * 60 * 60 * 1000, // 24 jam
     httpOnly: true
   },
   name: 'admin_session' // Custom session name
@@ -125,7 +125,7 @@ app.post('/admin/login/mobile', async (req, res) => {
             req.session.adminUsername = username;
 
             if (remember) {
-                req.session.cookie.maxAge = parseInt(getSetting('admin_session_timeout_hours', '720')) * 60 * 60 * 1000; // 30 days dari settings.json
+                req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
             }
 
             // Redirect to mobile dashboard
@@ -198,6 +198,22 @@ app.use('/admin/installations', blockTechnicianAccess, adminAuth, adminInstallat
 // Import dan gunakan route adminTechnicians
 const adminTechniciansRouter = require('./routes/adminTechnicians');
 app.use('/admin/technicians', blockTechnicianAccess, adminAuth, adminTechniciansRouter);
+
+// Import dan gunakan route agentAuth
+const { router: agentAuthRouter } = require('./routes/agentAuth');
+app.use('/agent', agentAuthRouter);
+
+// Import dan gunakan route agent
+const agentRouter = require('./routes/agent');
+app.use('/agent', agentRouter);
+
+// Import dan gunakan route adminAgents
+const adminAgentsRouter = require('./routes/adminAgents');
+app.use('/admin', blockTechnicianAccess, adminAuth, adminAgentsRouter);
+
+// Import dan gunakan route adminVoucherPricing
+const adminVoucherPricingRouter = require('./routes/adminVoucherPricing');
+app.use('/admin/voucher-pricing', blockTechnicianAccess, adminAuth, adminVoucherPricingRouter);
 
 // Import dan gunakan route adminCableNetwork
 const adminCableNetworkRouter = require('./routes/adminCableNetwork');
@@ -379,7 +395,7 @@ app.get('/isolir', async (req, res) => {
         if (!customerName) customerName = 'Pelanggan';
 
         // Logo path dari settings.json (served via /public or /storage pattern)
-        const logoFile = getSetting('default_logo_filename', 'logo.png');
+        const logoFile = settings.logo_filename || 'logo.png';
         const logoPath = `/public/img/${logoFile}`;
 
         // Payment accounts from settings.json (bank transfer & cash)
@@ -417,6 +433,13 @@ try {
 
             // Set sock instance untuk PPPoE monitoring
             pppoeMonitor.setSock(sock);
+
+            // Initialize Agent WhatsApp Commands
+            const AgentWhatsAppIntegration = require('./config/agentWhatsAppIntegration');
+            const agentWhatsApp = new AgentWhatsAppIntegration(whatsapp);
+            agentWhatsApp.initialize();
+            
+            console.log('🤖 Agent WhatsApp Commands initialized');
             pppoeCommands.setSock(sock);
 
             // Set sock instance untuk GenieACS commands
