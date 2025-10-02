@@ -20,14 +20,9 @@ function formatVoucherMessage(vouchers, purchase) {
         message += `   Profile: ${voucher.profile}\n\n`;
     });
 
-    // Get hotspot config from settings
-    const settings = getSettingsWithCache();
-    const wifiName = settings.hotspot_config?.wifi_name || 'GEMBOK-WIFI';
-    const hotspotUrl = settings.hotspot_config?.hotspot_url || 'http://192.168.88.1';
-    
     message += `🌐 *CARA PENGGUNAAN:*\n`;
-    message += `1. Hubungkan ke WiFi ${wifiName}\n`;
-    message += `2. Buka browser ke ${hotspotUrl}\n`;
+    message += `1. Hubungkan ke WiFi hotspot\n`;
+    message += `2. Buka browser ke http://192.168.88.1\n`;
     message += `3. Masukkan Username & Password di atas\n`;
     message += `4. Klik Login\n\n`;
 
@@ -40,11 +35,6 @@ function formatVoucherMessage(vouchers, purchase) {
 
 // Helper function untuk format pesan voucher dengan link success page
 function formatVoucherMessageWithSuccessPage(vouchers, purchase, successUrl) {
-    // Get hotspot config from settings
-    const settings = getSettingsWithCache();
-    const wifiName = settings.hotspot_config?.wifi_name || 'GEMBOK-WIFI';
-    const hotspotUrl = settings.hotspot_config?.hotspot_url || 'http://192.168.88.1';
-    
     let message = `🛒 *VOUCHER HOTSPOT BERHASIL DIBELI*\n\n`;
     message += `👤 Nama: ${purchase.customer_name}\n`;
     message += `📱 No HP: ${purchase.customer_phone}\n`;
@@ -62,8 +52,8 @@ function formatVoucherMessageWithSuccessPage(vouchers, purchase, successUrl) {
     message += `${successUrl}\n\n`;
 
     message += `🌐 *CARA PENGGUNAAN:*\n`;
-    message += `1. Hubungkan ke WiFi ${wifiName}\n`;
-    message += `2. Buka browser ke ${hotspotUrl}\n`;
+    message += `1. Hubungkan ke WiFi hotspot\n`;
+    message += `2. Buka browser ke http://192.168.88.1\n`;
     message += `3. Masukkan Username & Password di atas\n`;
     message += `4. Klik Login\n\n`;
 
@@ -192,21 +182,7 @@ async function handleVoucherWebhook(body, headers) {
             if (purchase.customer_phone) {
                 try {
                     const { sendMessage } = require('../config/sendMessage');
-                    // Get base URL from settings.json
-                    const settings = getSettingsWithCache();
-                    const serverHost = settings.server_host || 'localhost';
-                    const serverPort = settings.server_port || '3003';
-                    const companyWebsite = settings.company_website;
-                    
-                    // Use company_website if available and starts with http, otherwise use server_host:port
-                    let baseUrl;
-                    if (companyWebsite && companyWebsite.startsWith('http')) {
-                        baseUrl = companyWebsite;
-                    } else {
-                        baseUrl = `http://${serverHost}:${serverPort}`;
-                    }
-                    
-                    const successUrl = `${baseUrl}/voucher/success/${purchase.id}`;
+                    const successUrl = `${process.env.APP_BASE_URL || 'https://alijaya.gantiwifi.online'}/voucher/success/${purchase.id}`;
                     const voucherText = formatVoucherMessageWithSuccessPage(generatedVouchers, purchase, successUrl);
                     const deliveryResult = await sendVoucherWithRetry(purchase.customer_phone, voucherText);
                     

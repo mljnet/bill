@@ -180,7 +180,7 @@ router.post('/genieacs/edit', adminAuth, async (req, res) => {
     console.log('Edit request received:', { id, ssid, password });
 
     const { getSetting } = require('../config/settingsManager');
-    const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+    const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
     const genieacsUsername = getSetting('genieacs_username', 'admin');
     const genieacsPassword = getSetting('genieacs_password', 'password');
 
@@ -409,7 +409,7 @@ router.post('/genieacs/edit-tag', adminAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'ID dan tag wajib diisi' });
     }
     const { getSetting } = require('../config/settingsManager');
-    const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+    const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
     const genieacsUsername = getSetting('genieacs_username', 'admin');
     const genieacsPassword = getSetting('genieacs_password', 'password');
     // 1. Ambil tag lama perangkat
@@ -454,7 +454,7 @@ router.post('/genieacs/restart-onu', adminAuth, async (req, res) => {
     }
 
     const { getSetting } = require('../config/settingsManager');
-    const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+    const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
     const genieacsUsername = getSetting('genieacs_username', 'admin');
     const genieacsPassword = getSetting('genieacs_password', 'password');
 

@@ -42,10 +42,8 @@ const getAppSettings = (req, res, next) => {
         contact_email: getSetting('contact_email', ''),
         contact_address: getSetting('contact_address', ''),
         contact_whatsapp: getSetting('contact_whatsapp', ''),
-        suspension_grace_period_days: getSetting('suspension_grace_period_days', '7'),
-        isolir_profile: getSetting('isolir_profile', 'isolir'),
-        suspension_bandwidth_limit: getSetting('suspension_bandwidth_limit', '1k/1k'),
-        static_ip_suspension_method: getSetting('static_ip_suspension_method', 'address_list')
+        suspension_grace_period_days: getSetting('suspension_grace_period_days', '3'),
+        isolir_profile: getSetting('isolir_profile', 'isolir')
     };
     next();
 };
@@ -59,16 +57,8 @@ router.get('/mobile', getAppSettings, async (req, res) => {
         const totalRevenue = await billingManager.getTotalRevenue();
         const pendingPayments = await billingManager.getPendingPayments();
         
-        res.render('admin/billing/mobile-dashboard', {
-            title: 'Mobile Billing Admin',
-            appSettings: req.appSettings,
-            stats: {
-                totalCustomers,
-                totalInvoices,
-                totalRevenue,
-                pendingPayments
-            }
-        });
+        // Redirect to responsive desktop dashboard
+        res.redirect('/admin/billing/dashboard');
     } catch (error) {
         logger.error('Error loading mobile billing dashboard:', error);
         res.status(500).render('error', { 
@@ -79,16 +69,11 @@ router.get('/mobile', getAppSettings, async (req, res) => {
 });
 
 // Mobile Customers Management
+// Mobile Customers - Redirect to responsive desktop version
 router.get('/mobile/customers', getAppSettings, async (req, res) => {
     try {
-        // Get customers list for mobile
-        const customers = await billingManager.getCustomers();
-        
-        res.render('admin/billing/mobile-customers', {
-            title: 'Kelola Pelanggan - Mobile',
-            appSettings: req.appSettings,
-            customers: customers || []
-        });
+        // Redirect to responsive desktop version
+        res.redirect('/admin/billing/customers');
     } catch (error) {
         logger.error('Error loading mobile customers:', error);
         res.status(500).render('error', { 
@@ -98,33 +83,11 @@ router.get('/mobile/customers', getAppSettings, async (req, res) => {
     }
 });
 
-// Mobile Invoices Management
+// Mobile Invoices - Redirect to responsive desktop version
 router.get('/mobile/invoices', getAppSettings, async (req, res) => {
     try {
-        // Get invoices list for mobile
-        const invoices = await billingManager.getInvoices();
-        
-        // Calculate statistics from database
-        const totalRevenue = invoices
-            .filter(invoice => invoice.status === 'paid')
-            .reduce((sum, invoice) => sum + (parseFloat(invoice.amount) || 0), 0);
-        
-        const overdueCount = invoices.filter(invoice => {
-            if (invoice.status !== 'unpaid') return false;
-            const dueDate = new Date(invoice.due_date);
-            const today = new Date();
-            return dueDate < today;
-        }).length;
-        
-        res.render('admin/billing/mobile-invoices', {
-            title: 'Kelola Tagihan - Mobile',
-            appSettings: req.appSettings,
-            invoices: invoices || [],
-            statistics: {
-                totalRevenue: totalRevenue,
-                overdueCount: overdueCount
-            }
-        });
+        // Redirect to responsive desktop version
+        res.redirect('/admin/billing/invoices');
     } catch (error) {
         logger.error('Error loading mobile invoices:', error);
         res.status(500).render('error', { 
@@ -134,35 +97,11 @@ router.get('/mobile/invoices', getAppSettings, async (req, res) => {
     }
 });
 
-// Mobile Payments Management
+// Mobile Payments - Redirect to responsive desktop version
 router.get('/mobile/payments', getAppSettings, async (req, res) => {
     try {
-        // Get payments list for mobile
-        const payments = await billingManager.getPayments();
-        
-        // Calculate statistics from database
-        const today = new Date();
-        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-        
-        const todayPayments = payments.filter(payment => {
-            const paymentDate = new Date(payment.payment_date);
-            return paymentDate >= startOfDay && paymentDate < endOfDay && payment.status === 'success';
-        });
-        
-        const todayRevenue = todayPayments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
-        
-        const pendingCount = payments.filter(payment => payment.status === 'pending').length;
-        
-        res.render('admin/billing/mobile-payments', {
-            title: 'Kelola Pembayaran - Mobile',
-            appSettings: req.appSettings,
-            payments: payments || [],
-            statistics: {
-                todayRevenue: todayRevenue,
-                pendingCount: pendingCount
-            }
-        });
+        // Redirect to responsive desktop version
+        res.redirect('/admin/billing/payments');
     } catch (error) {
         logger.error('Error loading mobile payments:', error);
         res.status(500).render('error', { 
@@ -839,17 +778,11 @@ router.post('/api/collector-remittance', adminAuth, async (req, res) => {
     }
 });
 
-// Mobile Map Management
+// Mobile Map Management - Now using responsive mapping-new.ejs
 router.get('/mobile/map', getAppSettings, async (req, res) => {
     try {
-        // Get customers with location data for map
-        const customers = await billingManager.getCustomers();
-        
-        res.render('admin/billing/mobile-map', {
-            title: 'Peta Pelanggan - Mobile',
-            appSettings: req.appSettings,
-            customers: customers || []
-        });
+        // Redirect to main mapping page (responsive)
+        res.redirect('/admin/billing/mapping');
     } catch (error) {
         logger.error('Error loading mobile map:', error);
         res.status(500).render('error', { 
@@ -1720,13 +1653,11 @@ router.get('/export/customers.xlsx', async (req, res) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Customers');
 
-        // Header lengkap dengan semua data customer
+        // Header lengkap dengan koordinat map dan data lainnya
         const headers = [
             'ID', 'Username', 'Nama', 'Phone', 'PPPoE Username', 'Email', 'Alamat',
-            'Latitude', 'Longitude', 'Package ID', 'Package Name', 'Package Price', 'PPPoE Profile', 
-            'Status', 'Payment Status', 'Auto Suspension', 'Billing Day', 'Join Date',
-            'Static IP', 'MAC Address', 'Assigned IP', 'ODP ID', 'Cable Type', 'Cable Notes',
-            'Port Number', 'Cable Status', 'Cable Length'
+            'Latitude', 'Longitude', 'Package ID', 'Package Name', 'PPPoE Profile', 
+            'Status', 'Auto Suspension', 'Billing Day', 'Join Date', 'Created At'
         ];
         
         // Set header dengan styling
@@ -1741,7 +1672,7 @@ router.get('/export/customers.xlsx', async (req, res) => {
         // Set column widths
         worksheet.columns = [
             { header: 'ID', key: 'id', width: 8 },
-            { header: 'Username', key: 'username', width: 20 },
+            { header: 'Username', key: 'username', width: 15 },
             { header: 'Nama', key: 'name', width: 25 },
             { header: 'Phone', key: 'phone', width: 15 },
             { header: 'PPPoE Username', key: 'pppoe_username', width: 20 },
@@ -1751,22 +1682,12 @@ router.get('/export/customers.xlsx', async (req, res) => {
             { header: 'Longitude', key: 'longitude', width: 12 },
             { header: 'Package ID', key: 'package_id', width: 10 },
             { header: 'Package Name', key: 'package_name', width: 20 },
-            { header: 'Package Price', key: 'package_price', width: 15 },
             { header: 'PPPoE Profile', key: 'pppoe_profile', width: 15 },
             { header: 'Status', key: 'status', width: 10 },
-            { header: 'Payment Status', key: 'payment_status', width: 15 },
             { header: 'Auto Suspension', key: 'auto_suspension', width: 15 },
             { header: 'Billing Day', key: 'billing_day', width: 12 },
             { header: 'Join Date', key: 'join_date', width: 15 },
-            { header: 'Static IP', key: 'static_ip', width: 15 },
-            { header: 'MAC Address', key: 'mac_address', width: 18 },
-            { header: 'Assigned IP', key: 'assigned_ip', width: 15 },
-            { header: 'ODP ID', key: 'odp_id', width: 10 },
-            { header: 'Cable Type', key: 'cable_type', width: 12 },
-            { header: 'Cable Notes', key: 'cable_notes', width: 20 },
-            { header: 'Port Number', key: 'port_number', width: 12 },
-            { header: 'Cable Status', key: 'cable_status', width: 12 },
-            { header: 'Cable Length', key: 'cable_length', width: 12 }
+            { header: 'Created At', key: 'created_at', width: 15 }
         ];
 
         customers.forEach(c => {
@@ -1782,46 +1703,20 @@ router.get('/export/customers.xlsx', async (req, res) => {
                 c.longitude || '',
                 c.package_id || '',
                 c.package_name || '',
-                c.package_price || '',
                 c.pppoe_profile || 'default',
                 c.status || 'active',
-                c.payment_status || 'no_invoice',
                 typeof c.auto_suspension !== 'undefined' ? c.auto_suspension : 1,
                 c.billing_day || 15,
                 c.join_date ? new Date(c.join_date).toLocaleDateString('id-ID') : '',
-                c.static_ip || '',
-                c.mac_address || '',
-                c.assigned_ip || '',
-                c.odp_id || '',
-                c.cable_type || '',
-                c.cable_notes || '',
-                c.port_number || '',
-                c.cable_status || '',
-                c.cable_length || ''
+                c.created_at ? new Date(c.created_at).toLocaleDateString('id-ID') : ''
             ]);
-
-            // Highlight rows berdasarkan status
-            if (c.status === 'active') {
-                row.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFF0F8FF' } // Light blue for active
-                };
-            } else if (c.status === 'suspended') {
-                row.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFFFE4E1' } // Light red for suspended
-                };
-            }
 
             // Highlight rows dengan koordinat valid
             if (c.latitude && c.longitude) {
-                row.border = {
-                    top: { style: 'thin', color: { argb: 'FF00FF00' } },
-                    left: { style: 'thin', color: { argb: 'FF00FF00' } },
-                    bottom: { style: 'thin', color: { argb: 'FF00FF00' } },
-                    right: { style: 'thin', color: { argb: 'FF00FF00' } }
+                row.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFF0F8FF' }
                 };
             }
         });
@@ -1830,34 +1725,12 @@ router.get('/export/customers.xlsx', async (req, res) => {
         const summarySheet = workbook.addWorksheet('Summary');
         summarySheet.addRow(['Export Summary']);
         summarySheet.addRow(['Total Customers', customers.length]);
-        summarySheet.addRow(['Active Customers', customers.filter(c => c.status === 'active').length]);
-        summarySheet.addRow(['Suspended Customers', customers.filter(c => c.status === 'suspended').length]);
         summarySheet.addRow(['Customers with Coordinates', customers.filter(c => c.latitude && c.longitude).length]);
         summarySheet.addRow(['Customers without Coordinates', customers.filter(c => !c.latitude || !c.longitude).length]);
-        summarySheet.addRow(['Customers with Static IP', customers.filter(c => c.static_ip).length]);
         summarySheet.addRow(['Export Date', new Date().toLocaleString('id-ID')]);
 
-        // Add package summary
-        const packageSummary = workbook.addWorksheet('Package Summary');
-        packageSummary.addRow(['Package Summary']);
-        packageSummary.addRow(['Package Name', 'Customer Count', 'Total Revenue']);
-        
-        const packageStats = {};
-        customers.forEach(c => {
-            const pkgName = c.package_name || 'Unknown';
-            if (!packageStats[pkgName]) {
-                packageStats[pkgName] = { count: 0, revenue: 0 };
-            }
-            packageStats[pkgName].count++;
-            packageStats[pkgName].revenue += parseFloat(c.package_price || 0);
-        });
-
-        Object.entries(packageStats).forEach(([pkgName, stats]) => {
-            packageSummary.addRow([pkgName, stats.count, stats.revenue]);
-        });
-
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', 'attachment; filename="customers_complete_' + new Date().toISOString().split('T')[0] + '.xlsx"');
+        res.setHeader('Content-Disposition', 'attachment; filename="customers_complete.xlsx"');
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
@@ -2607,7 +2480,7 @@ router.post('/whatsapp-settings/test', async (req, res) => {
                 disruption_type: 'Gangguan Jaringan',
                 affected_area: 'Seluruh Area',
                 estimated_resolution: '2 jam',
-                support_phone: '081947215703'
+                support_phone: getSetting('contact_whatsapp', '081947215703')
             },
             service_announcement: {
                 announcement_content: 'Pengumuman penting untuk semua pelanggan.'
@@ -2626,7 +2499,7 @@ router.post('/whatsapp-settings/test', async (req, res) => {
                 package_name: 'Paket Premium',
                 package_speed: '50 Mbps',
                 wifi_password: 'test123456',
-                support_phone: '081947215703'
+                support_phone: getSetting('contact_whatsapp', '081947215703')
             }
         };
         
@@ -2940,13 +2813,7 @@ router.post('/customers', async (req, res) => {
         let profileToUse = pppoe_profile;
         if (!profileToUse) {
             const packageData = await billingManager.getPackageById(package_id);
-            profileToUse = packageData?.pppoe_profile;
-            
-            // Jika tidak ada profile dari package, gunakan default
-            if (!profileToUse) {
-                profileToUse = 'default';
-                logger.warn(`No PPPoE profile found for package ${package_id}, using default profile`);
-            }
+            profileToUse = packageData?.pppoe_profile || 'default';
         }
 
         const customerData = {
@@ -3245,13 +3112,7 @@ router.put('/customers/:phone', async (req, res) => {
         let profileToUse = pppoe_profile;
         if (!profileToUse && package_id) {
             const packageData = await billingManager.getPackageById(package_id);
-            profileToUse = packageData?.pppoe_profile;
-            
-            // Jika tidak ada profile dari package, gunakan default
-            if (!profileToUse) {
-                profileToUse = 'default';
-                logger.warn(`No PPPoE profile found for package ${package_id}, using default profile`);
-            }
+            profileToUse = packageData?.pppoe_profile || 'default';
         } else if (!profileToUse) {
             profileToUse = currentCustomer.pppoe_profile || 'default';
         }
@@ -3291,23 +3152,23 @@ router.put('/customers/:phone', async (req, res) => {
 
         // Use current phone for lookup, allow phone to be updated in customerData
         const result = await billingManager.updateCustomerByPhone(phone, customerData);
-        
-        // Sinkronisasi profile MikroTik jika package berubah dan ada PPPoE username
-        if (currentCustomer.package_id !== package_id && customerData.pppoe_username) {
+
+        // Jika update berhasil dan customer memiliki PPPoE, update profil di Mikrotik
+        if (result && customerData.pppoe_username) {
             try {
-                const { setPPPoEProfile } = require('../config/mikrotik');
-                const mikrotikResult = await setPPPoEProfile(customerData.pppoe_username, profileToUse);
-                
-                if (mikrotikResult.success) {
-                    logger.info(`✅ MikroTik profile updated for ${customerData.pppoe_username} to ${profileToUse} (package change)`);
-                } else {
-                    logger.warn(`⚠️ Failed to update MikroTik profile for ${customerData.pppoe_username}: ${mikrotikResult.message}`);
+                // Cek apakah paket benar-benar berubah
+                const updatedCustomer = await billingManager.getCustomerByPhone(customerData.phone || phone);
+                if (updatedCustomer && updatedCustomer.package_id !== currentCustomer.package_id) {
+                    logger.info(`[BILLING] Package changed for ${updatedCustomer.username}, updating Mikrotik PPPoE profile...`);
+                    await serviceSuspension.restoreCustomerService(updatedCustomer, 'Package changed');
+                    logger.info(`[BILLING] Mikrotik PPPoE profile updated successfully for ${updatedCustomer.username}`);
                 }
             } catch (mikrotikError) {
-                logger.error(`❌ Error updating MikroTik profile for ${customerData.pppoe_username}:`, mikrotikError.message);
+                logger.error(`[BILLING] Failed to update Mikrotik profile for ${customerData.username}:`, mikrotikError.message);
+                // Jangan gagal kan update customer jika Mikrotik error
             }
         }
-        
+
         res.json({
             success: true,
             message: 'Pelanggan berhasil diupdate',
@@ -4434,131 +4295,39 @@ router.get('/service-suspension', getAppSettings, async (req, res) => {
     }
 });
 
-// Service Suspension: Isolir Profile Setting API
-router.get('/service-suspension/isolir-profile', async (req, res) => {
+// Service Suspension: Grace Period Setting API
+router.get('/service-suspension/grace-period', adminAuth, async (req, res) => {
     try {
-        const value = getSetting('isolir_profile', 'isolir');
-        res.json({ success: true, isolir_profile: value });
+        const value = getSetting('suspension_grace_period_days', '3');
+        res.json({ success: true, grace_period_days: value });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-router.post('/service-suspension/isolir-profile', async (req, res) => {
+router.post('/service-suspension/grace-period', adminAuth, async (req, res) => {
     try {
-        const { isolir_profile } = req.body || {};
-        if (!isolir_profile || typeof isolir_profile !== 'string') {
-            return res.status(400).json({ success: false, message: 'isolir_profile tidak valid' });
+        const { grace_period_days } = req.body || {};
+        if (!grace_period_days || typeof grace_period_days !== 'string') {
+            return res.status(400).json({ success: false, message: 'grace_period_days tidak valid' });
         }
-        const ok = setSetting('isolir_profile', isolir_profile.trim());
+
+        const days = parseInt(grace_period_days.trim(), 10);
+        if (isNaN(days) || days < 1 || days > 30) {
+            return res.status(400).json({ success: false, message: 'Grace period harus antara 1-30 hari' });
+        }
+
+        const ok = setSetting('suspension_grace_period_days', days.toString());
         if (!ok) {
             return res.status(500).json({ success: false, message: 'Gagal menyimpan ke settings.json' });
         }
-        res.json({ success: true, isolir_profile: isolir_profile.trim() });
+
+        // Clear cache agar pengaturan baru langsung berlaku
+        clearSettingsCache();
+
+        res.json({ success: true, grace_period_days: days.toString() });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
-    }
-});
-
-// Save Grace Period
-router.post('/service-suspension/grace-period', async (req, res) => {
-    try {
-        const { suspension_grace_period_days } = req.body || {};
-        const gracePeriod = parseInt(suspension_grace_period_days);
-        
-        if (!gracePeriod || gracePeriod < 1 || gracePeriod > 30) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Tambahan waktu harus antara 1-30 hari' 
-            });
-        }
-        
-        const ok = setSetting('suspension_grace_period_days', gracePeriod.toString());
-        if (!ok) {
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Gagal menyimpan ke settings.json' 
-            });
-        }
-        
-        logger.info(`Tambahan waktu setelah jatuh tempo updated to ${gracePeriod} days`);
-        res.json({ 
-            success: true, 
-            suspension_grace_period_days: gracePeriod.toString() 
-        });
-    } catch (error) {
-        logger.error('Error saving grace period:', error);
-        res.status(500).json({ success: false, message: error.message });
-    }
-});
-
-// Save Bandwidth Limit
-router.post('/service-suspension/bandwidth-limit', async (req, res) => {
-    try {
-        const { suspension_bandwidth_limit } = req.body || {};
-        
-        if (!suspension_bandwidth_limit || typeof suspension_bandwidth_limit !== 'string') {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Bandwidth limit tidak valid' 
-            });
-        }
-        
-        const ok = setSetting('suspension_bandwidth_limit', suspension_bandwidth_limit.trim());
-        if (!ok) {
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Gagal menyimpan ke settings.json' 
-            });
-        }
-        
-        logger.info(`Bandwidth limit isolir updated to ${suspension_bandwidth_limit.trim()}`);
-        res.json({ 
-            success: true, 
-            message: `Bandwidth limit diset ke ${suspension_bandwidth_limit.trim()}`,
-            suspension_bandwidth_limit: suspension_bandwidth_limit.trim()
-        });
-    } catch (error) {
-        logger.error('Error saving bandwidth limit:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Error saving bandwidth limit: ' + error.message 
-        });
-    }
-});
-
-// Save Suspension Method
-router.post('/service-suspension/suspension-method', async (req, res) => {
-    try {
-        const { static_ip_suspension_method } = req.body || {};
-        
-        if (!static_ip_suspension_method || !['address_list', 'disable'].includes(static_ip_suspension_method)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Metode suspend tidak valid' 
-            });
-        }
-        
-        const ok = setSetting('static_ip_suspension_method', static_ip_suspension_method);
-        if (!ok) {
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Gagal menyimpan ke settings.json' 
-            });
-        }
-        
-        logger.info(`Static IP suspension method updated to ${static_ip_suspension_method}`);
-        res.json({ 
-            success: true, 
-            message: `Metode suspend diset ke ${static_ip_suspension_method}`,
-            static_ip_suspension_method: static_ip_suspension_method
-        });
-    } catch (error) {
-        logger.error('Error saving suspension method:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Error saving suspension method: ' + error.message 
-        });
     }
 });
 
@@ -4722,44 +4491,6 @@ router.post('/invoices/:id/isolir', async (req, res) => {
         return res.json({ success: !!result?.success, data: result, message: result?.success ? 'Isolir berhasil' : (result?.error || 'Gagal isolir') });
     } catch (error) {
         logger.error('Error manual isolir:', error);
-        return res.status(500).json({ success: false, message: error.message });
-    }
-});
-
-// Disconnect PPPoE Session
-router.post('/customers/:phone/disconnect', async (req, res) => {
-    try {
-        const { phone } = req.params;
-        const customer = await billingManager.getCustomerByPhone(phone);
-        
-        if (!customer) {
-            return res.status(404).json({ success: false, message: 'Pelanggan tidak ditemukan' });
-        }
-        
-        if (!customer.pppoe_username) {
-            return res.status(400).json({ success: false, message: 'Pelanggan tidak memiliki PPPoE username' });
-        }
-        
-        const { disconnectPPPoEUser } = require('../config/mikrotik');
-        const result = await disconnectPPPoEUser(customer.pppoe_username);
-        
-        if (result.success) {
-            logger.info(`✅ PPPoE session disconnected for ${customer.pppoe_username} (${customer.name})`);
-            return res.json({ 
-                success: true, 
-                message: result.message,
-                customer: customer.name,
-                username: customer.pppoe_username
-            });
-        } else {
-            logger.warn(`⚠️ Failed to disconnect PPPoE session for ${customer.pppoe_username}: ${result.message}`);
-            return res.status(500).json({ 
-                success: false, 
-                message: result.message 
-            });
-        }
-    } catch (error) {
-        logger.error('Error disconnecting PPPoE session:', error);
         return res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -4955,17 +4686,8 @@ router.get('/mobile/mapping', getAppSettings, async (req, res) => {
         const activeCustomers = customersWithCoords.filter(c => c.status === 'active').length;
         const suspendedCustomers = customersWithCoords.filter(c => c.status === 'suspended').length;
         
-        res.render('adminMobileMapping', {
-            title: 'Network Mapping Mobile',
-            page: 'mapping',
-            appSettings: req.appSettings,
-            customers: customersWithCoords,
-            stats: {
-                totalCustomers,
-                activeCustomers,
-                suspendedCustomers
-            }
-        });
+        // Use responsive mapping-new.ejs instead of separate mobile version
+        res.redirect('/admin/billing/mapping');
     } catch (error) {
         logger.error('Error loading mobile mapping page:', error);
         res.status(500).render('error', {
@@ -5412,421 +5134,6 @@ router.get('/reports', getAppSettings, async (req, res) => {
         res.status(500).render('error', { 
             message: 'Error loading billing reports',
             error: process.env.NODE_ENV === 'development' ? error : {}
-        });
-    }
-});
-
-// ===== PACKAGES MANAGEMENT =====
-
-// GET: Packages List
-router.get('/packages', adminAuth, async (req, res) => {
-    try {
-        const packages = await billingManager.getPackages();
-
-        res.render('admin/billing/packages', {
-            title: 'Kelola Paket Internet',
-            packages: packages || []
-        });
-    } catch (error) {
-        logger.error('Error loading packages page:', error);
-        res.status(500).render('error', {
-            message: 'Gagal memuat halaman paket',
-            error: error.message
-        });
-    }
-});
-
-// API: Get all packages
-router.get('/api/packages', adminAuth, async (req, res) => {
-    try {
-        const packages = await billingManager.getPackages();
-        res.json({
-            success: true,
-            packages: packages || []
-        });
-    } catch (error) {
-        logger.error('Error getting packages:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Gagal mengambil data paket'
-        });
-    }
-});
-
-// API: Get package by ID
-router.get('/api/packages/:id', adminAuth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const package = await billingManager.getPackageById(parseInt(id));
-
-        if (!package) {
-            return res.status(404).json({
-                success: false,
-                message: 'Paket tidak ditemukan'
-            });
-        }
-
-        res.json({
-            success: true,
-            package: package
-        });
-    } catch (error) {
-        logger.error('Error getting package by ID:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Gagal mengambil data paket'
-        });
-    }
-});
-
-// API: Create new package
-router.post('/packages', adminAuth, async (req, res) => {
-    try {
-        const { name, speed, price, tax_rate, description, pppoe_profile } = req.body;
-
-        // Validasi input
-        if (!name || !speed || !price) {
-            return res.status(400).json({
-                success: false,
-                message: 'Nama, kecepatan, dan harga harus diisi'
-            });
-        }
-
-        // Pastikan tax_rate adalah number atau 0 jika tidak ada PPN
-        const finalTaxRate = tax_rate !== undefined ? parseFloat(tax_rate) : 0;
-
-        const packageData = {
-            name: name.trim(),
-            speed: speed.trim(),
-            price: parseFloat(price),
-            tax_rate: finalTaxRate,
-            description: description ? description.trim() : '',
-            pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
-        };
-
-        const newPackage = await billingManager.createPackage(packageData);
-
-        res.json({
-            success: true,
-            message: 'Paket berhasil ditambahkan',
-            package: newPackage
-        });
-    } catch (error) {
-        logger.error('Error creating package:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Gagal menambahkan paket: ' + error.message
-        });
-    }
-});
-
-// API: Update package
-router.put('/packages/:id', adminAuth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, speed, price, tax_rate, description, pppoe_profile } = req.body;
-
-        // Validasi input
-        if (!name || !speed || !price) {
-            return res.status(400).json({
-                success: false,
-                message: 'Nama, kecepatan, dan harga harus diisi'
-            });
-        }
-
-        // Pastikan tax_rate adalah number atau 0 jika tidak ada PPN
-        const finalTaxRate = tax_rate !== undefined ? parseFloat(tax_rate) : 0;
-
-        const packageData = {
-            name: name.trim(),
-            speed: speed.trim(),
-            price: parseFloat(price),
-            tax_rate: finalTaxRate,
-            description: description ? description.trim() : '',
-            pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
-        };
-
-        const updatedPackage = await billingManager.updatePackage(parseInt(id), packageData);
-
-        res.json({
-            success: true,
-            message: 'Paket berhasil diupdate',
-            package: updatedPackage
-        });
-    } catch (error) {
-        logger.error('Error updating package:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Gagal mengupdate paket: ' + error.message
-        });
-    }
-});
-
-// API: Delete package
-router.delete('/packages/:id', adminAuth, async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // Cek apakah paket digunakan oleh customer
-        const customers = await billingManager.getCustomers();
-        const usedByCustomers = customers.filter(c => c.package_id === parseInt(id));
-
-        if (usedByCustomers.length > 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Tidak dapat menghapus paket karena masih digunakan oleh pelanggan'
-            });
-        }
-
-        await billingManager.deletePackage(parseInt(id));
-
-        res.json({
-            success: true,
-            message: 'Paket berhasil dihapus'
-        });
-    } catch (error) {
-        logger.error('Error deleting package:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Gagal menghapus paket: ' + error.message
-        });
-    }
-});
-
-// ===== SYSTEM UPDATE MANAGEMENT =====
-
-// API: Check for updates from GitHub
-router.get('/system/check-update', adminAuth, async (req, res) => {
-    try {
-        console.log('🔍 Checking for updates from GitHub...');
-
-        const { exec } = require('child_process');
-        const branch = req.query.branch || 'main';
-
-        // Check if git repository exists
-        try {
-            await new Promise((resolve, reject) => {
-                exec('git rev-parse --git-dir', (error, stdout, stderr) => {
-                    if (error) reject(error);
-                    else resolve(stdout);
-                });
-            });
-        } catch (error) {
-            return res.json({
-                success: false,
-                message: 'Git repository not found. Please clone the repository first.',
-                branch: branch,
-                local: 'unknown',
-                remote: 'unknown'
-            });
-        }
-
-        // Get local commit hash
-        const localCommit = await new Promise((resolve, reject) => {
-            exec('git rev-parse HEAD', (error, stdout, stderr) => {
-                if (error) reject(error);
-                else resolve(stdout.trim());
-            });
-        });
-
-        // Fetch latest changes from remote
-        await new Promise((resolve, reject) => {
-            exec('git fetch origin', (error, stdout, stderr) => {
-                if (error) reject(error);
-                else resolve(stdout);
-            });
-        });
-
-        // Get remote commit hash
-        const remoteCommit = await new Promise((resolve, reject) => {
-            exec(`git rev-parse origin/${branch}`, (error, stdout, stderr) => {
-                if (error) reject(error);
-                else resolve(stdout.trim());
-            });
-        });
-
-        // Get commit list between local and remote
-        const commits = await new Promise((resolve, reject) => {
-            if (localCommit === remoteCommit) {
-                resolve([]);
-                return;
-            }
-
-            exec(`git log --oneline ${localCommit}..origin/${branch}`, (error, stdout, stderr) => {
-                if (error) reject(error);
-                else {
-                    const commits = stdout.trim().split('\n').filter(line => line.length > 0);
-                    resolve(commits);
-                }
-            });
-        });
-
-        const hasUpdate = localCommit !== remoteCommit;
-
-        console.log('✅ Update check completed:', {
-            branch,
-            local: localCommit.substring(0, 7),
-            remote: remoteCommit.substring(0, 7),
-            hasUpdate,
-            commitsCount: commits.length
-        });
-
-        res.json({
-            success: true,
-            hasUpdate: hasUpdate,
-            branch: branch,
-            local: localCommit.substring(0, 7),
-            remote: remoteCommit.substring(0, 7),
-            commits: commits
-        });
-
-    } catch (error) {
-        console.error('❌ Error checking updates:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error checking updates: ' + error.message
-        });
-    }
-});
-
-// API: Update system from GitHub and restart
-router.post('/system/update', adminAuth, async (req, res) => {
-    try {
-        console.log('🚀 Starting system update...');
-
-        const { exec } = require('child_process');
-        const branch = req.body.branch || 'main';
-        const log = [];
-
-        // Log function
-        const logMessage = (message) => {
-            console.log(message);
-            log.push(message);
-        };
-
-        logMessage(`🔄 Starting update from branch: ${branch}`);
-
-        // Check if git repository exists
-        try {
-            await new Promise((resolve, reject) => {
-                exec('git rev-parse --git-dir', (error, stdout, stderr) => {
-                    if (error) reject(new Error('Git repository not found'));
-                    else resolve(stdout);
-                });
-            });
-        } catch (error) {
-            return res.json({
-                success: false,
-                message: 'Git repository not found. Please clone the repository first.',
-                log: log
-            });
-        }
-
-        // Backup settings.json
-        try {
-            logMessage('💾 Backing up settings.json...');
-            await new Promise((resolve, reject) => {
-                exec('cp settings.json settings.json.backup', (error, stdout, stderr) => {
-                    if (error) reject(error);
-                    else resolve(stdout);
-                });
-            });
-            logMessage('✅ Settings backup created');
-        } catch (error) {
-            logMessage('⚠️ Failed to backup settings.json: ' + error.message);
-        }
-
-        // Pull latest changes from GitHub
-        try {
-            logMessage(`📥 Pulling changes from origin/${branch}...`);
-            const pullResult = await new Promise((resolve, reject) => {
-                exec(`git pull origin ${branch}`, (error, stdout, stderr) => {
-                    if (error) reject(error);
-                    else resolve({ stdout, stderr });
-                });
-            });
-
-            logMessage('✅ Git pull completed');
-            if (pullResult.stdout) logMessage('Git output: ' + pullResult.stdout);
-            if (pullResult.stderr) logMessage('Git stderr: ' + pullResult.stderr);
-
-        } catch (error) {
-            logMessage('❌ Git pull failed: ' + error.message);
-            throw error;
-        }
-
-        // Install new dependencies
-        try {
-            logMessage('📦 Installing dependencies...');
-            const npmResult = await new Promise((resolve, reject) => {
-                exec('npm install', (error, stdout, stderr) => {
-                    if (error) reject(error);
-                    else resolve({ stdout, stderr });
-                });
-            });
-
-            logMessage('✅ Dependencies installed');
-            if (npmResult.stdout) logMessage('NPM output: ' + npmResult.stdout);
-
-        } catch (error) {
-            logMessage('⚠️ NPM install failed: ' + error.message);
-            // Don't fail the update if npm install fails, just warn
-        }
-
-        // Restart application via PM2
-        try {
-            logMessage('🔄 Restarting application...');
-
-            // Check if PM2 is available and process is running
-            const pm2Status = await new Promise((resolve) => {
-                exec('pm2 list', (error, stdout, stderr) => {
-                    resolve({ error, stdout, stderr });
-                });
-            });
-
-            if (pm2Status.error) {
-                logMessage('⚠️ PM2 not available, trying direct restart...');
-                // Try direct restart
-                exec('npm start', { detached: true, stdio: 'ignore' });
-                logMessage('✅ Application restarted directly');
-            } else {
-                // Use PM2 restart
-                const restartResult = await new Promise((resolve, reject) => {
-                    exec('pm2 restart gembok-bill', (error, stdout, stderr) => {
-                        if (error) reject(error);
-                        else resolve({ stdout, stderr });
-                    });
-                });
-
-                logMessage('✅ Application restarted via PM2');
-                if (restartResult.stdout) logMessage('PM2 output: ' + restartResult.stdout);
-            }
-
-        } catch (error) {
-            logMessage('⚠️ Restart failed: ' + error.message);
-            // Don't fail the update if restart fails
-        }
-
-        logMessage('🎉 Update completed successfully!');
-
-        // Return success response
-        res.json({
-            success: true,
-            message: 'Update completed successfully',
-            log: log
-        });
-
-        // Auto restart the server after a delay to ensure response is sent
-        setTimeout(() => {
-            process.exit(0);
-        }, 2000);
-
-    } catch (error) {
-        console.error('❌ Error in system update:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Update failed: ' + error.message,
-            log: log
         });
     }
 });

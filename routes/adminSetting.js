@@ -500,41 +500,8 @@ router.post('/backup', async (req, res) => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupFile = path.join(backupPath, `billing_backup_${timestamp}.db`);
         
-        // Proper SQLite backup dengan WAL checkpoint
-        const sqlite3 = require('sqlite3').verbose();
-        const db = new sqlite3.Database(dbPath);
-        
-        // Checkpoint WAL file untuk memastikan semua data tersimpan
-        await new Promise((resolve, reject) => {
-            db.run('PRAGMA wal_checkpoint(FULL)', (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-        
-        // Close database connection
-        await new Promise((resolve, reject) => {
-            db.close((err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-        
-        // Copy database file setelah WAL checkpoint
+        // Copy database file
         fs.copyFileSync(dbPath, backupFile);
-        
-        // Juga copy WAL dan SHM files jika ada
-        const walFile = dbPath + '-wal';
-        const shmFile = dbPath + '-shm';
-        const backupWalFile = backupFile + '-wal';
-        const backupShmFile = backupFile + '-shm';
-        
-        if (fs.existsSync(walFile)) {
-            fs.copyFileSync(walFile, backupWalFile);
-        }
-        if (fs.existsSync(shmFile)) {
-            fs.copyFileSync(shmFile, backupShmFile);
-        }
         
         logger.info(`Database backup created: ${backupFile}`);
         
@@ -566,69 +533,13 @@ router.post('/restore', upload.single('backup_file'), async (req, res) => {
         const dbPath = path.join(__dirname, '../data/billing.db');
         const backupPath = path.join(__dirname, '../data/backup', req.file.filename);
         
-        // Validasi file backup exists
-        if (!fs.existsSync(backupPath)) {
-            return res.status(400).json({
-                success: false,
-                message: 'File backup tidak ditemukan di server'
-            });
-        }
-        
         // Backup database saat ini sebelum restore
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const currentBackup = path.join(__dirname, '../data/backup', `pre_restore_${timestamp}.db`);
-        
-        // Close semua koneksi database terlebih dahulu
-        const sqlite3 = require('sqlite3').verbose();
-        const db = new sqlite3.Database(dbPath);
-        
-        // Checkpoint WAL file
-        await new Promise((resolve, reject) => {
-            db.run('PRAGMA wal_checkpoint(FULL)', (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-        
-        // Close database connection
-        await new Promise((resolve, reject) => {
-            db.close((err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-        
-        // Backup database saat ini
         fs.copyFileSync(dbPath, currentBackup);
-        
-        // Juga backup WAL dan SHM files
-        const walFile = dbPath + '-wal';
-        const shmFile = dbPath + '-shm';
-        const currentBackupWal = currentBackup + '-wal';
-        const currentBackupShm = currentBackup + '-shm';
-        
-        if (fs.existsSync(walFile)) {
-            fs.copyFileSync(walFile, currentBackupWal);
-        }
-        if (fs.existsSync(shmFile)) {
-            fs.copyFileSync(shmFile, currentBackupShm);
-        }
         
         // Restore database
         fs.copyFileSync(backupPath, dbPath);
-        
-        // Restore WAL dan SHM files jika ada
-        const backupWalFile = backupPath + '-wal';
-        const backupShmFile = backupPath + '-shm';
-        const restoreWalFile = dbPath + '-wal';
-        const restoreShmFile = dbPath + '-shm';
-        
-        if (fs.existsSync(backupWalFile)) {
-            fs.copyFileSync(backupWalFile, restoreWalFile);
-        }
-        if (fs.existsSync(backupShmFile)) {
-            fs.copyFileSync(backupShmFile, restoreShmFile);
-        }
         
         logger.info(`Database restored from: ${req.file.filename}`);
         

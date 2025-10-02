@@ -476,9 +476,7 @@ router.get('/success/:purchaseId', async (req, res) => {
             vouchers: vouchers,
             customerName: purchase.customer_name,
             customerPhone: purchase.customer_phone,
-            status: purchase.status,
-            wifiName: settings.hotspot_config?.wifi_name || 'GEMBOK-WIFI',
-            hotspotUrl: settings.hotspot_config?.hotspot_url || 'http://192.168.88.1'
+            status: purchase.status
         };
 
         res.render('voucherSuccess', {
@@ -619,8 +617,8 @@ function getPackageDuration(packageId) {
 }
 
 // Helper function untuk format pesan voucher WhatsApp
-function formatVoucherMessage(vouchers, purchase) {
-    let message = `🛒 *VOUCHER HOTSPOT BERHASIL DIBELI*\n\n`;
+function formatVoucherMessage(vouchers, purchase, settings) {
+    let message = `🛒 *${settings.company_header || 'VOUCHER HOTSPOT'} BERHASIL DIBELI*\n\n`;
     message += `👤 Nama: ${purchase.customer_name}\n`;
     message += `📱 No HP: ${purchase.customer_phone}\n`;
     message += `💰 Total: Rp ${purchase.amount.toLocaleString('id-ID')}\n\n`;
@@ -633,32 +631,22 @@ function formatVoucherMessage(vouchers, purchase) {
         message += `   Profile: ${voucher.profile}\n\n`;
     });
 
-    // Get hotspot config from settings
-    const settings = getSettingsWithCache();
-    const wifiName = settings.hotspot_config?.wifi_name || 'GEMBOK-WIFI';
-    const hotspotUrl = settings.hotspot_config?.hotspot_url || 'http://192.168.88.1';
-    
     message += `🌐 *CARA PENGGUNAAN:*\n`;
-    message += `1. Hubungkan ke WiFi ${wifiName}\n`;
-    message += `2. Buka browser ke ${hotspotUrl}\n`;
+    message += `1. Hubungkan ke WiFi hotspot\n`;
+    message += `2. Buka browser dan login ke hotspot\n`;
     message += `3. Masukkan Username & Password di atas\n`;
     message += `4. Klik Login\n\n`;
 
     message += `⏰ *MASA AKTIF:* Sesuai paket yang dipilih\n\n`;
-    message += `📞 *BANTUAN:* Hubungi admin jika ada kendala\n\n`;
-    message += `Terima kasih telah menggunakan layanan kami! 🚀`;
+    message += `📞 *BANTUAN:* Hubungi ${settings.contact_phone || settings['admins.0'] || 'admin'} jika ada kendala\n\n`;
+    message += `Terima kasih telah menggunakan layanan ${settings.company_header || 'kami'}! 🚀`;
 
     return message;
 }
 
 // Helper function untuk format pesan voucher dengan link success page
-function formatVoucherMessageWithSuccessPage(vouchers, purchase, successUrl) {
-    // Get hotspot config from settings
-    const settings = getSettingsWithCache();
-    const wifiName = settings.hotspot_config?.wifi_name || 'GEMBOK-WIFI';
-    const hotspotUrl = settings.hotspot_config?.hotspot_url || 'http://192.168.88.1';
-    
-    let message = `🛒 *VOUCHER HOTSPOT BERHASIL DIBELI*\n\n`;
+function formatVoucherMessageWithSuccessPage(vouchers, purchase, successUrl, settings) {
+    let message = `🛒 *${settings.company_header || 'VOUCHER HOTSPOT'} BERHASIL DIBELI*\n\n`;
     message += `👤 Nama: ${purchase.customer_name}\n`;
     message += `📱 No HP: ${purchase.customer_phone}\n`;
     message += `💰 Total: Rp ${purchase.amount.toLocaleString('id-ID')}\n\n`;
@@ -675,15 +663,14 @@ function formatVoucherMessageWithSuccessPage(vouchers, purchase, successUrl) {
     message += `${successUrl}\n\n`;
 
     message += `🌐 *CARA PENGGUNAAN:*\n`;
-    message += `1. Hubungkan ke WiFi ${wifiName}\n`;
-    message += `2. Buka browser ke ${hotspotUrl}\n`;
+    message += `1. Hubungkan ke WiFi hotspot\n`;
+    message += `2. Buka browser dan login ke hotspot\n`;
     message += `3. Masukkan Username & Password di atas\n`;
     message += `4. Klik Login\n\n`;
 
     message += `⏰ *MASA AKTIF:* Sesuai paket yang dipilih\n\n`;
-
-    message += `📞 *BANTUAN:* Hubungi admin jika ada kendala\n\n`;
-    message += `Terima kasih telah menggunakan layanan kami! 🚀`;
+    message += `📞 *BANTUAN:* Hubungi ${settings.contact_phone || settings['admins.0'] || 'admin'} jika ada kendala\n\n`;
+    message += `Terima kasih telah menggunakan layanan ${settings.company_header || 'kami'}! 🚀`;
 
     return message;
 }
@@ -833,27 +820,21 @@ async function handleVoucherWebhook(body, headers) {
             if (purchase.customer_phone) {
                 try {
                     const { sendMessage } = require('../config/sendMessage');
-                    // Get base URL from settings.json
+                    const { getSettingsWithCache } = require('../config/settingsManager');
                     const settings = getSettingsWithCache();
-                    const serverHost = settings.server_host || 'localhost';
-                    const serverPort = settings.server_port || '3003';
-                    const companyWebsite = settings.company_website;
-                    
-                    // Use company_website if available and starts with http, otherwise use server_host:port
-                    let baseUrl;
-                    if (companyWebsite && companyWebsite.startsWith('http')) {
-                        baseUrl = companyWebsite;
-                    } else {
-                        baseUrl = `http://${serverHost}:${serverPort}`;
-                    }
-                    
-                    const successUrl = `${baseUrl}/voucher/success/${purchase.id}`;
-                    const voucherText = formatVoucherMessageWithSuccessPage(generatedVouchers, purchase, successUrl);
+
+                    // Gunakan settings untuk membuat URL yang konsisten
+                    const baseUrl = settings.server_host || 'localhost';
+                    const port = settings.server_port || '3003';
+                    const protocol = baseUrl.includes('localhost') || baseUrl.match(/^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./) ? 'http' : 'https';
+                    const successUrl = `${protocol}://${baseUrl}:${port}/voucher/success/${purchase.id}`;
+
+                    const voucherText = formatVoucherMessageWithSuccessPage(generatedVouchers, purchase, successUrl, settings);
                     const deliveryResult = await sendVoucherWithRetry(purchase.customer_phone, voucherText);
-                    
+
                     // Log delivery result
                     await logVoucherDelivery(purchase.id, purchase.customer_phone, deliveryResult.success, deliveryResult.message);
-                    
+
                     if (deliveryResult.success) {
                         console.log('Voucher sent successfully via WhatsApp');
                     } else {

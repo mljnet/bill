@@ -228,36 +228,11 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
             new Promise((resolve) => {
                 console.log('🔍 Loading customers from database...');
                 db.all(`
-                    SELECT c.id, c.name, c.phone, c.pppoe_username, c.latitude, c.longitude, 
-                           c.address, c.package_id, c.status, c.join_date, c.odp_id,
-                           p.name as package_name, p.price as package_price,
-                           CASE 
-                               WHEN EXISTS (
-                                   SELECT 1 FROM invoices i 
-                                   WHERE i.customer_id = c.id 
-                                   AND i.status = 'unpaid' 
-                                   AND i.due_date < date('now')
-                               ) THEN 'overdue'
-                               WHEN EXISTS (
-                                   SELECT 1 FROM invoices i 
-                                   WHERE i.customer_id = c.id 
-                                   AND i.status = 'unpaid'
-                               ) THEN 'unpaid'
-                               WHEN EXISTS (
-                                   SELECT 1 FROM invoices i 
-                                   WHERE i.customer_id = c.id 
-                                   AND i.status = 'paid'
-                               ) THEN 'paid'
-                               ELSE 'no_invoice'
-                           END as payment_status,
-                           (SELECT i.due_date FROM invoices i 
-                            WHERE i.customer_id = c.id 
-                            AND i.status = 'unpaid' 
-                            ORDER BY i.due_date DESC LIMIT 1) as due_date
-                    FROM customers c 
-                    LEFT JOIN packages p ON c.package_id = p.id
-                    WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
-                    ORDER BY c.name
+                    SELECT id, name, phone, pppoe_username, latitude, longitude, 
+                           address, package_id, status, join_date, odp_id
+                    FROM customers 
+                    WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+                    ORDER BY name
                 `, [], (err, rows) => {
                     if (err) {
                         console.error('❌ Error loading customers:', err);
@@ -274,7 +249,7 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                 console.log('🔍 Loading ODPs from database...');
                 db.all(`
                     SELECT id, name, code, latitude, longitude, address, 
-                           capacity, used_ports, status, installation_date, is_pole
+                           capacity, used_ports, status, installation_date
                     FROM odps 
                     ORDER BY name
                 `, [], (err, rows) => {
@@ -302,7 +277,7 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                            c.name as customer_name, c.phone as customer_phone,
                            c.latitude as customer_latitude, c.longitude as customer_longitude,
                            o.name as odp_name, o.code as odp_code,
-                           o.latitude as odp_latitude, o.longitude as odp_longitude, o.is_pole as odp_is_pole
+                           o.latitude as odp_latitude, o.longitude as odp_longitude
                     FROM cable_routes cr
                     LEFT JOIN customers c ON cr.customer_id = c.id
                     LEFT JOIN odps o ON cr.odp_id = o.id
@@ -335,10 +310,8 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                            ns.segment_type, ns.installation_date, ns.status, ns.notes,
                            start_odp.name as start_odp_name, start_odp.code as start_odp_code,
                            start_odp.latitude as start_odp_latitude, start_odp.longitude as start_odp_longitude,
-                           start_odp.is_pole as start_odp_is_pole,
                            end_odp.name as end_odp_name, end_odp.code as end_odp_code,
                            end_odp.latitude as end_odp_latitude, end_odp.longitude as end_odp_longitude,
-                           end_odp.is_pole as end_odp_is_pole,
                            'network_segments' as source_table
                     FROM network_segments ns
                     LEFT JOIN odps start_odp ON ns.start_odp_id = start_odp.id
@@ -355,10 +328,8 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                            oc.installation_date, oc.status, oc.notes,
                            from_odp.name as start_odp_name, from_odp.code as start_odp_code,
                            from_odp.latitude as start_odp_latitude, from_odp.longitude as start_odp_longitude,
-                           from_odp.is_pole as start_odp_is_pole,
                            to_odp.name as end_odp_name, to_odp.code as end_odp_code,
                            to_odp.latitude as end_odp_latitude, to_odp.longitude as end_odp_longitude,
-                           to_odp.is_pole as end_odp_is_pole,
                            'odp_connections' as source_table
                     FROM odp_connections oc
                     LEFT JOIN odps from_odp ON oc.from_odp_id = from_odp.id
@@ -1176,167 +1147,12 @@ router.post('/restart-onu', adminAuth, async (req, res) => {
                 status: 'initiated'
             }
         });
-
+        
     } catch (error) {
         console.error('❌ Error restarting ONU device:', error);
         res.status(500).json({
             success: false,
             message: 'Error restarting ONU device: ' + error.message
-        });
-    }
-});
-
-// API endpoint untuk mobile admin mapping - versi sederhana
-router.get('/api/mobile-mapping-data', adminAuth, async (req, res) => {
-    try {
-        console.log('📱 Mobile Mapping API - Loading simplified data...');
-
-        const dbPath = path.join(__dirname, '../data/billing.db');
-        const db = new sqlite3.Database(dbPath);
-
-        // Load data simplified untuk mobile
-        const [
-            customers,
-            odps,
-            onuDevices
-        ] = await Promise.all([
-            // Load customers dengan koordinat
-            new Promise((resolve) => {
-                db.all(`
-                    SELECT c.id, c.name, c.phone, c.latitude, c.longitude,
-                           c.status, c.package_id, c.pppoe_username,
-                           p.name as package_name, p.price as package_price,
-                           o.name as odp_name
-                    FROM customers c
-                    LEFT JOIN packages p ON c.package_id = p.id
-                    LEFT JOIN odps o ON c.odp_id = o.id
-                    WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
-                    ORDER BY c.name
-                `, [], (err, rows) => {
-                    if (err) {
-                        console.error('❌ Error loading customers:', err);
-                        resolve([]);
-                    } else {
-                        resolve(rows || []);
-                    }
-                });
-            }),
-
-            // Load ODPs
-            new Promise((resolve) => {
-                db.all(`
-                    SELECT id, name, code, latitude, longitude, address,
-                           capacity, used_ports, status, is_pole
-                    FROM odps
-                    WHERE latitude IS NOT NULL AND longitude IS NOT NULL
-                    ORDER BY name
-                `, [], (err, rows) => {
-                    if (err) {
-                        console.error('❌ Error loading ODPs:', err);
-                        resolve([]);
-                    } else {
-                        resolve(rows || []);
-                    }
-                });
-            }),
-
-            // Load ONU devices dari GenieACS (simplified)
-            new Promise(async (resolve) => {
-                try {
-                    const { getDevicesCached } = require('../config/genieacs');
-                    const genieacsDevices = await getDevicesCached();
-
-                    if (!genieacsDevices || genieacsDevices.length === 0) {
-                        resolve([]);
-                        return;
-                    }
-
-                    const devicesWithCoords = [];
-
-                    for (const device of genieacsDevices) {
-                        try {
-                            const deviceId = getValidDeviceId(device);
-                            if (!deviceId) continue;
-
-                            // Get PPPoE username
-                            const pppoeUsername1 = getParameterValue(device, 'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username');
-                            const pppoeUsername2 = getParameterValue(device, 'VirtualParameters.pppoeUsername');
-                            const pppoeUsername = sanitizePPPoEUsername(pppoeUsername2 || pppoeUsername1);
-
-                            if (pppoeUsername && pppoeUsername !== '-') {
-                                // Find customer coordinates
-                                const customer = await new Promise((resolveCustomer) => {
-                                    db.get(`
-                                        SELECT c.latitude, c.longitude, c.name, c.phone, c.status
-                                        FROM customers c
-                                        WHERE c.pppoe_username = ? AND c.latitude IS NOT NULL AND c.longitude IS NOT NULL
-                                    `, [pppoeUsername], (err, row) => {
-                                        if (err) {
-                                            resolveCustomer(null);
-                                        } else {
-                                            resolveCustomer(row);
-                                        }
-                                    });
-                                });
-
-                                if (customer) {
-                                    devicesWithCoords.push({
-                                        id: deviceId,
-                                        name: getParameterValue(device, 'DeviceID.ProductClass') || 'ONU',
-                                        status: getDeviceStatus(device._lastInform),
-                                        latitude: customer.latitude,
-                                        longitude: customer.longitude,
-                                        customerName: customer.name,
-                                        customerPhone: customer.phone,
-                                        customerStatus: customer.status,
-                                        pppoeUsername: pppoeUsername,
-                                        rxPower: getRXPowerValue(device) || 'N/A',
-                                        ssid: getParameterValue(device, 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID') || 'N/A'
-                                    });
-                                }
-                            }
-                        } catch (deviceError) {
-                            continue;
-                        }
-                    }
-
-                    resolve(devicesWithCoords);
-
-                } catch (error) {
-                    console.error('❌ Error loading ONU devices:', error);
-                    resolve([]);
-                }
-            })
-        ]);
-
-        db.close();
-
-        // Hitung statistik untuk mobile
-        const statistics = {
-            totalCustomers: customers.length,
-            totalONU: onuDevices.length,
-            onlineONU: onuDevices.filter(d => d.status === 'Online').length,
-            offlineONU: onuDevices.filter(d => d.status === 'Offline').length,
-            totalODP: odps.length
-        };
-
-        console.log('📱 Mobile Mapping API - Data loaded:', statistics);
-
-        res.json({
-            success: true,
-            data: {
-                customers: customers,
-                onuDevices: onuDevices,
-                odps: odps,
-                statistics: statistics
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ Error in mobile mapping API:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
         });
     }
 });

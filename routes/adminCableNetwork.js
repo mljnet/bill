@@ -22,7 +22,7 @@ const getAppSettings = (req, res, next) => {
         midtransClientKey: getSetting('midtrans_client_key', ''),
         xenditSecretKey: getSetting('xendit_secret_key', ''),
         xenditPublicKey: getSetting('xendit_public_key', ''),
-        timezone: getSetting('app_timezone', 'Asia/Jakarta')
+        timezone: getSetting('timezone', 'Asia/Jakarta')
     };
     next();
 };
@@ -166,13 +166,9 @@ router.get('/odp', adminAuth, getAppSettings, async (req, res) => {
 router.post('/odp', adminAuth, async (req, res) => {
     try {
         const { 
-            name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes, is_pole,
+            name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes,
             enable_connection, from_odp_id, connection_type, cable_capacity, connection_status, connection_notes, cable_length
         } = req.body;
-        
-        // Debug: Log received data
-        console.log('Received ODP data:', req.body);
-        console.log('is_pole value:', is_pole);
         
         // Validasi input
         if (!name || !code || !latitude || !longitude) {
@@ -208,15 +204,12 @@ router.post('/odp', adminAuth, async (req, res) => {
             });
         }
         
-        // Set capacity to 0 if it's a pole ODP
-        const finalCapacity = is_pole === 'on' ? 0 : (capacity || 64);
-        
         // Insert ODP baru
         const newODPId = await new Promise((resolve, reject) => {
             db.run(`
-                INSERT INTO odps (name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes, is_pole)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `, [name, code, parent_odp_id || null, latitude, longitude, address, finalCapacity, status || 'active', notes, is_pole === 'on' ? 1 : 0], function(err) {
+                INSERT INTO odps (name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [name, code, parent_odp_id || null, latitude, longitude, address, capacity || 64, status || 'active', notes], function(err) {
                 if (err) reject(err);
                 else resolve(this.lastID);
             });

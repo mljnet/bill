@@ -325,36 +325,4 @@ router.post('/mikrotik/restart', adminAuth, async (req, res) => {
   }
 });
 
-// POST: Restart Mikrotik Router
-router.post('/mikrotik/restart', adminAuth, async (req, res) => {
-    try {
-        console.log('🔄 Restarting Mikrotik router...');
-
-        const { restartMikrotik } = require('../config/mikrotik');
-
-        const result = await restartMikrotik();
-
-        if (result.success) {
-            console.log('✅ Mikrotik restart initiated successfully');
-            res.json({
-                success: true,
-                message: 'Mikrotik berhasil direstart'
-            });
-        } else {
-            console.error('❌ Mikrotik restart failed:', result.message);
-            res.status(500).json({
-                success: false,
-                message: result.message || 'Gagal restart Mikrotik'
-            });
-        }
-
-    } catch (error) {
-        console.error('❌ Error restarting Mikrotik:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error restarting Mikrotik: ' + error.message
-        });
-    }
-});
-
 module.exports = router;

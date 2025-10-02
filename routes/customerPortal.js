@@ -423,7 +423,7 @@ async function updateSSID(phone, newSSID) {
     const deviceId = device._id;
     const encodedDeviceId = encodeURIComponent(deviceId);
     const settings = getSettingsWithCache();
-    const genieacsUrl = settings.genieacs_url || 'http://192.168.8.151:7557';
+    const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
     const username = settings.genieacs_username || '';
     const password = settings.genieacs_password || '';
     // Update SSID 2.4GHz
@@ -531,7 +531,7 @@ async function updateSSIDOptimized(phone, newSSID) {
     const deviceId = device._id;
     const encodedDeviceId = encodeURIComponent(deviceId);
     const settings = getSettingsWithCache();
-    const genieacsUrl = settings.genieacs_url || 'http://192.168.8.151:7557';
+    const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
     const username = settings.genieacs_username || '';
     const password = settings.genieacs_password || '';
     
@@ -658,7 +658,7 @@ async function updatePassword(phone, newPassword) {
     const deviceId = device._id;
     const encodedDeviceId = encodeURIComponent(deviceId);
     const settings = getSettingsWithCache();
-    const genieacsUrl = settings.genieacs_url || 'http://192.168.8.151:7557';
+    const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
     const username = settings.genieacs_username || '';
     const password = settings.genieacs_password || '';
     const tasksUrl = `${genieacsUrl}/devices/${encodedDeviceId}/tasks`;
@@ -753,7 +753,7 @@ async function updatePasswordOptimized(phone, newPassword) {
     const deviceId = device._id;
     const encodedDeviceId = encodeURIComponent(deviceId);
     const settings = getSettingsWithCache();
-    const genieacsUrl = settings.genieacs_url || 'http://192.168.8.151:7557';
+    const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
     const username = settings.genieacs_username || '';
     const password = settings.genieacs_password || '';
     
@@ -1157,7 +1157,7 @@ router.post('/restart-device', async (req, res) => {
     
     // Ambil konfigurasi GenieACS
     const settings = getSettingsWithCache();
-    const genieacsUrl = settings.genieacs_url || 'http://192.168.8.151:7557';
+    const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
     const username = settings.genieacs_username || 'admin';
     const password = settings.genieacs_password || 'admin';
     

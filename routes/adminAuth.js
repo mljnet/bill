@@ -25,7 +25,12 @@ function adminAuth(req, res, next) {
   if (req.session && req.session.isAdmin) {
     next();
   } else {
-    res.redirect('/admin/login');
+    // Check if this is an API request
+    if (req.path.startsWith('/api/') || req.headers.accept?.includes('application/json')) {
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+    } else {
+      res.redirect('/admin/login');
+    }
   }
 }
 

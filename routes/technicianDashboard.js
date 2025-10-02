@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const { getSetting } = require('../config/settingsManager');
+const { technicianAuth, authManager } = require('./technicianAuth');
 const logger = require('../config/logger');
 
 // Database connection
@@ -1055,296 +1059,59 @@ router.get('/mapping', technicianAuth, async (req, res) => {
     }
 });
 
-// API untuk edit device GenieACS (untuk mapping) - Fast Response System
+// API untuk edit device GenieACS (untuk mapping)
 router.put('/genieacs/devices/:deviceId', technicianAuth, async (req, res) => {
     try {
         const { deviceId } = req.params;
         const { ssid, password, ssid5g, tag } = req.body;
         
-        const { getSetting } = require('../config/settingsManager');
-        const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
-        const genieacsUsername = getSetting('genieacs_username', 'admin');
-        const genieacsPassword = getSetting('genieacs_password', 'password');
+        // Import GenieACS functions
+        const { updateDevice } = require('../config/genieacs');
         
-        // Fast response system (sama seperti admin)
-        if (typeof ssid !== 'undefined' && ssid !== '') {
-            res.json({ 
-                success: true, 
-                field: 'ssid', 
-                message: 'SSID berhasil diupdate!',
-                newSSID: ssid
-            });
-            
-            // Proses update di background (non-blocking)
-            updateSSIDOptimized(deviceId, ssid, genieacsUrl, genieacsUsername, genieacsPassword).then(result => {
-                if (result.success) {
-                    console.log(`✅ Technician SSID update completed for device: ${deviceId} to: ${ssid}`);
-                } else {
-                    console.error(`❌ Technician SSID update failed for device: ${deviceId}: ${result.message}`);
-                }
-            }).catch(error => {
-                console.error('Error in background technician SSID update:', error);
-            });
-            
-        } else if (typeof password !== 'undefined' && password !== '') {
-            res.json({ 
-                success: true, 
-                field: 'password', 
-                message: 'Password berhasil diupdate!'
-            });
-            
-            // Proses update di background (non-blocking)
-            updatePasswordOptimized(deviceId, password, genieacsUrl, genieacsUsername, genieacsPassword).then(result => {
-                if (result.success) {
-                    console.log(`✅ Technician password update completed for device: ${deviceId}`);
-                } else {
-                    console.error(`❌ Technician password update failed for device: ${deviceId}: ${result.message}`);
-                }
-            }).catch(error => {
-                console.error('Error in background technician password update:', error);
-            });
-            
-        } else if (typeof tag !== 'undefined') {
-            res.json({ 
-                success: true, 
-                field: 'tag', 
-                message: 'Tag berhasil diupdate!'
-            });
-            
-            // Proses update tag di background
-            updateTagOptimized(deviceId, tag, genieacsUrl, genieacsUsername, genieacsPassword).then(result => {
-                if (result.success) {
-                    console.log(`✅ Technician tag update completed for device: ${deviceId}`);
-                } else {
-                    console.error(`❌ Technician tag update failed for device: ${deviceId}: ${result.message}`);
-                }
-            }).catch(error => {
-                console.error('Error in background technician tag update:', error);
-            });
-            
-        } else {
-            res.status(400).json({ success: false, message: 'Tidak ada perubahan' });
+        // Prepare device parameters to update
+        const updates = {};
+        
+        if (ssid !== undefined && ssid !== '') {
+            updates['InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID'] = ssid;
+            // SSID 5GHz: gunakan ssid5g bila dikirim, fallback {ssid}-5G
+            const ssid5 = (typeof ssid5g === 'string' && ssid5g.trim()) ? ssid5g.trim() : `${ssid}-5G`;
+            updates['InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID'] = ssid5;
         }
         
+        if (password !== undefined && password !== '') {
+            updates['InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase'] = password;
+            updates['InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase'] = password;
+        }
+        
+        if (tag !== undefined) {
+            updates['Tags'] = tag;
+        }
+        
+        // Update device di GenieACS
+        const result = await updateDevice(deviceId, updates);
+        
+        if (result.success) {
+            // Log activity
+            await authManager.logActivity(
+                req.technician.id,
+                'device_update',
+                `Update device ${deviceId}`,
+                { device_id: deviceId, updates: Object.keys(updates) }
+            );
+            
+            res.json({
+                success: true,
+                message: 'Device berhasil diperbarui',
+                data: result.data
+            });
+        } else {
+            res.status(400).json({
+                success: false,
+                message: result.message || 'Gagal memperbarui device'
+            });
+        }
     } catch (error) {
         logger.error('Error updating device by technician:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error: ' + error.message
-        });
-    }
-});
-
-// Helper: Update SSID Optimized (sama seperti admin) - Fast Response
-async function updateSSIDOptimized(deviceId, newSSID, genieacsUrl, username, password) {
-    try {
-        console.log(`🔄 Optimized SSID update for device: ${deviceId} to: ${newSSID}`);
-        
-        const encodedDeviceId = encodeURIComponent(deviceId);
-        
-        // Buat nama SSID 5G berdasarkan SSID 2.4G (sama seperti admin)
-        const newSSID5G = `${newSSID}-5G`;
-        
-        // Concurrent API calls untuk speed up
-        const axiosConfig = {
-            auth: { username, password },
-            timeout: 10000 // 10 second timeout
-        };
-        
-        // Update SSID 2.4GHz dan 5GHz secara concurrent
-        const tasks = [];
-        
-        // Task 1: Update SSID 2.4GHz
-        tasks.push(
-            axios.post(
-                `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-                {
-                    name: "setParameterValues",
-                    parameters: {
-                        "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID": newSSID
-                    }
-                },
-                axiosConfig
-            )
-        );
-        
-        // Task 2: Update SSID 5GHz
-        tasks.push(
-            axios.post(
-                `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-                {
-                    name: "setParameterValues",
-                    parameters: {
-                        "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID": newSSID5G
-                    }
-                },
-                axiosConfig
-            )
-        );
-        
-        // Execute concurrent tasks
-        const results = await Promise.allSettled(tasks);
-        
-        // Check results
-        const successCount = results.filter(r => r.status === 'fulfilled').length;
-        
-        if (successCount === 2) {
-            console.log(`✅ SSID update successful for device: ${deviceId} (2.4GHz: ${newSSID}, 5GHz: ${newSSID5G})`);
-            return { success: true, message: 'SSID berhasil diupdate' };
-        } else {
-            console.error(`❌ SSID update failed for device: ${deviceId}: ${results[0].reason?.message || 'Unknown error'}`);
-            return { success: false, message: 'Gagal update SSID' };
-        }
-        
-    } catch (error) {
-        console.error('Error in updateSSIDOptimized:', error);
-        return { success: false, message: error.message };
-    }
-}
-
-// Helper: Update Password Optimized (sama seperti admin) - Fast Response
-async function updatePasswordOptimized(deviceId, newPassword, genieacsUrl, username, password) {
-    try {
-        console.log(`🔄 Optimized password update for device: ${deviceId}`);
-        
-        const encodedDeviceId = encodeURIComponent(deviceId);
-        
-        // Concurrent API calls untuk speed up
-        const axiosConfig = {
-            auth: { username, password },
-            timeout: 10000 // 10 second timeout
-        };
-        
-        // Update password 2.4GHz dan 5GHz secara concurrent
-        const tasks = [];
-        
-        // Task 1: Update password 2.4GHz
-        tasks.push(
-            axios.post(
-                `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-                {
-                    name: "setParameterValues",
-                    parameters: {
-                        "InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase": newPassword
-                    }
-                },
-                axiosConfig
-            )
-        );
-        
-        // Task 2: Update password 5GHz
-        tasks.push(
-            axios.post(
-                `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-                {
-                    name: "setParameterValues",
-                    parameters: {
-                        "InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase": newPassword
-                    }
-                },
-                axiosConfig
-            )
-        );
-        
-        // Execute concurrent tasks
-        const results = await Promise.allSettled(tasks);
-        
-        // Check results
-        const successCount = results.filter(r => r.status === 'fulfilled').length;
-        
-        if (successCount === 2) {
-            console.log(`✅ Password update successful for device: ${deviceId}`);
-            return { success: true, message: 'Password berhasil diupdate' };
-        } else {
-            console.error(`❌ Password update failed for device: ${deviceId}: ${results[0].reason?.message || 'Unknown error'}`);
-            return { success: false, message: 'Gagal update password' };
-        }
-        
-    } catch (error) {
-        console.error('Error in updatePasswordOptimized:', error);
-        return { success: false, message: error.message };
-    }
-}
-
-// Helper: Update Tag Optimized - Fast Response
-async function updateTagOptimized(deviceId, newTag, genieacsUrl, username, password) {
-    try {
-        console.log(`🔄 Optimized tag update for device: ${deviceId} to: ${newTag}`);
-        
-        const encodedDeviceId = encodeURIComponent(deviceId);
-        
-        const axiosConfig = {
-            auth: { username, password },
-            timeout: 10000 // 10 second timeout
-        };
-        
-        // Update tag
-        const result = await axios.post(
-            `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
-            {
-                name: "setParameterValues",
-                parameters: {
-                    "Tags": newTag
-                }
-            },
-            axiosConfig
-        );
-        
-        if (result.status === 200 || result.status === 201) {
-            console.log(`✅ Tag update successful for device: ${deviceId} to: ${newTag}`);
-            return { success: true, message: 'Tag berhasil diupdate' };
-        } else {
-            console.error(`❌ Tag update failed for device: ${deviceId}`);
-            return { success: false, message: 'Gagal update tag' };
-        }
-        
-    } catch (error) {
-        console.error('Error in updateTagOptimized:', error);
-        return { success: false, message: error.message };
-    }
-}
-
-// API untuk mengambil detail customer
-router.get('/api/customer-details/:customerId', technicianAuth, async (req, res) => {
-    try {
-        const { customerId } = req.params;
-        
-        // Get customer details from database
-        const customer = await new Promise((resolve, reject) => {
-            db.get(`
-                SELECT c.*, p.name as package_name, o.name as odp_name
-                FROM customers c
-                LEFT JOIN packages p ON c.package_id = p.id
-                LEFT JOIN odps o ON c.odp_id = o.id
-                WHERE c.id = ?
-            `, [customerId], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-        
-        if (!customer) {
-            return res.status(404).json({
-                success: false,
-                message: 'Customer not found'
-            });
-        }
-        
-        // Log activity
-        await authManager.logActivity(
-            req.technician.id,
-            'customer_details_view',
-            `Viewed customer details: ${customer.name}`,
-            { customer_id: customerId, customer_name: customer.name }
-        );
-        
-        res.json({
-            success: true,
-            data: customer
-        });
-        
-    } catch (error) {
-        logger.error('Error getting customer details:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error: ' + error.message
@@ -2435,10 +2202,9 @@ router.get('/api/mapping-data', technicianAuth, async (req, res) => {
             db.all(`
                 SELECT c.id, c.name, c.phone, c.email, c.address, c.latitude, c.longitude,
                        c.pppoe_username, c.status, c.package_id, c.odp_id,
-                       o.name as odp_name, p.name as package_name, p.price as package_price
+                       o.name as odp_name
                 FROM customers c
                 LEFT JOIN odps o ON c.odp_id = o.id
-                LEFT JOIN packages p ON c.package_id = p.id
                 WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
                 ORDER BY c.name
             `, (err, rows) => {
@@ -2446,76 +2212,6 @@ router.get('/api/mapping-data', technicianAuth, async (req, res) => {
                 else resolve(rows || []);
             });
         });
-        
-        // Get ONU devices data from database
-        const onuDevices = await new Promise((resolve, reject) => {
-            db.all(`
-                SELECT od.id, od.name, od.serial_number, od.status, od.ssid, od.password,
-                       od.latitude, od.longitude,
-                       c.name as customer_name, c.id as customer_id, c.pppoe_username,
-                       o.name as odp_name, o.id as odp_id
-                FROM onu_devices od
-                LEFT JOIN customers c ON od.customer_id = c.id
-                LEFT JOIN odps o ON od.odp_id = o.id
-                WHERE od.latitude IS NOT NULL AND od.longitude IS NOT NULL
-                ORDER BY od.name
-            `, (err, rows) => {
-                if (err) {
-                    console.log('Error querying ONU devices:', err);
-                    // If table doesn't exist, return empty array
-                    resolve([]);
-                } else {
-                    console.log('ONU devices found:', rows?.length || 0);
-                    resolve(rows || []);
-                }
-            });
-        });
-
-        // Get RX Power data from GenieACS for ONU devices
-        if (onuDevices.length > 0) {
-            try {
-                const { getDevices } = require('../config/genieacs');
-                const genieacsDevices = await getDevices();
-                
-                // Map GenieACS data to ONU devices
-                onuDevices.forEach(device => {
-                    const genieacsDevice = genieacsDevices.find(gd => 
-                        gd._deviceId && gd._deviceId._SerialNumber === device.serial_number
-                    );
-                    
-                    if (genieacsDevice) {
-                        // Get RX Power from GenieACS data
-                        device.rx_power = genieacsDevice._rxPower || 'N/A';
-                        device.last_inform = genieacsDevice._lastInform || null;
-                        
-                        // Update status based on last inform time
-                        if (device.last_inform) {
-                            const lastInformTime = new Date(device.last_inform).getTime();
-                            const now = Date.now();
-                            const timeDiff = now - lastInformTime;
-                            
-                            // If last inform is more than 1 hour ago, mark as offline
-                            if (timeDiff > 3600000) { // 1 hour in milliseconds
-                                device.status = 'offline';
-                            } else {
-                                device.status = 'online';
-                            }
-                        }
-                    } else {
-                        device.rx_power = 'N/A';
-                        device.status = 'offline';
-                    }
-                });
-                
-                console.log(`✅ Enhanced ${onuDevices.length} ONU devices with GenieACS data`);
-            } catch (genieacsError) {
-                console.warn('⚠️ Could not fetch GenieACS data for ONU devices:', genieacsError.message);
-                // Continue without GenieACS data
-                onuDevices.forEach(device => {
-                    device.rx_power = 'N/A';
-                });
-            }
-        }
         
         // Format cables for map (sesuai struktur tabel cable_routes)
         const formattedCables = cables.map(cable => ({
@@ -2548,14 +2244,13 @@ router.get('/api/mapping-data', technicianAuth, async (req, res) => {
             to_odp: backboneItem.end_odp_name
         }));
         
-        logger.info(`✅ Loaded mapping data: ${odps.length} ODPs, ${customers.length} customers, ${onuDevices.length} ONU devices, ${formattedCables.length} cables, ${formattedBackbone.length} backbone routes`);
+        logger.info(`✅ Loaded mapping data: ${odps.length} ODPs, ${customers.length} customers, ${formattedCables.length} cables, ${formattedBackbone.length} backbone routes`);
         
         res.json({
             success: true,
             data: {
                 odps: odps,
                 customers: customers,
-                onuDevices: onuDevices,
                 cables: formattedCables,
                 backbone: formattedBackbone
             }
@@ -2565,253 +2260,6 @@ router.get('/api/mapping-data', technicianAuth, async (req, res) => {
         res.json({
             success: false,
             message: 'Failed to load mapping data: ' + error.message
-        });
-    }
-});
-
-// API: Update customer ODP only
-router.put('/api/customers/:id/odp', technicianAuth, async (req, res) => {
-    try {
-        const customerId = parseInt(req.params.id);
-        if (!customerId) {
-            return res.status(400).json({ success: false, message: 'ID customer tidak valid' });
-        }
-
-        const { odp_id } = req.body;
-
-        if (!odp_id) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'ODP ID harus diisi' 
-            });
-        }
-
-        // Update only ODP
-        await new Promise((resolve, reject) => {
-            db.run(`
-                UPDATE customers 
-                SET odp_id = ? 
-                WHERE id = ?
-            `, [odp_id, customerId], function(err) {
-                if (err) reject(err);
-                else resolve(this);
-            });
-        });
-
-        // Log activity
-        await authManager.logActivity(req.technician.id, 'customer_odp_update', `Update ODP customer ID: ${customerId} to ODP ID: ${odp_id}`);
-
-        res.json({
-            success: true,
-            message: 'ODP customer berhasil diperbarui'
-        });
-
-    } catch (error) {
-        logger.error('Error updating customer ODP:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Gagal memperbarui ODP customer' 
-        });
-    }
-});
-
-// API: Update customer name only
-router.put('/api/customers/:id/name', technicianAuth, async (req, res) => {
-    try {
-        const customerId = parseInt(req.params.id);
-        if (!customerId) {
-            return res.status(400).json({ success: false, message: 'ID customer tidak valid' });
-        }
-
-        const { name } = req.body;
-
-        if (!name || name.trim() === '') {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Nama customer tidak boleh kosong' 
-            });
-        }
-
-        // Update only name
-        await new Promise((resolve, reject) => {
-            db.run(`
-                UPDATE customers 
-                SET name = ? 
-                WHERE id = ?
-            `, [name.trim(), customerId], function(err) {
-                if (err) reject(err);
-                else resolve(this);
-            });
-        });
-
-        // Log activity
-        await authManager.logActivity(req.technician.id, 'customer_name_update', `Update nama customer ID: ${customerId} to: ${name}`);
-
-        res.json({
-            success: true,
-            message: 'Nama customer berhasil diperbarui'
-        });
-
-    } catch (error) {
-        logger.error('Error updating customer name:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Gagal memperbarui nama customer' 
-        });
-    }
-});
-
-// API: Update customer SSID only
-router.put('/api/customers/:id/ssid', technicianAuth, async (req, res) => {
-    try {
-        const customerId = parseInt(req.params.id);
-        if (!customerId) {
-            return res.status(400).json({ success: false, message: 'ID customer tidak valid' });
-        }
-
-        const { ssid } = req.body;
-
-        if (!ssid || ssid.trim() === '') {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'SSID tidak boleh kosong' 
-            });
-        }
-
-        // Update only SSID
-        await new Promise((resolve, reject) => {
-            db.run(`
-                UPDATE customers 
-                SET ssid = ? 
-                WHERE id = ?
-            `, [ssid.trim(), customerId], function(err) {
-                if (err) reject(err);
-                else resolve(this);
-            });
-        });
-
-        // Log activity
-        await authManager.logActivity(req.technician.id, 'customer_ssid_update', `Update SSID customer ID: ${customerId} to: ${ssid}`);
-
-        res.json({
-            success: true,
-            message: 'SSID customer berhasil diperbarui'
-        });
-
-    } catch (error) {
-        logger.error('Error updating customer SSID:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Gagal memperbarui SSID customer' 
-        });
-    }
-});
-
-// API: Update customer password only
-router.put('/api/customers/:id/password', technicianAuth, async (req, res) => {
-    try {
-        const customerId = parseInt(req.params.id);
-        if (!customerId) {
-            return res.status(400).json({ success: false, message: 'ID customer tidak valid' });
-        }
-
-        const { password } = req.body;
-
-        if (!password || password.trim() === '') {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Password tidak boleh kosong' 
-            });
-        }
-
-        // Update only password
-        await new Promise((resolve, reject) => {
-            db.run(`
-                UPDATE customers 
-                SET password = ? 
-                WHERE id = ?
-            `, [password.trim(), customerId], function(err) {
-                if (err) reject(err);
-                else resolve(this);
-            });
-        });
-
-        // Log activity
-        await authManager.logActivity(req.technician.id, 'customer_password_update', `Update password customer ID: ${customerId}`);
-
-        res.json({
-            success: true,
-            message: 'Password customer berhasil diperbarui'
-        });
-
-    } catch (error) {
-        logger.error('Error updating customer password:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Gagal memperbarui password customer' 
-        });
-    }
-});
-
-// API: Update ONU ODP and Customer
-router.post('/api/update-onu', technicianAuth, async (req, res) => {
-    try {
-        const { id, odp_id, customer_id } = req.body;
-
-        if (!id) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'ID device tidak valid' 
-            });
-        }
-
-        // Update ONU device in database
-        const updateFields = [];
-        const values = [];
-
-        if (odp_id) {
-            updateFields.push('odp_id = ?');
-            values.push(odp_id);
-        }
-
-        if (customer_id) {
-            updateFields.push('customer_id = ?');
-            values.push(customer_id);
-        }
-
-        if (updateFields.length === 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Tidak ada field yang diupdate' 
-            });
-        }
-
-        // Add updated timestamp
-        updateFields.push('updated_at = CURRENT_TIMESTAMP');
-        values.push(id);
-
-        const sql = `UPDATE onu_devices SET ${updateFields.join(', ')} WHERE id = ?`;
-        
-        await new Promise((resolve, reject) => {
-            db.run(sql, values, function(err) {
-                if (err) reject(err);
-                else resolve(this);
-            });
-        });
-
-        // Log activity
-        await authManager.logActivity(req.technician.id, 'onu_update', `Update ONU device ID: ${id}`, { odp_id, customer_id });
-
-        res.json({
-            success: true,
-            message: 'ONU device berhasil diperbarui'
-        });
-
-    } catch (error) {
-        logger.error('Error updating ONU device:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Gagal memperbarui ONU device' 
         });
     }
 });
@@ -3530,87 +2978,12 @@ router.post('/settings/update-password', technicianAuth, async (req, res) => {
             message: 'Password berhasil diubah'
         });
     } catch (error) {
-        console.error('Error in technician mobile dashboard API:', error);
+        console.error('Error updating password:', error);
         res.status(500).json({
             success: false,
-            error: error.message
+            message: 'Gagal mengubah password'
         });
     }
 });
 
-// API endpoint untuk teknisi mobile monitoring data
-router.get('/api/mobile-monitoring-data', technicianAuth, async (req, res) => {
-    try {
-        console.log('Technician Mobile Monitoring API - Loading device data...');
-
-        // Get devices dengan pagination sederhana untuk mobile
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
-        const offset = (page - 1) * limit;
-
-        try {
-            const { getDevicesCached } = require('../config/genieacs');
-            const devices = await getDevicesCached();
-
-            if (!devices || devices.length === 0) {
-                return res.json({
-                    success: true,
-                    data: {
-                        devices: [],
-                        pagination: { page: 1, limit: 20, total: 0, pages: 0 }
-                    }
-                });
-            }
-
-            // Process devices untuk mobile (simplified data)
-            const processedDevices = devices.slice(offset, offset + limit).map(device => {
-                const deviceId = device._id || device.id;
-                const lastInform = device._lastInform;
-                const status = lastInform && (Date.now() - new Date(lastInform).getTime()) < 3600*1000 ? 'Online' : 'Offline';
-
-                return {
-                    id: deviceId,
-                    serialNumber: device.DeviceID?.SerialNumber || 'N/A',
-                    model: device.DeviceID?.ProductClass || 'N/A',
-                    status: status,
-                    pppoeUsername: device.VirtualParameters?.pppoeUsername || 'N/A',
-                    ssid: device.VirtualParameters?.wifiSSID || 'N/A',
-                    rxPower: device.VirtualParameters?.RXPower || 'N/A',
-                    lastInform: lastInform || 'N/A'
-                };
-            });
-
-            const totalDevices = devices.length;
-            const totalPages = Math.ceil(totalDevices / limit);
-
-            console.log(`Technician Mobile Monitoring API - Loaded ${processedDevices.length} devices (page ${page}/${totalPages})`);
-
-            res.json({
-                success: true,
-                data: {
-                    devices: processedDevices,
-                    pagination: {
-                        page: page,
-                        limit: limit,
-                        total: totalDevices,
-                        pages: totalPages
-                    }
-                }
-            });
-
-        } catch (error) {
-            console.error('Error loading monitoring data:', error);
-            res.status(500).json({
-                success: false,
-                error: error.message
-            });
-        }
-
-    } catch (error) {
-        console.error('Error in technician mobile monitoring API:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
+module.exports = router;
