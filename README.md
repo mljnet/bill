@@ -91,7 +91,7 @@ cd gembok-bill
 ```bash
 # Install semua dependencies
 npm install
-
+```
 # Jika masih ada masalah, coba manual rebuild:
 npm rebuild sqlite3
 
