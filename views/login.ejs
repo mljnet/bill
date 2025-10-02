@@ -197,7 +197,33 @@
         </form>
         <div id="loginAlert" style="display:none;"></div>
         <div class="text-center footer-text">
-          &copy; <%= new Date().getFullYear() %> <%= typeof settings !== 'undefined' && settings.footer_info ? settings.footer_info : 'ALIJAYA DIGITAL NETWORK' %>
+          <!-- Agent Registration Link -->
+          <div class="mb-3">
+            <h6 class="mb-2 text-muted">Ingin jadi Agent?</h6>
+            <a href="/agent/login" class="btn btn-outline-success btn-sm">
+              <i class="bi bi-person-plus me-2"></i>
+              Daftar Agent Mandiri
+            </a>
+            <p class="small text-muted mt-2 mb-3">
+              <i class="bi bi-info-circle me-1"></i>
+              Daftar sekarang dan mulai transaksi setelah deposit
+            </p>
+          </div>
+          
+          <hr class="my-3">
+          
+          <p class="mb-2">
+            <i class="bi bi-shield-check me-1"></i>
+            Sistem keamanan terjamin
+          </p>
+          <p class="mb-2">
+            <i class="bi bi-telephone me-1"></i>
+            Butuh bantuan? Hubungi <%= settings.contact_phone || 'Admin' %>
+          </p>
+          
+          <p class="mb-0">
+            &copy; <%= new Date().getFullYear() %> <%= typeof settings !== 'undefined' && settings.footer_info ? settings.footer_info : 'ALIJAYA DIGITAL NETWORK' %>
+          </p>
         </div>
       </div>
     </div>

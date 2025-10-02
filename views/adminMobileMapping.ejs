@@ -408,47 +408,26 @@
         }
 
         function loadMapData() {
-            // Load real data from API instead of hardcoded data
-            fetch('/admin/api/mobile-mapping-data')
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        const data = result.data;
-
-                        // Load customers
-                        loadCustomers(data.customers);
-
-                        // Load ONUs
-                        loadONUs(data.onuDevices);
-
-                        // Load ODPs
-                        loadODPs(data.odps);
-
-                        // Update statistics with real data
-                        updateStats(data.statistics);
-
-                        console.log('✅ Real map data loaded:', data.statistics);
-                    } else {
-                        throw new Error(result.error || 'Failed to load map data');
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Error loading map data:', error);
-
-                    // Fallback to sample data if API fails
-                    console.log('🔄 Using fallback sample data...');
-                    loadCustomersFallback();
-                    loadONUsFallback();
-                    loadODPsFallback();
-                    updateStatsFallback();
-
-                    showToast('Menggunakan data sample karena gagal memuat data server', 'warning');
-                });
+            // Load customers
+            loadCustomers();
+            // Load ONUs
+            loadONUs();
+            // Load ODPs
+            loadODPs();
+            // Load cables
+            loadCables();
         }
 
-        function loadCustomers(customers) {
+        function loadCustomers() {
+            // Sample customer data
+            const customers = [
+                { id: 1, name: 'John Doe', lat: -6.2088, lng: 106.8456, status: 'active' },
+                { id: 2, name: 'Jane Smith', lat: -6.2100, lng: 106.8500, status: 'active' },
+                { id: 3, name: 'Bob Johnson', lat: -6.2050, lng: 106.8400, status: 'suspended' }
+            ];
+
             customers.forEach(customer => {
-                const marker = L.circleMarker([customer.latitude, customer.longitude], {
+                const marker = L.circleMarker([customer.lat, customer.lng], {
                     radius: 8,
                     fillColor: customer.status === 'active' ? '#28a745' : '#dc3545',
                     color: 'white',
@@ -459,20 +438,26 @@
                     <div class="text-center">
                         <h6>${customer.name}</h6>
                         <p class="mb-1">Status: <span class="badge bg-${customer.status === 'active' ? 'success' : 'danger'}">${customer.status}</span></p>
-                        <p class="mb-1">Paket: ${customer.package_name || 'N/A'}</p>
                         <small class="text-muted">ID: ${customer.id}</small>
                     </div>
                 `);
-
+                
                 customerLayer.addLayer(marker);
             });
         }
 
-        function loadONUs(onus) {
+        function loadONUs() {
+            // Sample ONU data
+            const onus = [
+                { id: 1, name: 'ONU-001', lat: -6.2085, lng: 106.8450, status: 'online' },
+                { id: 2, name: 'ONU-002', lat: -6.2095, lng: 106.8500, status: 'online' },
+                { id: 3, name: 'ONU-003', lat: -6.2055, lng: 106.8405, status: 'offline' }
+            ];
+
             onus.forEach(onu => {
-                const marker = L.circleMarker([onu.latitude, onu.longitude], {
+                const marker = L.circleMarker([onu.lat, onu.lng], {
                     radius: 6,
-                    fillColor: onu.status === 'Online' ? '#007bff' : '#dc3545',
+                    fillColor: onu.status === 'online' ? '#007bff' : '#dc3545',
                     color: 'white',
                     weight: 2,
                     opacity: 1,
@@ -480,20 +465,24 @@
                 }).bindPopup(`
                     <div class="text-center">
                         <h6>${onu.name}</h6>
-                        <p class="mb-1">Status: <span class="badge bg-${onu.status === 'Online' ? 'success' : 'danger'}">${onu.status}</span></p>
-                        <p class="mb-1">Customer: ${onu.customerName}</p>
-                        <p class="mb-1">RX Power: ${onu.rxPower}</p>
-                        <small class="text-muted">PPPoE: ${onu.pppoeUsername}</small>
+                        <p class="mb-1">Status: <span class="badge bg-${onu.status === 'online' ? 'success' : 'danger'}">${onu.status}</span></p>
+                        <small class="text-muted">ID: ${onu.id}</small>
                     </div>
                 `);
-
+                
                 onuLayer.addLayer(marker);
             });
         }
 
-        function loadODPs(odps) {
+        function loadODPs() {
+            // Sample ODP data
+            const odps = [
+                { id: 1, name: 'ODP-001', lat: -6.2080, lng: 106.8440, capacity: 16, used: 12 },
+                { id: 2, name: 'ODP-002', lat: -6.2100, lng: 106.8480, capacity: 8, used: 5 }
+            ];
+
             odps.forEach(odp => {
-                const marker = L.circleMarker([odp.latitude, odp.longitude], {
+                const marker = L.circleMarker([odp.lat, odp.lng], {
                     radius: 10,
                     fillColor: '#ffc107',
                     color: 'white',
@@ -503,56 +492,39 @@
                 }).bindPopup(`
                     <div class="text-center">
                         <h6>${odp.name}</h6>
-                        <p class="mb-1">Kapasitas: ${odp.used_ports || 0}/${odp.capacity || 0}</p>
+                        <p class="mb-1">Kapasitas: ${odp.used}/${odp.capacity}</p>
                         <div class="progress mb-2" style="height: 5px;">
-                            <div class="progress-bar" style="width: ${odp.capacity ? (odp.used_ports / odp.capacity) * 100 : 0}%"></div>
+                            <div class="progress-bar" style="width: ${(odp.used/odp.capacity)*100}%"></div>
                         </div>
-                        <small class="text-muted">${odp.address || ''}</small>
+                        <small class="text-muted">ID: ${odp.id}</small>
                     </div>
                 `);
-
+                
                 odpLayer.addLayer(marker);
             });
         }
 
-        function updateStats(statistics) {
-            document.getElementById('totalCustomers').textContent = statistics.totalCustomers || 0;
-            document.getElementById('totalONU').textContent = statistics.totalONU || 0;
-            document.getElementById('onlineONU').textContent = statistics.onlineONU || 0;
-            document.getElementById('offlineONU').textContent = statistics.offlineONU || 0;
-        }
-
-        // Fallback functions jika API gagal
-        function loadCustomersFallback() {
-            const customers = [
-                { id: 1, name: 'John Doe', latitude: -6.2088, longitude: 106.8456, status: 'active', package_name: 'Premium 50Mbps' },
-                { id: 2, name: 'Jane Smith', latitude: -6.2100, longitude: 106.8500, status: 'active', package_name: 'Basic 20Mbps' },
-                { id: 3, name: 'Bob Johnson', latitude: -6.2050, longitude: 106.8400, status: 'suspended', package_name: 'Premium 100Mbps' }
+        function loadCables() {
+            // Sample cable routes
+            const cables = [
+                { from: [-6.2080, 106.8440], to: [-6.2085, 106.8450], status: 'connected' },
+                { from: [-6.2080, 106.8440], to: [-6.2095, 106.8500], status: 'connected' },
+                { from: [-6.2100, 106.8480], to: [-6.2055, 106.8405], status: 'disconnected' }
             ];
 
-            loadCustomers(customers);
+            cables.forEach(cable => {
+                const polyline = L.polyline([cable.from, cable.to], {
+                    color: cable.status === 'connected' ? '#28a745' : '#dc3545',
+                    weight: 3,
+                    opacity: 0.8
+                });
+                
+                cableLayer.addLayer(polyline);
+            });
         }
 
-        function loadONUsFallback() {
-            const onus = [
-                { id: 1, name: 'ONU-001', latitude: -6.2085, longitude: 106.8450, status: 'Online', customerName: 'John Doe', rxPower: '-15.5', pppoeUsername: 'john001' },
-                { id: 2, name: 'ONU-002', latitude: -6.2095, longitude: 106.8500, status: 'Online', customerName: 'Jane Smith', rxPower: '-16.2', pppoeUsername: 'jane002' },
-                { id: 3, name: 'ONU-003', latitude: -6.2055, longitude: 106.8405, status: 'Offline', customerName: 'Bob Johnson', rxPower: 'N/A', pppoeUsername: 'bob003' }
-            ];
-
-            loadONUs(onus);
-        }
-
-        function loadODPsFallback() {
-            const odps = [
-                { id: 1, name: 'ODP-001', latitude: -6.2080, longitude: 106.8440, capacity: 16, used_ports: 12, address: 'Jl. Sudirman No. 123' },
-                { id: 2, name: 'ODP-002', latitude: -6.2100, longitude: 106.8480, capacity: 8, used_ports: 5, address: 'Jl. Thamrin No. 456' }
-            ];
-
-            loadODPs(odps);
-        }
-
-        function updateStatsFallback() {
+        function updateStats() {
+            // Update statistics
             document.getElementById('totalCustomers').textContent = '3';
             document.getElementById('totalONU').textContent = '3';
             document.getElementById('onlineONU').textContent = '2';

@@ -182,22 +182,17 @@
                             </li>
                             <li class="mb-2">
                                 <i class="bi bi-check-circle text-success me-2"></i>
-                                Kode voucher telah dikirim ke WhatsApp Anda
-                            </li>
-                            <li class="mb-2">
-                                <i class="bi bi-check-circle text-success me-2"></i>
                                 Simpan halaman ini untuk referensi di kemudian hari
                             </li>
                             <li class="mb-0">
                                 <i class="bi bi-exclamation-triangle text-warning me-2"></i>
-                                Jika ada masalah, hubungi admin: <strong><%= adminContact %></strong>
+                                Jika ada masalah, hubungi admin: <strong><%= settings.contact_phone || settings['admins.0'] || 'Tidak tersedia' %></strong>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="text-center mt-5">
                     <p class="text-muted">
                         <i class="bi bi-clock me-2"></i>
                         Dibuat pada: <%= new Date().toLocaleString('id-ID') %>
@@ -216,16 +211,9 @@
         function generateQRCode() {
             const qrContainer = document.getElementById('qrcode');
             if (qrContainer && window.QRCode) {
-                // Generate QR code with voucher info
-                const qrData = {
-                    type: 'wifi_voucher',
-                    package: '<%= voucherData.packageName %>',
-                    duration: '<%= voucherData.duration %>',
-                    vouchers: <%= JSON.stringify(voucherData.vouchers || []) %>,
-                    timestamp: new Date().toISOString()
-                };
-                
-                QRCode.toCanvas(qrContainer, JSON.stringify(qrData), {
+                // Generate QR code with simple data
+                const qrData = 'Voucher WiFi - ' + window.location.href;
+                QRCode.toCanvas(qrContainer, qrData, {
                     width: 200,
                     height: 200,
                     color: {
@@ -243,23 +231,29 @@
             window.print();
         }
 
-        // Send to WhatsApp
+        // Send to WhatsApp - Server data only
         function sendToWhatsApp() {
-            const phone = '<%= voucherData.customerPhone %>';
-            if (phone) {
-                const message = encodeURIComponent(
-                    `Halo! Berikut adalah kode voucher WiFi Anda:\n\n` +
-                    `Paket: <%= voucherData.packageName %>\n` +
-                    `Durasi: <%= voucherData.duration %>\n\n` +
-                    `<%= voucherData.vouchers ? voucherData.vouchers.map(v => `Voucher: ${v.username}\nPassword: ${v.password}`).join('\n\n') : 'Kode voucher sedang diproses' %>\n\n` +
-                    `Terima kasih telah menggunakan layanan kami!`
-                );
-                window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+            const phone = '<%- voucherData.customerPhone %>';
+            if (phone && phone !== 'undefined' && phone !== '') {
+                // Use data from server-side variables
+                const baseUrl = '<%= settings.server_host || "localhost" %>';
+                const port = '<%= settings.server_port || "3003" %>';
+                const protocol = (baseUrl.includes('localhost') || baseUrl.match(/^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./)) ? 'http' : 'https';
+                const successUrl = `${protocol}://${baseUrl}:${port}/voucher/success/<%- purchase.id %>`;
+
+                const message = [
+                    'Halo! Voucher WiFi berhasil dibeli.',
+                    '',
+                    'Detail lengkap: ' + successUrl,
+                    '',
+                    'Terima kasih telah menggunakan layanan kami!'
+                ].join('\n');
+
+                window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(message), '_blank');
             } else {
                 alert('Nomor WhatsApp tidak tersedia');
             }
         }
-
         // Refresh voucher data
         function refreshVoucher() {
             window.location.reload();
