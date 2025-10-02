@@ -92,10 +92,6 @@ cd gembok-bill
 # Install semua dependencies
 npm install
 
-# Script postinstall akan otomatis menjalankan:
-# - npm rebuild (rebuild native modules)
-# - npm run check-deps (cek dependencies)
-
 # Jika masih ada masalah, coba manual rebuild:
 npm rebuild sqlite3
 
