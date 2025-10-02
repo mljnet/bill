@@ -93,9 +93,11 @@ cd gembok-bill
 npm install
 ```
 Jika masih ada masalah, coba manual rebuild:
+```bash
 npm rebuild sqlite3
-
+```
 Atau install dengan build from source untuk Linux server
+```bash
 npm install sqlite3 --build-from-source
 ```
 
