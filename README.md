@@ -92,10 +92,10 @@ cd gembok-bill
 # Install semua dependencies
 npm install
 ```
-# Jika masih ada masalah, coba manual rebuild:
+Jika masih ada masalah, coba manual rebuild:
 npm rebuild sqlite3
 
-# Atau install dengan build from source untuk Linux server
+Atau install dengan build from source untuk Linux server
 npm install sqlite3 --build-from-source
 ```
 
