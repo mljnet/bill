@@ -208,39 +208,9 @@
                                     </div>
                                 </div>
                             </div>
-                        <!-- Account Information -->
-                        <div class="form-section">
-                            <h5 class="section-title">
-                                <i class="bi bi-key"></i>Informasi Akun
-                            </h5>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">
-                                            <%= action === 'add' ? 'Password *' : 'Password Baru' %>
-                                        </label>
-                                        <input type="password" class="form-control" id="password" name="password" 
-                                               placeholder="<%= action === 'add' ? 'Minimal 6 karakter' : 'Biarkan kosong jika tidak ingin mengubah' %>" 
-                                               <%= action === 'add' ? 'required' : '' %> minlength="6">
-                                        <div class="form-text">
-                                            <%= action === 'add' ? 'Password untuk login portal tukang tagih' : 'Isi hanya jika ingin mengubah password' %>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="confirm_password" class="form-label">
-                                            <%= action === 'add' ? 'Konfirmasi Password *' : 'Konfirmasi Password Baru' %>
-                                        </label>
-                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
-                                               placeholder="<%= action === 'add' ? 'Ulangi password' : 'Biarkan kosong jika tidak ingin mengubah' %>" 
-                                               <%= action === 'add' ? 'required' : '' %> minlength="6">
-                                        <div class="form-text">Konfirmasi password harus sama</div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+
+                        <!-- Form Actions -->
                         <div class="d-flex justify-content-end gap-2">
                             <a href="/admin/collectors" class="btn-cancel">
                                 <i class="bi bi-x me-2"></i>Batal
@@ -270,38 +240,6 @@
         document.getElementById('collectorForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Password validation for new collector
-            if (action === 'add') {
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm_password').value;
-                
-                if (password !== confirmPassword) {
-                    showAlert('danger', 'Error!', 'Konfirmasi password tidak sama');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showAlert('danger', 'Error!', 'Password minimal 6 karakter');
-                    return;
-                }
-            } else if (action === 'edit') {
-                // For edit, only validate if password fields are filled
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm_password').value;
-                
-                if (password || confirmPassword) {
-                    if (password !== confirmPassword) {
-                        showAlert('danger', 'Error!', 'Konfirmasi password tidak sama');
-                        return;
-                    }
-                    
-                    if (password.length < 6) {
-                        showAlert('danger', 'Error!', 'Password minimal 6 karakter');
-                        return;
-                    }
-                }
-            }
-            
             const submitBtn = document.getElementById('submitBtn');
             const btnText = submitBtn.querySelector('.btn-text');
             const loading = submitBtn.querySelector('.loading');
@@ -319,9 +257,7 @@
                     email: formData.get('email'),
                     address: formData.get('address'),
                     commission_rate: parseFloat(formData.get('commission_rate')) || 5,
-                    status: formData.get('status'),
-                    password: formData.get('password'),
-                    confirm_password: formData.get('confirm_password')
+                    status: formData.get('status')
                 };
                 
                 const url = action === 'add' ? '/admin/collectors' : `/admin/collectors/${collectorId}`;

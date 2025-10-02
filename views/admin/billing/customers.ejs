@@ -365,7 +365,9 @@
                     <h1 class="h2">
                         <i class="bx bx-user"></i> <%= title || 'Kelola Pelanggan' %>
                     </h1>
-                    <div>
+                    
+                    <!-- Desktop: Show all buttons -->
+                    <div class="d-none d-lg-block">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
                             <i class="bx bx-plus"></i> Tambah Pelanggan
                         </button>
@@ -380,8 +382,28 @@
                                 <i class="bi bi-cloud-upload"></i> Restore Pelanggan
                             </button>
                         </div>
-
-
+                    </div>
+                    
+                    <!-- Mobile: Hamburger dropdown menu -->
+                    <div class="dropdown d-lg-none">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="actionMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bx bx-menu"></i> Menu
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionMenuDropdown">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
+                                <i class="bx bx-plus"></i> Tambah Pelanggan
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="exportCustomersJsonBtnMobile">
+                                <i class="bi bi-cloud-download"></i> Backup JSON
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" id="exportCustomersXlsxBtnMobile">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Backup XLSX
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#importCustomersModal">
+                                <i class="bi bi-cloud-upload"></i> Restore Pelanggan
+                            </a></li>
+                        </ul>
                     </div>
                 </div>
 
@@ -1260,13 +1282,13 @@
                 $('#editCustomerForm')[0].reset();
             });
 
-            // Export customers JSON
-            $('#exportCustomersJsonBtn').on('click', function() {
+            // Export customers JSON (Desktop & Mobile)
+            $('#exportCustomersJsonBtn, #exportCustomersJsonBtnMobile').on('click', function() {
                 window.location.href = '/admin/billing/export/customers.json';
             });
 
-            // Export customers XLSX
-            $('#exportCustomersXlsxBtn').on('click', function() {
+            // Export customers XLSX (Desktop & Mobile)
+            $('#exportCustomersXlsxBtn, #exportCustomersXlsxBtnMobile').on('click', function() {
                 window.location.href = '/admin/billing/export/customers.xlsx';
             });
 
@@ -2962,5 +2984,8 @@
             }
         }
     </style>
+    
+    <!-- Mobile Bottom Navbar -->
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'customers' }) %>
 </body>
 </html> 

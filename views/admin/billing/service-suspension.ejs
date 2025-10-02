@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setting Isolir - Admin Portal</title>
+    <title>Service Suspension - Admin Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -68,15 +68,15 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">
-                        <i class="bx bx-block"></i> Setting Isolir
+                        <i class="bx bx-pause-circle"></i> Service Suspension
                     </h1>
                 </div>
 
-                <!-- Setting Isolir Overview -->
+                <!-- Service Suspension Overview -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="suspension-card p-4">
-                            <h4><i class="bx bx-shield-x me-2"></i>Kelola Setting Isolir</h4>
+                            <h4><i class="bx bx-shield-x me-2"></i>Kelola Service Suspension</h4>
                             <p class="mb-0">Sistem otomatis untuk menonaktifkan layanan pelanggan yang telat bayar menggunakan profile isolir Mikrotik dan mengaktifkan kembali setelah pembayaran.</p>
                         </div>
                     </div>
@@ -115,8 +115,8 @@
                         <div class="card stats-card">
                             <div class="card-body text-center">
                                 <i class="bx bx-time text-info" style="font-size: 2rem;"></i>
-                                <h3 class="text-info" id="gracePeriod"><%= appSettings.suspension_grace_period_days || '7' %></h3>
-                                <p class="text-muted mb-0">Tambahan Waktu (Hari)</p>
+                                <h3 class="text-info" id="currentGracePeriod"><%= appSettings.suspension_grace_period_days || '3' %></h3>
+                                <p class="text-muted mb-0">Grace Period (Hari)</p>
                             </div>
                         </div>
                     </div>
@@ -142,63 +142,22 @@
                                 <select id="isolirProfileSelect" class="form-select">
                                     <option value="default">Loading...</option>
                                 </select>
-                                <small class="text-muted">Dipakai saat Suspend. Current: <%= appSettings.isolir_profile || 'isolir' %></small>
+                                <small class="text-muted">Dipakai saat Suspend. Profil dari Mikrotik dengan highlight pada profil aktif dari settings.json</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <strong>Tambahan Waktu Setelah Jatuh Tempo</strong>
-                                <button class="btn btn-sm btn-primary" id="saveGracePeriodBtn">
+                                <strong>Pengaturan Grace Period</strong>
+                                <button class="btn btn-sm btn-success" id="saveGracePeriodBtn">
                                     <i class="bx bx-save me-1"></i>Simpan
                                 </button>
                             </div>
                             <div class="card-body">
-                                <label for="gracePeriodInput" class="form-label">Tambahan Waktu (Hari)</label>
-                                <input type="number" id="gracePeriodInput" class="form-control" 
-                                       value="<%= appSettings.suspension_grace_period_days || '7' %>" 
-                                       min="1" max="30" placeholder="Masukkan jumlah hari">
-                                <small class="text-muted">Berapa hari tambahan setelah jatuh tempo sebelum diisolir otomatis. Current: <%= appSettings.suspension_grace_period_days || '7' %> hari</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bandwidth Limit Setting -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <strong>Bandwidth Limit Isolir</strong>
-                                <button class="btn btn-sm btn-primary" id="saveBandwidthLimitBtn">
-                                    <i class="bx bx-save me-1"></i>Simpan
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <label for="bandwidthLimitInput" class="form-label">Bandwidth Limit</label>
-                                <input type="text" id="bandwidthLimitInput" class="form-control" 
-                                       value="<%= appSettings.suspension_bandwidth_limit || '1k/1k' %>" 
-                                       placeholder="Contoh: 1k/1k, 512k/512k">
-                                <small class="text-muted">Batas bandwidth untuk pelanggan yang diisolir. Current: <%= appSettings.suspension_bandwidth_limit || '1k/1k' %></small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <strong>Metode Suspend IP Statis</strong>
-                                <button class="btn btn-sm btn-primary" id="saveSuspensionMethodBtn">
-                                    <i class="bx bx-save me-1"></i>Simpan
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <label for="suspensionMethodSelect" class="form-label">Metode Suspend</label>
-                                <select id="suspensionMethodSelect" class="form-select">
-                                    <option value="address_list" <%= (appSettings.static_ip_suspension_method || 'address_list') === 'address_list' ? 'selected' : '' %>>Address List (Recommended)</option>
-                                    <option value="disable" <%= (appSettings.static_ip_suspension_method || 'address_list') === 'disable' ? 'selected' : '' %>>Disable Interface</option>
-                                </select>
-                                <small class="text-muted">Metode untuk suspend pelanggan IP statis. Current: <%= appSettings.static_ip_suspension_method || 'address_list' %></small>
+                                <label for="gracePeriodInput" class="form-label">Grace Period (Hari)</label>
+                                <input type="number" id="gracePeriodInput" class="form-control" min="1" max="30" placeholder="Masukkan jumlah hari">
+                                <small class="text-muted">Jumlah hari setelah tagihan overdue sebelum customer di-suspend otomatis. Current: <span id="currentGracePeriod"><%= appSettings.suspension_grace_period_days || '3' %></span> hari</small>
                             </div>
                         </div>
                     </div>
@@ -425,9 +384,10 @@
         $('#refreshStatsBtn').click(function() {
             const btn = $(this);
             btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-2"></i>Loading...');
-            
+
             loadStats();
-            
+            loadGracePeriod(); // Also reload grace period
+
             setTimeout(() => {
                 btn.prop('disabled', false).html('<i class="bx bx-refresh me-2"></i>Refresh Stats');
                 showToast('success', 'Refreshed', 'Statistics updated');
@@ -473,116 +433,93 @@
 
         // Initialize
         $(document).ready(function() {
-            // Load current setting first, then load profiles with that value
+            // Load isolir profiles and current setting
+            loadIsolirProfiles();
             loadCurrentIsolirProfile();
+            loadGracePeriod();
             loadStats();
             loadSuspendedCustomers();
-            
-            // Setup new form handlers
-            setupBandwidthLimitHandler();
-            setupSuspensionMethodHandler();
         });
 
-        // Load Mikrotik PPPoE profiles into isolir select
+        // Load Mikrotik PPPoE profiles with active profile highlighting from settings.json
         function loadIsolirProfiles(selected) {
             const sel = document.getElementById('isolirProfileSelect');
             if (!sel) return;
             sel.innerHTML = '<option>Loading...</option>';
-            fetch('/admin/mikrotik/profiles/api')
+
+            // Pertama, ambil profil aktif dari settings.json
+            fetch('/admin/billing/service-suspension/isolir-profile')
                 .then(r => r.json())
-                .then(data => {
-                    const names = Array.from(new Set(((data && data.profiles) || []).map(p => p.name).filter(Boolean)));
-                    if (!names.includes('isolir')) names.unshift('isolir');
-                    sel.innerHTML = '';
-                    names.forEach(n => {
-                        const opt = document.createElement('option');
-                        opt.value = n;
-                        opt.textContent = n;
-                        sel.appendChild(opt);
-                    });
-                    // Set selected value after options are loaded
-                    if (selected) {
-                        sel.value = selected;
-                        // If value doesn't exist, add it
-                        if (sel.value !== selected) {
+                .then(settingsData => {
+                    const currentIsolirProfile = (settingsData && settingsData.success) ? settingsData.isolir_profile : 'isolir';
+
+                    // Kemudian load profil dari Mikrotik API
+                    return fetch('/admin/mikrotik/profiles/api')
+                        .then(r => r.json())
+                        .then(data => {
+                            const names = Array.from(new Set(((data && data.profiles) || []).map(p => p.name).filter(Boolean)));
+
+                            // Pastikan profil dari settings.json ada di daftar
+                            if (currentIsolirProfile && !names.includes(currentIsolirProfile)) {
+                                names.unshift(currentIsolirProfile);
+                            }
+
+                            sel.innerHTML = '';
+                            names.forEach(n => {
+                                const opt = document.createElement('option');
+                                opt.value = n;
+
+                                // Tandai profil yang sedang aktif dari settings.json
+                                if (n === currentIsolirProfile) {
+                                    opt.textContent = n + ' (Aktif)';
+                                    opt.selected = true;
+                                } else {
+                                    opt.textContent = n;
+                                }
+
+                                sel.appendChild(opt);
+                            });
+
+                            // Set selected value jika ada parameter, tapi jangan override profil aktif
+                            if (selected && selected !== currentIsolirProfile) {
+                                sel.value = selected;
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Load isolir profiles error:', err);
+                            // Fallback: buat dropdown dengan profil dari settings.json
+                            sel.innerHTML = '';
                             const opt = document.createElement('option');
-                            opt.value = selected;
-                            opt.textContent = selected;
+                            opt.value = currentIsolirProfile;
+                            opt.textContent = currentIsolirProfile + ' (Aktif)';
+                            opt.selected = true;
                             sel.appendChild(opt);
-                            sel.value = selected;
-                        }
-                    }
+                            showToast('warning', 'Fallback', 'Menggunakan profil dari pengaturan karena gagal load dari Mikrotik');
+                        });
                 })
                 .catch(err => {
-                    console.error('Load isolir profiles error:', err);
-                    sel.innerHTML = '<option value="isolir">isolir</option>';
-                    if (selected && selected !== 'isolir') {
-                        const opt = document.createElement('option');
-                        opt.value = selected;
-                        opt.textContent = selected;
-                        sel.appendChild(opt);
-                        sel.value = selected;
-                    }
-                    showToast('error', 'Gagal', 'Gagal memuat profile Mikrotik');
+                    console.error('Error loading current isolir profile:', err);
+                    // Jika gagal load settings, tetap load dari Mikrotik
+                    fetch('/admin/mikrotik/profiles/api')
+                        .then(r => r.json())
+                        .then(data => {
+                            const names = Array.from(new Set(((data && data.profiles) || []).map(p => p.name).filter(Boolean)));
+                            if (!names.includes('isolir')) names.unshift('isolir');
+                            sel.innerHTML = '';
+                            names.forEach(n => {
+                                const opt = document.createElement('option');
+                                opt.value = n;
+                                opt.textContent = n;
+                                sel.appendChild(opt);
+                            });
+                            if (selected) sel.value = selected;
+                        })
+                        .catch(err => {
+                            console.error('Load isolir profiles error:', err);
+                            sel.innerHTML = '<option value="isolir">isolir</option>';
+                            showToast('error', 'Gagal', 'Gagal memuat profile Mikrotik');
+                        });
                 });
-        }
-
-        // Setup Bandwidth Limit Handler
-        function setupBandwidthLimitHandler() {
-            $('#saveBandwidthLimitBtn').click(function(){
-                const value = $('#bandwidthLimitInput').val().trim();
-                if (!value) {
-                    showToast('error', 'Gagal', 'Bandwidth limit tidak boleh kosong');
-                    return;
-                }
-                
-                const btn = $(this);
-                btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...');
-                fetch('/admin/billing/service-suspension/bandwidth-limit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                    body: new URLSearchParams({ suspension_bandwidth_limit: value }).toString()
-                }).then(r => r.json()).then(data => {
-                    if (data && data.success) {
-                        showToast('success', 'Tersimpan', `Bandwidth limit diset ke: ${value}`);
-                    } else {
-                        showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
-                    }
-                }).catch(err => {
-                    showToast('error', 'Gagal', 'Gagal menyimpan');
-                }).finally(() => {
-                    btn.prop('disabled', false).html('<i class="bx bx-save me-1"></i>Simpan');
-                });
-            });
-        }
-
-        // Setup Suspension Method Handler
-        function setupSuspensionMethodHandler() {
-            $('#saveSuspensionMethodBtn').click(function(){
-                const value = $('#suspensionMethodSelect').val();
-                if (!value) {
-                    showToast('error', 'Gagal', 'Metode suspend tidak boleh kosong');
-                    return;
-                }
-                
-                const btn = $(this);
-                btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...');
-                fetch('/admin/billing/service-suspension/suspension-method', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                    body: new URLSearchParams({ static_ip_suspension_method: value }).toString()
-                }).then(r => r.json()).then(data => {
-                    if (data && data.success) {
-                        showToast('success', 'Tersimpan', `Metode suspend diset ke: ${value}`);
-                    } else {
-                        showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
-                    }
-                }).catch(err => {
-                    showToast('error', 'Gagal', 'Gagal menyimpan');
-                }).finally(() => {
-                    btn.prop('disabled', false).html('<i class="bx bx-save me-1"></i>Simpan');
-                });
-            });
         }
 
         // Get current isolir profile setting
@@ -592,21 +529,29 @@
                 .then(data => {
                     if (data && data.success) {
                         const current = data.isolir_profile || 'isolir';
-                        // Load profiles with current value selected
-                        loadIsolirProfiles(current);
+                        // ensure options exist then update tampilan
+                        const sel = document.getElementById('isolirProfileSelect');
+                        if (sel && sel.options.length > 0) {
+                            // Update tampilan profil aktif tanpa mengubah struktur dropdown
+                            for (let i = 0; i < sel.options.length; i++) {
+                                const option = sel.options[i];
+                                if (option.value === current) {
+                                    option.textContent = current + ' (Aktif)';
+                                    // Pastikan tetap selected
+                                    sel.value = current;
+                                } else if (option.textContent.includes(' (Aktif)')) {
+                                    option.textContent = option.value;
+                                }
+                            }
+                        }
+                        else {
+                            loadIsolirProfiles(current);
+                        }
                         // tandai siap agar change berikutnya dianggap aksi user
-                        isolirSelectReady = true;
-                    } else {
-                        // Fallback jika gagal ambil setting
-                        loadIsolirProfiles('isolir');
                         isolirSelectReady = true;
                     }
                 })
-                .catch(() => {
-                    // Fallback jika gagal ambil setting
-                    loadIsolirProfiles('isolir');
-                    isolirSelectReady = true;
-                });
+                .catch(() => {});
         }
 
         // Save isolir profile
@@ -623,36 +568,21 @@
             }).then(r => r.json()).then(data => {
                 if (data && data.success) {
                     showToast('success', 'Tersimpan', `Isolir profile diset ke: ${value}`);
-                } else {
-                    showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
-                }
-            }).catch(err => {
-                showToast('error', 'Gagal', 'Gagal menyimpan');
-            }).finally(() => {
-                btn.prop('disabled', false).html('<i class="bx bx-save me-1"></i>Simpan');
-            });
-        });
-
-        // Save grace period
-        $('#saveGracePeriodBtn').click(function(){
-            const input = document.getElementById('gracePeriodInput');
-            if (!input) return;
-            const value = parseInt(input.value) || 7;
-            if (value < 1 || value > 30) {
-                showToast('error', 'Error', 'Tambahan waktu harus antara 1-30 hari');
-                return;
-            }
-            const btn = $(this);
-            btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...');
-            fetch('/admin/billing/service-suspension/grace-period', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-                body: new URLSearchParams({ suspension_grace_period_days: value.toString() }).toString()
-            }).then(r => r.json()).then(data => {
-                if (data && data.success) {
-                    showToast('success', 'Tersimpan', `Tambahan waktu diset ke: ${value} hari`);
-                    // Update stats card
-                    $('#gracePeriod').text(value);
+                    // Update tampilan setelah save berhasil
+                    setTimeout(() => {
+                        const sel = document.getElementById('isolirProfileSelect');
+                        if (sel) {
+                            for (let i = 0; i < sel.options.length; i++) {
+                                const option = sel.options[i];
+                                if (option.value === value) {
+                                    option.textContent = value + ' (Aktif)';
+                                    option.selected = true;
+                                } else if (option.textContent.includes(' (Aktif)')) {
+                                    option.textContent = option.value;
+                                }
+                            }
+                        }
+                    }, 100);
                 } else {
                     showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
                 }
@@ -675,6 +605,21 @@
             }).then(r => r.json()).then(data => {
                 if (data && data.success) {
                     showToast('success', 'Tersimpan', `Isolir profile diset ke: ${value}`);
+                    // Update tampilan setelah autosave berhasil
+                    setTimeout(() => {
+                        const sel = document.getElementById('isolirProfileSelect');
+                        if (sel) {
+                            for (let i = 0; i < sel.options.length; i++) {
+                                const option = sel.options[i];
+                                if (option.value === value) {
+                                    option.textContent = value + ' (Aktif)';
+                                    option.selected = true;
+                                } else if (option.textContent.includes(' (Aktif)')) {
+                                    option.textContent = option.value;
+                                }
+                            }
+                        }
+                    }, 100);
                 } else {
                     showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
                 }
@@ -691,17 +636,18 @@
                 .then(data => {
                     const current = (data && data.success && data.isolir_profile) ? data.isolir_profile : (document.getElementById('isolirProfileSelect')?.value || 'isolir');
                     loadIsolirProfiles(current);
-                    // Setelah memuat, paksa set value ke current jika perlu
+                    // Setelah memuat, pastikan profil aktif tetap ter-highlight
                     setTimeout(() => {
                         const sel = document.getElementById('isolirProfileSelect');
                         if (sel) {
-                            sel.value = current;
-                            if (sel.value !== current) {
-                                const opt = document.createElement('option');
-                                opt.value = current;
-                                opt.textContent = current;
-                                sel.appendChild(opt);
-                                sel.value = current;
+                            for (let i = 0; i < sel.options.length; i++) {
+                                const option = sel.options[i];
+                                if (option.value === current) {
+                                    option.textContent = current + ' (Aktif)';
+                                    option.selected = true;
+                                } else if (option.textContent.includes(' (Aktif)')) {
+                                    option.textContent = option.value;
+                                }
                             }
                         }
                     }, 300);
@@ -710,6 +656,56 @@
                     const current = document.getElementById('isolirProfileSelect')?.value;
                     loadIsolirProfiles(current);
                 });
+        });
+
+        // Load current grace period setting
+        function loadGracePeriod() {
+            fetch('/admin/billing/service-suspension/grace-period')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.success) {
+                        const current = data.grace_period_days || '3';
+                        document.getElementById('gracePeriodInput').value = current;
+                        document.getElementById('currentGracePeriod').textContent = current;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading grace period:', err);
+                    // Set default value
+                    document.getElementById('gracePeriodInput').value = '3';
+                    document.getElementById('currentGracePeriod').textContent = '3';
+                });
+        }
+
+        // Save grace period
+        $('#saveGracePeriodBtn').click(function(){
+            const input = document.getElementById('gracePeriodInput');
+            const value = input.value.trim();
+
+            if (!value || isNaN(value) || parseInt(value) < 1 || parseInt(value) > 30) {
+                showToast('error', 'Error', 'Grace period harus antara 1-30 hari');
+                return;
+            }
+
+            const btn = $(this);
+            btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...');
+
+            fetch('/admin/billing/service-suspension/grace-period', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams({ grace_period_days: value }).toString()
+            }).then(r => r.json()).then(data => {
+                if (data && data.success) {
+                    showToast('success', 'Tersimpan', `Grace period diset ke: ${value} hari`);
+                    loadGracePeriod(); // Reload untuk update tampilan
+                } else {
+                    showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
+                }
+            }).catch(err => {
+                showToast('error', 'Gagal', 'Gagal menyimpan');
+            }).finally(() => {
+                btn.prop('disabled', false).html('<i class="bx bx-save me-1"></i>Simpan');
+            });
         });
     </script>
 </body>

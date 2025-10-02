@@ -1,43 +1,38 @@
-<!-- Enhanced Mobile Bottom Navigation -->
+<!-- Mobile Bottom Navigation -->
 <nav class="mobile-bottom-nav">
-    <div class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>" onclick="navigateTo('/technician/dashboard')">
-        <div class="nav-icon">
+    <div class="nav-item" onclick="navigateTo('/technician/dashboard')">
+        <div class="nav-icon <%= currentPage === 'dashboard' ? 'active' : '' %>">
             <i class="bx bx-home"></i>
         </div>
         <span class="nav-label">Dashboard</span>
-        <div class="nav-indicator"></div>
     </div>
     
-    <div class="nav-item <%= currentPage === 'mapping' ? 'active' : '' %>" onclick="navigateTo('/technician/mapping')">
-        <div class="nav-icon">
+    <div class="nav-item" onclick="navigateTo('/technician/mapping')">
+        <div class="nav-icon <%= currentPage === 'mapping' ? 'active' : '' %>">
             <i class="bx bx-map"></i>
         </div>
         <span class="nav-label">Mapping</span>
-        <div class="nav-indicator"></div>
     </div>
     
-    <div class="nav-item <%= currentPage === 'customers' ? 'active' : '' %>" onclick="navigateTo('/technician/customers')">
-        <div class="nav-icon">
+    <div class="nav-item" onclick="navigateTo('/technician/customers')">
+        <div class="nav-icon <%= currentPage === 'customers' ? 'active' : '' %>">
             <i class="bx bx-user"></i>
         </div>
         <span class="nav-label">Customer</span>
-        <div class="nav-indicator"></div>
     </div>
     
-    <div class="nav-item <%= currentPage === 'troubletickets' ? 'active' : '' %>" onclick="navigateTo('/technician/troubletickets')">
-        <div class="nav-icon">
+    <div class="nav-item" onclick="navigateTo('/technician/troubletickets')">
+        <div class="nav-icon <%= currentPage === 'troubletickets' ? 'active' : '' %>">
             <i class="bx bx-error-circle"></i>
         </div>
         <span class="nav-label">Gangguan</span>
-        <div class="nav-indicator"></div>
     </div>
     
-    <div class="nav-item <%= currentPage === 'installations' ? 'active' : '' %>" onclick="navigateTo('/technician/installations')">
-        <div class="nav-icon">
+    <div class="nav-item" onclick="navigateTo('/technician/installations')">
+        <div class="nav-icon <%= currentPage === 'installations' ? 'active' : '' %>">
             <i class="bx bx-wrench"></i>
         </div>
         <span class="nav-label">Tiket</span>
-        <div class="nav-indicator"></div>
     </div>
 </nav>
 
@@ -47,15 +42,14 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 12px 0 8px;
+    padding: 8px 0;
     z-index: 1000;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .nav-item {
@@ -63,80 +57,48 @@
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
     min-width: 60px;
-    position: relative;
 }
 
 .nav-item:hover {
-    background: rgba(13, 110, 253, 0.1);
-    transform: translateY(-2px);
-}
-
-.nav-item.active {
-    background: rgba(13, 110, 253, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
 }
 
 .nav-icon {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 8px;
     margin-bottom: 4px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: #6c757d;
-    font-size: 20px;
-    background: rgba(108, 117, 125, 0.1);
+    transition: all 0.3s ease;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
 }
 
-.nav-item.active .nav-icon {
-    background: linear-gradient(135deg, #0d6efd, #198754);
+.nav-icon.active {
+    background: rgba(255, 255, 255, 0.2);
     color: white;
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .nav-label {
-    font-size: 11px;
-    color: #6c757d;
-    font-weight: 600;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
     text-align: center;
     line-height: 1.2;
-    transition: all 0.3s ease;
-}
-
-.nav-item.active .nav-label {
-    color: #0d6efd;
-    font-weight: 700;
-}
-
-.nav-indicator {
-    position: absolute;
-    top: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 4px;
-    background: #0d6efd;
-    border-radius: 50%;
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.nav-item.active .nav-indicator {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.5);
 }
 
 .nav-item:hover .nav-icon {
+    color: white;
     transform: scale(1.05);
-    background: rgba(13, 110, 253, 0.2);
-    color: #0d6efd;
 }
 
 .nav-item:hover .nav-label {

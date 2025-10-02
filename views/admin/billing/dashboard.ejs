@@ -25,90 +25,102 @@
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <!-- Enhanced Header with Better Organization -->
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
-                    <div>
-                        <h1 class="h2 mb-1">
-                            <i class="bx bx-speedometer text-primary me-2"></i> Dashboard Billing
-                        </h1>
-                        <p class="text-muted mb-0">Overview sistem billing dan monitoring pelanggan</p>
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bx bx-speedometer"></i> Dashboard Billing
+                    </h1>
+                    
+                    <!-- Desktop: Show all buttons -->
+                    <div class="d-none d-lg-block">
+                        <a href="/admin/billing/monthly-summary" class="btn btn-secondary me-2">
+                            <i class="bx bx-calendar"></i> Summary Bulanan
+                        </a>
+                        <a href="/admin/billing/invoices-by-type" class="btn btn-info me-2">
+                            <i class="bx bx-receipt"></i> Invoice by Type
+                        </a>
+                        <button id="cleanupVoucherBtn" class="btn btn-danger me-2" onclick="cleanupVouchers()">
+                            <i class="bx bx-trash"></i> Hapus Voucher Expired
+                        </button>
+                        <button id="cleanupDataBtn" class="btn btn-warning me-2" onclick="cleanupData()">
+                            <i class="bx bx-refresh"></i> Perbaiki Data
+                        </button>
+                        <a href="/admin/billing/payment-settings" class="btn btn-primary">
+                            <i class="bx bx-cog"></i> Payment Settings
+                        </a>
                     </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <!-- Primary Actions -->
-                        <div class="btn-group" role="group">
-                            <a href="/admin/billing/monthly-summary" class="btn btn-outline-primary btn-sm">
-                                <i class="bx bx-calendar me-1"></i> Summary
-                            </a>
-                            <a href="/admin/billing/invoices-by-type" class="btn btn-outline-info btn-sm">
-                                <i class="bx bx-receipt me-1"></i> Invoice Type
-                            </a>
-                            <a href="/admin/billing/payment-settings" class="btn btn-outline-success btn-sm">
-                                <i class="bx bx-cog me-1"></i> Settings
-                            </a>
-                        </div>
-                        
-                        <!-- Secondary Actions Dropdown -->
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                <i class="bx bx-dots-vertical-rounded"></i> More
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="cleanupVouchers()">
-                                    <i class="bx bx-trash text-danger me-2"></i>Hapus Voucher Expired
-                                </a></li>
-                                <li><a class="dropdown-item" href="#" onclick="cleanupData()">
-                                    <i class="bx bx-refresh text-warning me-2"></i>Perbaiki Data
-                                </a></li>
-                            </ul>
-                        </div>
+                    
+                    <!-- Mobile: Hamburger dropdown menu -->
+                    <div class="dropdown d-lg-none">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="actionMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bx bx-menu"></i> Menu
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionMenuDropdown">
+                            <li><a class="dropdown-item" href="/admin/billing/monthly-summary">
+                                <i class="bx bx-calendar"></i> Summary Bulanan
+                            </a></li>
+                            <li><a class="dropdown-item" href="/admin/billing/invoices-by-type">
+                                <i class="bx bx-receipt"></i> Invoice by Type
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="cleanupVouchers(); return false;">
+                                <i class="bx bx-trash"></i> Hapus Voucher Expired
+                            </a></li>
+                            <li><a class="dropdown-item text-warning" href="#" onclick="cleanupData(); return false;">
+                                <i class="bx bx-refresh"></i> Perbaiki Data
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/admin/billing/payment-settings">
+                                <i class="bx bx-cog"></i> Payment Settings
+                            </a></li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Enhanced Statistics Cards -->
-                <div class="row g-3 mb-4">
+                <!-- Statistik Cards -->
+                <div class="row">
                     <div class="col-xl-3 col-md-6">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-                                        <i class="bx bx-user-group text-primary fs-4"></i>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-muted fw-normal mt-0" title="Total Customers">Total Pelanggan</h5>
+                                        <h3 class="mt-3 mb-3"><%= stats.total_customers || 0 %></h3>
+                                        <p class="mb-0 text-muted">
+                                            <span class="text-success me-2">
+                                                <i class="mdi mdi-arrow-up-bold"></i> <%= stats.active_customers || 0 %>
+                                            </span>
+                                            <span class="text-nowrap">Aktif</span>
+                                        </p>
                                     </div>
-                                    <div class="text-end">
-                                        <h3 class="mb-0 fw-bold text-dark"><%= stats.total_customers || 0 %></h3>
-                                        <small class="text-muted">Total Pelanggan</small>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-soft-primary rounded">
+                                            <i class="mdi mdi-account-group font-20 text-primary"></i>
+                                        </span>
                                     </div>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-success bg-opacity-10 text-success me-2">
-                                        <i class="bx bx-check-circle me-1"></i><%= stats.active_customers || 0 %> Aktif
-                                    </span>
-                                    <span class="text-muted small">
-                                        <%= Math.round(((stats.active_customers || 0) / (stats.total_customers || 1)) * 100) %>% Active
-                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="bg-success bg-opacity-10 rounded-3 p-3">
-                                        <i class="bx bx-dollar-circle text-success fs-4"></i>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="text-muted fw-normal mt-0" title="Monthly Revenue">Pendapatan Bulanan</h5>
+                                        <h3 class="mt-3 mb-3">Rp <%= (stats.monthly_revenue || 0).toLocaleString('id-ID') %></h3>
+                                        <p class="mb-0 text-muted">
+                                            <span class="text-success me-2">
+                                                <i class="mdi mdi-arrow-up-bold"></i> <%= stats.paid_monthly_invoices || 0 %>
+                                            </span>
+                                            <span class="text-nowrap">Tagihan Lunas</span>
+                                        </p>
                                     </div>
-                                    <div class="text-end">
-                                        <h3 class="mb-0 fw-bold text-dark">Rp <%= (stats.monthly_revenue || 0).toLocaleString('id-ID') %></h3>
-                                        <small class="text-muted">Pendapatan Bulanan</small>
+                                    <div class="avatar-sm">
+                                        <span class="avatar-title bg-soft-success rounded">
+                                            <i class="mdi mdi-currency-usd font-20 text-success"></i>
+                                        </span>
                                     </div>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-success bg-opacity-10 text-success me-2">
-                                        <i class="bx bx-receipt me-1"></i><%= stats.paid_monthly_invoices || 0 %> Lunas
-                                    </span>
-                                    <span class="text-muted small">
-                                        <%= Math.round(((stats.paid_monthly_invoices || 0) / (stats.total_monthly_invoices || 1)) * 100) %>% Paid
-                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -354,9 +366,6 @@
                                                                 <button type="button" class="btn btn-outline-success" onclick="restoreCustomer('<%= invoice.username %>')">
                                                                     <i class="bx bx-rotate-left"></i> Restore
                                                                 </button>
-                                                                <button type="button" class="btn btn-outline-warning" onclick="disconnectCustomer('<%= invoice.customer_phone || '' %>', '<%= invoice.customer_name || '' %>')">
-                                                                    <i class="bx bx-wifi-off"></i> Disconnect
-                                                                </button>
                                                                 <button type="button" class="btn btn-outline-secondary"
                                                                     data-phone="<%= invoice.customer_phone || '' %>"
                                                                     data-name="<%= invoice.customer_name || '' %>"
@@ -476,25 +485,6 @@
                 showToast('success', 'Restore Berhasil', `Pelanggan ${username} dipulihkan. ${reason ? 'Alasan: ' + reason : ''}`);
             } else {
                 showToast('error', 'Restore Gagal', data.message || 'Gagal melakukan restore');
-            }
-        } catch (e) {
-            console.error(e);
-            showToast('error', 'Error', e.message || 'Terjadi kesalahan');
-        }
-    }
-
-    async function disconnectCustomer(phone, name) {
-        if (!confirm(`Yakin ingin memutus koneksi PPPoE untuk ${name}?`)) return;
-        try {
-            const res = await fetch(`/admin/billing/customers/${encodeURIComponent(phone)}/disconnect`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            const data = await res.json();
-            if (data.success) {
-                showToast('success', 'Koneksi Diputus', `${data.message} untuk ${data.customer}`);
-            } else {
-                showToast('error', 'Gagal Memutus', data.message || 'Gagal memutus koneksi');
             }
         } catch (e) {
             console.error(e);
@@ -794,5 +784,8 @@
             }
         }
     </script>
+    
+    <!-- Mobile Bottom Navbar -->
+    <%- include('../../partials/admin-mobile-navbar', { currentPage: 'dashboard' }) %>
 </body>
 </html>

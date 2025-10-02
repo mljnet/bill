@@ -92,18 +92,8 @@
             transition: all 0.3s ease;
         }
         
-        .btn-reset {
-            background: #ffc107;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            color: #212529;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-reset:hover {
-            background: #e0a800;
+        .btn-delete:hover {
+            background: #c82333;
             transform: translateY(-2px);
         }
         
@@ -323,9 +313,6 @@
                                             <button class="btn btn-edit me-2" onclick="editCollector('<%= collector.id %>')">
                                                 <i class="bi bi-pencil me-1"></i>Edit
                                             </button>
-                                            <button class="btn btn-reset me-2" onclick="resetPassword('<%= collector.id %>')">
-                                                <i class="bi bi-key me-1"></i>Reset Password
-                                            </button>
                                             <button class="btn btn-delete" onclick="deleteCollector('<%= collector.id %>')">
                                                 <i class="bi bi-trash me-1"></i>Hapus
                                             </button>
@@ -365,33 +352,22 @@
             window.location.href = `/admin/collectors/${id}/edit`;
         }
         
-        function resetPassword(id) {
-            const newPassword = prompt('Masukkan password baru untuk tukang tagih ini (minimal 6 karakter):');
-            
-            if (newPassword === null) {
-                return; // User cancelled
-            }
-            
-            if (newPassword.length < 6) {
-                alert('Password minimal 6 karakter!');
-                return;
-            }
-            
-            if (confirm('Apakah Anda yakin ingin mereset password tukang tagih ini?')) {
-                fetch(`/admin/collectors/${id}/reset-password`, {
-                    method: 'POST',
+        function deleteCollector(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus tukang tagih ini?')) {
+                fetch(`/admin/collectors/${id}`, {
+                    method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                    },
-                    body: JSON.stringify({ new_password: newPassword })
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Password berhasil direset! Password baru: ' + newPassword);
+                        alert('Tukang tagih berhasil dihapus!');
+                        window.location.reload();
                     } else {
-                        alert('Error: ' + (data.message || 'Gagal mereset password'));
+                        alert('Error: ' + (data.message || 'Gagal menghapus tukang tagih'));
                     }
                 })
                 .catch(error => {
