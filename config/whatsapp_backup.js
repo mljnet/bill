@@ -986,7 +986,7 @@ async function refreshDevice(deviceId) {
         }
         
         // 2. Coba mendapatkan device terlebih dahulu untuk memastikan ID valid
-        const genieacsUrl = process.env.GENIEACS_URL || 'http://192.168.8.151:7557';
+        const genieacsUrl = process.env.GENIEACS_URL || 'http://localhost:7557';
         
         // Cek apakah device ada
         try {

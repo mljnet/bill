@@ -92,7 +92,7 @@ async function checkRXPowerAndNotify() {
     console.log('📊 Checking RX Power for all devices...');
     
     // Ambil semua device dari GenieACS
-    const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+    const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
     const username = getSetting('genieacs_username', '');
     const password = getSetting('genieacs_password', '');
     

@@ -18,10 +18,9 @@ function formatIndonesianDateTime(date = new Date()) {
       targetDate = new Date(targetDate.getTime() - (yearDiff * 365 * 24 * 60 * 60 * 1000));
     }
     
-    // Convert to Indonesian timezone dari settings.json
-    const timezone = getSetting('app_timezone', 'Asia/Jakarta');
+    // Convert to Indonesian timezone (UTC+7)
     const options = {
-      timeZone: timezone,
+      timeZone: 'Asia/Jakarta',
       day: '2-digit',
       month: '2-digit', 
       year: 'numeric',

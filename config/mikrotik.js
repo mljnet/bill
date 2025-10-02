@@ -63,7 +63,7 @@ async function getMikrotikConnection() {
 
 // Fungsi untuk koneksi ke database RADIUS (MySQL)
 async function getRadiusConnection() {
-    const host = getSetting('radius_host', '192.168.8.1');
+    const host = getSetting('radius_host', 'localhost');
     const user = getSetting('radius_user', 'radius');
     const password = getSetting('radius_password', 'radius');
     const database = getSetting('radius_database', 'radius');
@@ -449,12 +449,21 @@ async function getActiveHotspotUsersRadius() {
 }
 
 // Fungsi untuk menambah user hotspot ke RADIUS
-async function addHotspotUserRadius(username, password, profile) {
+async function addHotspotUserRadius(username, password, profile, comment = null) {
     const conn = await getRadiusConnection();
     await conn.execute(
         "INSERT INTO radcheck (username, attribute, op, value) VALUES (?, 'Cleartext-Password', ':=', ?)",
         [username, password]
     );
+    
+    // Add comment to radreply table if provided
+    if (comment) {
+        await conn.execute(
+            "INSERT INTO radreply (username, attribute, op, value) VALUES (?, 'Reply-Message', ':=', ?)",
+            [username, comment]
+        );
+    }
+    
     await conn.end();
     return { success: true, message: 'User hotspot berhasil ditambahkan ke RADIUS' };
 }
@@ -483,10 +492,10 @@ async function getActiveHotspotUsers() {
 }
 
 // Fungsi untuk menambahkan user hotspot
-async function addHotspotUser(username, password, profile) {
+async function addHotspotUser(username, password, profile, comment = null) {
     const mode = getSetting('user_auth_mode', 'mikrotik');
     if (mode === 'radius') {
-        return await addHotspotUserRadius(username, password, profile);
+        return await addHotspotUserRadius(username, password, profile, comment);
     } else {
         try {
             const conn = await getMikrotikConnection();
@@ -494,12 +503,21 @@ async function addHotspotUser(username, password, profile) {
                 logger.error('No Mikrotik connection available');
                 return { success: false, message: 'Koneksi ke Mikrotik gagal' };
             }
-            // Tambahkan user hotspot
-            await conn.write('/ip/hotspot/user/add', [
+            
+            // Prepare parameters
+            const params = [
                 '=name=' + username,
                 '=password=' + password,
                 '=profile=' + profile
-            ]);
+            ];
+            
+            // Add comment if provided
+            if (comment) {
+                params.push('=comment=' + comment);
+            }
+            
+            // Tambahkan user hotspot
+            await conn.write('/ip/hotspot/user/add', params);
             return { success: true, message: 'User hotspot berhasil ditambahkan' };
         } catch (error) {
             logger.error(`Error adding hotspot user: ${error.message}`);
@@ -627,39 +645,6 @@ async function setPPPoEProfile(username, profile) {
     } catch (error) {
         logger.error(`Error setting PPPoE profile: ${error.message}`);
         return { success: false, message: `Gagal mengubah profile PPPoE: ${error.message}` };
-    }
-}
-
-// Fungsi untuk memutus sesi aktif PPPoE
-async function disconnectPPPoEUser(username) {
-    try {
-        const conn = await getMikrotikConnection();
-        if (!conn) {
-            logger.error('No Mikrotik connection available');
-            return { success: false, message: 'Koneksi ke Mikrotik gagal' };
-        }
-        
-        // Cari sesi aktif
-        const activeSessions = await conn.write('/ppp/active/print', [
-            '?name=' + username
-        ]);
-        
-        if (activeSessions.length === 0) {
-            return { success: true, message: 'Tidak ada sesi aktif untuk user ini' };
-        }
-        
-        // Hapus semua sesi aktif user ini
-        for (const session of activeSessions) {
-            await conn.write('/ppp/active/remove', [
-                '=.id=' + session['.id']
-            ]);
-        }
-        
-        logger.info(`User ${username} di-kick dari ${activeSessions.length} sesi aktif PPPoE`);
-        return { success: true, message: `Berhasil memutus ${activeSessions.length} sesi aktif` };
-    } catch (error) {
-        logger.error(`Error disconnecting PPPoE user: ${error.message}`);
-        return { success: false, message: `Gagal memutus sesi: ${error.message}` };
     }
 }
 
@@ -1932,7 +1917,6 @@ module.exports = {
     addPPPoESecret,
     deletePPPoESecret,
     setPPPoEProfile,
-    disconnectPPPoEUser,
     monitorPPPoEConnections,
     generateHotspotVouchers,
     generateTestVoucher,

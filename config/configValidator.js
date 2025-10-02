@@ -71,7 +71,7 @@ class ConfigValidator {
      */
     async testGenieACSConnection() {
         try {
-            const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+            const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
             const genieacsUsername = getSetting('genieacs_username', 'acs');
             const genieacsPassword = getSetting('genieacs_password', '');
 

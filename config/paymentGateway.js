@@ -312,8 +312,8 @@ class MidtransGateway {
             : undefined;
 
         // Derive application base URL for callbacks (prefer config.base_url, fallback to settings)
-        const hostSettingMid = getSetting('server_host', '192.168.8.151');
-        const hostMid = (hostSettingMid && String(hostSettingMid).trim()) || '192.168.8.151';
+        const hostSettingMid = getSetting('server_host', 'localhost');
+        const hostMid = (hostSettingMid && String(hostSettingMid).trim()) || 'localhost';
         const portMid = getSetting('server_port', '3003');
         const defaultAppBaseMid = `http://${hostMid}${portMid ? `:${portMid}` : ''}`;
         const rawBaseMid = (this.config.base_url || defaultAppBaseMid || '').toString().trim();
@@ -410,8 +410,8 @@ class XenditGateway {
 
     async createPayment(invoice) {
         // Derive application base URL for redirects (prefer config.base_url, fallback to settings)
-        const hostSettingXe = getSetting('server_host', '192.168.8.151');
-        const hostXe = (hostSettingXe && String(hostSettingXe).trim()) || '192.168.8.151';
+        const hostSettingXe = getSetting('server_host', 'localhost');
+        const hostXe = (hostSettingXe && String(hostSettingXe).trim()) || 'localhost';
         const portXe = getSetting('server_port', '3003');
         const defaultAppBaseXe = `http://${hostXe}${portXe ? `:${portXe}` : ''}`;
         const rawBaseXe = (this.config.base_url || defaultAppBaseXe || '').toString().trim();
@@ -500,8 +500,8 @@ class TripayGateway {
 
     async createPaymentWithMethod(invoice, method, paymentType = 'invoice') {
         // Derive application base URL for callbacks
-        const hostSetting = getSetting('server_host', '192.168.8.151');
-        const host = (hostSetting && String(hostSetting).trim()) || '192.168.8.151';
+        const hostSetting = getSetting('server_host', 'localhost');
+        const host = (hostSetting && String(hostSetting).trim()) || 'localhost';
         const port = getSetting('server_port', '3003');
         const defaultAppBase = `http://${host}${port ? `:${port}` : ''}`;
         const rawBase = (this.config.base_url || defaultAppBase || '').toString().trim();

@@ -1,6 +1,8 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const logger = require('./logger');
+const { getCompanyHeader, getContactInfoMessage } = require('./message-templates');
+const { getSetting } = require('./settingsManager');
 
 class WhatsAppMessageHandler {
     constructor() {
@@ -373,7 +375,7 @@ Maaf, pesan Anda tidak dapat diproses oleh sistem.
 • *BANTU* - Minta bantuan
 • *MASALAH* - Laporkan kendala
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
 
         // TODO: Integrate with your WhatsApp sending system
         logger.info(`Sending unrecognized message response to ${phone}`);
@@ -387,7 +389,7 @@ Maaf, nomor telepon Anda tidak terdaftar sebagai teknisi aktif.
 
 Silakan hubungi admin untuk verifikasi status teknisi Anda.
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
 
         // TODO: Integrate with your WhatsApp sending system
         logger.info(`Sending technician not found response to ${phone}`);
@@ -403,7 +405,7 @@ Saat ini tidak ada tugas instalasi aktif yang ditugaskan kepada Anda.
 
 Silakan tunggu penugasan dari admin atau hubungi admin jika ada pertanyaan.
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
 
         // TODO: Integrate with your WhatsApp sending system
         logger.info(`Sending no active job response to ${phone}`);
@@ -426,7 +428,7 @@ Tugas instalasi telah dikonfirmasi:
 
 Silakan siapkan peralatan dan lakukan instalasi sesuai jadwal.
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
                 break;
                 
             case 'start_installation':
@@ -441,7 +443,7 @@ Instalasi telah dimulai:
 
 Lakukan instalasi dengan teliti dan aman.
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
                 break;
                 
             case 'complete_installation':
@@ -457,7 +459,7 @@ Selamat! Instalasi telah berhasil diselesaikan:
 
 Terima kasih telah menyelesaikan tugas dengan baik!
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
                 break;
                 
             case 'help_requested':
@@ -471,9 +473,9 @@ Permintaan bantuan Anda telah diterima:
 
 Tim support akan segera menghubungi Anda.
 
-📞 *Support:* 081947215703
+📞 *Support:* ${getSetting('contact_whatsapp', '081947215703')}
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
                 break;
                 
             case 'problem_reported':
@@ -487,9 +489,9 @@ Laporan masalah Anda telah diterima:
 
 Tim support akan segera menindaklanjuti.
 
-📞 *Support:* 081947215703
+📞 *Support:* ${getSetting('contact_whatsapp', '081947215703')}
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
                 break;
                 
             case 'additional_reported':
@@ -503,7 +505,7 @@ Laporan tambahan Anda telah diterima:
 
 Terima kasih atas informasi tambahan.
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
                 break;
                 
             default:
@@ -511,7 +513,7 @@ Terima kasih atas informasi tambahan.
 
 Aksi Anda telah berhasil diproses oleh sistem.
 
-*ALIJAYA DIGITAL NETWORK*`;
+*${getCompanyHeader()}*`;
         }
 
         // TODO: Integrate with your WhatsApp sending system

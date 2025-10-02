@@ -25,7 +25,7 @@ async function handleAddWAN(remoteJid, params, sock) {
         }
         
         // Dapatkan URL GenieACS
-        const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+        const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
         if (!genieacsUrl) {
             await sock.sendMessage(remoteJid, {
                 text: `❌ *Konfigurasi tidak lengkap*\n\nURL GenieACS tidak dikonfigurasi`
@@ -101,7 +101,7 @@ async function findDeviceByTag(customerNumber) {
         console.log(`🔍 [FIND_DEVICE] Searching for device with tag: ${customerNumber}`);
         
         // Dapatkan URL GenieACS
-        const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+        const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
         if (!genieacsUrl) {
             logger.error('GenieACS URL not configured');
             return null;

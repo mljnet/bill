@@ -3,6 +3,8 @@ const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const PaymentGatewayManager = require('./paymentGateway');
 const logger = require('./logger'); // Added logger import
+const { getCompanyHeader } = require('./message-templates');
+const { getSetting } = require('./settingsManager');
 
 class BillingManager {
     constructor() {
@@ -698,7 +700,7 @@ class BillingManager {
             const { name, speed, price, tax_rate, description, pppoe_profile } = packageData;
             const sql = `INSERT INTO packages (name, speed, price, tax_rate, description, pppoe_profile) VALUES (?, ?, ?, ?, ?, ?)`;
             
-            this.db.run(sql, [name, speed, price, tax_rate || 11.00, description, pppoe_profile || 'default'], function(err) {
+            this.db.run(sql, [name, speed, price, tax_rate !== undefined ? tax_rate : 11.00, description, pppoe_profile || 'default'], function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -1343,18 +1345,7 @@ class BillingManager {
                     return;
                 }
 
-                // Hapus data terkait terlebih dahulu
-                // 1. Hapus ONU devices yang terhubung ke customer
-                const deleteONUDevicesSql = `DELETE FROM onu_devices WHERE customer_id = ?`;
-                this.db.run(deleteONUDevicesSql, [customer.id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting ONU devices for customer ${customer.username}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted ONU devices for customer ${customer.username}`);
-                    }
-                });
-
-                // 2. Hapus cable routes (akan dihapus otomatis karena CASCADE)
+                // Hapus cable routes terlebih dahulu (akan dihapus otomatis karena CASCADE)
                 // Tapi kita hapus manual untuk memastikan trigger ODP used_ports berjalan
                 const deleteCableRoutesSql = `DELETE FROM cable_routes WHERE customer_id = ?`;
                 this.db.run(deleteCableRoutesSql, [customer.id], function(err) {
@@ -1417,18 +1408,7 @@ class BillingManager {
                     return;
                 }
 
-                // Hapus data terkait terlebih dahulu
-                // 1. Hapus ONU devices yang terhubung ke customer
-                const deleteONUDevicesSql = `DELETE FROM onu_devices WHERE customer_id = ?`;
-                this.db.run(deleteONUDevicesSql, [customer.id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting ONU devices for customer ${customer.username}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted ONU devices for customer ${customer.username}`);
-                    }
-                });
-
-                // 2. Hapus cable routes (akan dihapus otomatis karena CASCADE)
+                // Hapus cable routes terlebih dahulu (akan dihapus otomatis karena CASCADE)
                 // Tapi kita hapus manual untuk memastikan trigger ODP used_ports berjalan
                 const deleteCableRoutesSql = `DELETE FROM cable_routes WHERE customer_id = ?`;
                 this.db.run(deleteCableRoutesSql, [customer.id], function(err) {
@@ -1705,58 +1685,6 @@ class BillingManager {
         return new Promise((resolve, reject) => {
             // First get the invoice details before deleting
             this.getInvoiceById(id).then(invoice => {
-                // Hapus data terkait terlebih dahulu
-                // 1. Hapus payments yang terhubung ke invoice
-                const deletePaymentsSql = `DELETE FROM payments WHERE invoice_id = ?`;
-                this.db.run(deletePaymentsSql, [id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting payments for invoice ${id}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted payments for invoice ${id}`);
-                    }
-                });
-
-                // 2. Hapus voucher purchases yang terhubung ke invoice
-                const deleteVoucherPurchasesSql = `DELETE FROM voucher_purchases WHERE invoice_id = ?`;
-                this.db.run(deleteVoucherPurchasesSql, [id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting voucher purchases for invoice ${id}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted voucher purchases for invoice ${id}`);
-                    }
-                });
-
-                // 3. Hapus payment gateway transactions yang terhubung ke invoice
-                const deletePaymentGatewayTransactionsSql = `DELETE FROM payment_gateway_transactions WHERE invoice_id = ?`;
-                this.db.run(deletePaymentGatewayTransactionsSql, [id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting payment gateway transactions for invoice ${id}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted payment gateway transactions for invoice ${id}`);
-                    }
-                });
-
-                // 4. Hapus technician activities yang terhubung ke invoice
-                const deleteTechnicianActivitiesSql = `DELETE FROM technician_activities WHERE invoice_id = ?`;
-                this.db.run(deleteTechnicianActivitiesSql, [id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting technician activities for invoice ${id}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted technician activities for invoice ${id}`);
-                    }
-                });
-
-                // 5. Hapus collector payments yang terhubung ke invoice
-                const deleteCollectorPaymentsSql = `DELETE FROM collector_payments WHERE invoice_id = ?`;
-                this.db.run(deleteCollectorPaymentsSql, [id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting collector payments for invoice ${id}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted collector payments for invoice ${id}`);
-                    }
-                });
-
-                // 6. Hapus invoice
                 const sql = `DELETE FROM invoices WHERE id = ?`;
                 this.db.run(sql, [id], function(err) {
                     if (err) {
@@ -3680,8 +3608,8 @@ Pembayaran tagihan Anda telah berhasil diproses:
 
 Terima kasih telah mempercayai layanan kami.
 
-*ALIJAYA DIGITAL NETWORK*
-Info: 081947215703`;
+*${getCompanyHeader()}*
+Info: ${getSetting('contact_whatsapp', '081947215703')}`;
 
             const result = await whatsapp.sendMessage(customer.phone, message);
             logger.info(`[NOTIFICATION] WhatsApp message sent successfully to ${customer.phone}`);

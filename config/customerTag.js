@@ -32,7 +32,7 @@ async function addCustomerTag(remoteJid, params) {
         }
         
         // Dapatkan URL GenieACS
-        const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+        const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
         if (!genieacsUrl) {
             await sock.sendMessage(remoteJid, {
                 text: `❌ *Konfigurasi tidak lengkap*\n\nURL GenieACS tidak dikonfigurasi`
@@ -98,7 +98,7 @@ async function addCustomerTag(remoteJid, params) {
 async function findDeviceById(deviceId) {
     try {
         // Dapatkan URL GenieACS
-        const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+        const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
         if (!genieacsUrl) {
             logger.error('GenieACS URL not configured');
             return null;
@@ -153,7 +153,7 @@ async function addTagByPPPoE(remoteJid, params, sock) {
         }
         
         // Dapatkan URL GenieACS
-        const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+        const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
         if (!genieacsUrl) {
             await sock.sendMessage(remoteJid, {
                 text: `❌ *Konfigurasi tidak lengkap*\n\nURL GenieACS tidak dikonfigurasi`
@@ -238,7 +238,7 @@ async function addTagByPPPoE(remoteJid, params, sock) {
 async function findDeviceByPPPoE(pppoeUsername) {
     try {
         // Dapatkan URL GenieACS
-        const genieacsUrl = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+        const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
         if (!genieacsUrl) {
             logger.error('GenieACS URL not configured');
             return null;

@@ -249,19 +249,28 @@ async function getActiveHotspotUsers() {
 }
 
 // Fungsi untuk menambahkan user hotspot
-async function addHotspotUser(username, password, profile) {
+async function addHotspotUser(username, password, profile, comment = null) {
     try {
         const conn = await getMikrotikConnection();
         if (!conn) {
             logger.error('No Mikrotik connection available');
             return { success: false, message: 'Koneksi ke Mikrotik gagal' };
         }
-        // Tambahkan user hotspot
-        await conn.write('/ip/hotspot/user/add', [
+        
+        // Prepare parameters
+        const params = [
             '=name=' + username,
             '=password=' + password,
             '=profile=' + profile
-        ]);
+        ];
+        
+        // Add comment if provided
+        if (comment) {
+            params.push('=comment=' + comment);
+        }
+        
+        // Tambahkan user hotspot
+        await conn.write('/ip/hotspot/user/add', params);
         return { success: true, message: 'User hotspot berhasil ditambahkan' };
     } catch (error) {
         logger.error(`Error adding hotspot user: ${error.message}`);
@@ -396,10 +405,7 @@ let lastActivePPPoE = [];
 async function monitorPPPoEConnections() {
     try {
         // Cek ENV untuk enable/disable monitoring
-        const monitorEnableRaw = getSetting('pppoe_monitor_enable', true);
-        const monitorEnable = typeof monitorEnableRaw === 'string'
-            ? monitorEnableRaw.toLowerCase() === 'true'
-            : Boolean(monitorEnableRaw);
+        const monitorEnable = (getSetting('pppoe_monitor_enable', 'true')).toLowerCase() === 'true';
         if (!monitorEnable) {
             logger.info('PPPoE monitoring is DISABLED by ENV');
             return;

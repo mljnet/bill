@@ -7,7 +7,7 @@ const cacheManager = require('./cacheManager');
 
 // Helper untuk membuat axios instance dinamis
 function getAxiosInstance() {
-    const GENIEACS_URL = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+    const GENIEACS_URL = getSetting('genieacs_url', 'http://localhost:7557');
     const GENIEACS_USERNAME = getSetting('genieacs_username', 'acs');
     const GENIEACS_PASSWORD = getSetting('genieacs_password', '');
     return axios.create({
@@ -333,7 +333,7 @@ const genieacsApi = {
     async getDeviceInfo(deviceId) {
         try {
             console.log(`Getting device info for device ID: ${deviceId}`);
-            const GENIEACS_URL = getSetting('genieacs_url', 'http://192.168.8.151:7557');
+            const GENIEACS_URL = getSetting('genieacs_url', 'http://localhost:7557');
             const GENIEACS_USERNAME = getSetting('genieacs_username', 'acs');
             const GENIEACS_PASSWORD = getSetting('genieacs_password', '');
             // Mendapatkan device detail
@@ -807,8 +807,5 @@ module.exports = {
     getDeviceInfoCached,
     clearDeviceCache,
     clearAllCache,
-    getCacheStats,
-    
-    // Device update function
-    updateDevice: genieacsApi.setParameterValues
+    getCacheStats
 };

@@ -283,13 +283,7 @@ class ServiceSuspensionManager {
                     if (!profileToUse) {
                         // Coba ambil dari package
                         const packageData = await billingManager.getPackageById(customer.package_id);
-                        profileToUse = packageData?.pppoe_profile;
-                        
-                        // Jika masih tidak ada profile dari package, gunakan default
-                        if (!profileToUse) {
-                            profileToUse = 'default';
-                            logger.warn(`No PPPoE profile found for customer ${customer.username}, using default profile`);
-                        }
+                        profileToUse = packageData?.pppoe_profile || getSetting('default_pppoe_profile', 'default');
                     }
                     
                     // Cari .id secret berdasarkan name terlebih dahulu

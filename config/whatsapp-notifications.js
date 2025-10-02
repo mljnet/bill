@@ -3,6 +3,7 @@ const billingManager = require('./billing');
 const logger = require('./logger');
 const fs = require('fs');
 const path = require('path');
+const { getCompanyHeader } = require('./message-templates');
 
 class WhatsAppNotificationManager {
     constructor() {
@@ -107,9 +108,9 @@ Layanan internet Anda telah dinonaktifkan karena:
 2. Layanan akan aktif otomatis setelah pembayaran dikonfirmasi
 
 📞 *Butuh Bantuan?*
-Hubungi kami di: 081947215703
+Hubungi kami di: ${getSetting('contact_whatsapp', '081947215703')}
 
-*ALIJAYA DIGITAL NETWORK*
+*${getCompanyHeader()}*
 Terima kasih atas perhatian Anda.`,
                 enabled: true
             },
@@ -129,8 +130,8 @@ Selamat! Layanan internet Anda telah diaktifkan kembali.
 
 Terima kasih telah melakukan pembayaran tepat waktu.
 
-*ALIJAYA DIGITAL NETWORK*
-Info: 081947215703`,
+*${getCompanyHeader()}*
+Info: ${getSetting('contact_whatsapp', '081947215703')}`,
                 enabled: true
             },
             welcome_message: {
@@ -206,11 +207,11 @@ Balas dengan: *MASALAH* atau *ISSUE*
 • *BANTU* - Minta bantuan teknis
 • *MASALAH* - Laporkan kendala
 
-📞 *Support:* 081947215703
+📞 *Support:* ${getSetting('contact_whatsapp', '081947215703')}
 
 Silakan konfirmasi penerimaan tugas ini dengan balasan *TERIMA*.
 
-*ALIJAYA DIGITAL NETWORK*`,
+*${getCompanyHeader()}*`,
                 enabled: true
             },
             installation_status_update: {
@@ -244,7 +245,7 @@ Balas dengan: *MASALAH* atau *ISSUE*
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-*ALIJAYA DIGITAL NETWORK*`,
+*${getCompanyHeader()}*`,
                 enabled: true
             },
             installation_completed: {
@@ -283,7 +284,7 @@ Balas dengan: *BANTU* atau *HELP*
 • *LAPOR* - Laporkan detail tambahan
 • *BANTU* - Minta bantuan teknis
 
-*ALIJAYA DIGITAL NETWORK*`,
+*${getCompanyHeader()}*`,
                 enabled: true
             }
         };
@@ -401,7 +402,7 @@ Balas dengan: *BANTU* atau *HELP*
             const jid = `${formattedNumber}@s.whatsapp.net`;
 
             // Add header and footer
-            const companyHeader = getSetting('company_header', '📱 ALIJAYA DIGITAL NETWORK 📱\n\n');
+            const companyHeader = getSetting('company_header', '📱 SISTEM BILLING 📱\n\n');
             const footerSeparator = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
             const footerInfo = footerSeparator + getSetting('footer_info', 'Powered by Alijaya Digital Network');
             
@@ -555,7 +556,7 @@ Balas dengan: *BANTU* atau *HELP*
             let sent = 0;
             let failed = 0;
 
-            const companyHeader = getSetting('company_header', '📱 ALIJAYA DIGITAL NETWORK 📱\n\n');
+            const companyHeader = getSetting('company_header', '📱 SISTEM BILLING 📱\n\n');
             const footerSeparator = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
             const footerInfo = footerSeparator + getSetting('footer_info', 'Powered by Alijaya Digital Network');
             const fullMessage = `${companyHeader}${message}${footerInfo}`;

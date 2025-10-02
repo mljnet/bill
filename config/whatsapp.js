@@ -42,6 +42,9 @@ const { ADMIN_NUMBER } = process.env;
 // Import settings manager
 const { getSetting } = require('./settingsManager');
 
+// Import message templates helper
+const { getDeveloperSupportMessage } = require('./message-templates');
+
 // Import WhatsApp notification manager
 const whatsappNotifications = require('./whatsapp-notifications');
 
@@ -72,8 +75,9 @@ function generatePhoneVariants(input) {
 // Fungsi untuk mendekripsi nomor admin yang dienkripsi
 function decryptAdminNumber(encryptedNumber) {
     try {
-        // Ini adalah implementasi dekripsi sederhana menggunakan XOR dengan kunci dari settings.json
-        const key = getSetting('encryption_key', 'fallback-encryption-key');
+        // Ini adalah implementasi dekripsi sederhana menggunakan XOR dengan kunci statis
+        // Dalam produksi, gunakan metode enkripsi yang lebih kuat
+        const key = 'ALIJAYA_SECRET_KEY_2025';
         let result = '';
         for (let i = 0; i < encryptedNumber.length; i++) {
             result += String.fromCharCode(encryptedNumber.charCodeAt(i) ^ key.charCodeAt(i % key.length));
@@ -147,7 +151,7 @@ function isAdminNumber(number) {
 function formatWithHeaderFooter(message) {
     try {
         // Ambil header dan footer dari settings.json dengan format yang konsisten
-        const COMPANY_HEADER = getSetting('company_header', "📱 ALIJAYA DIGITAL NETWORK 📱\n\n");
+        const COMPANY_HEADER = getSetting('company_header', "📱 SISTEM BILLING \n\n");
         const FOOTER_SEPARATOR = "\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
         const FOOTER_INFO = FOOTER_SEPARATOR + getSetting('footer_info', "Powered by Alijaya Digital Network");
         
@@ -437,7 +441,7 @@ async function connectToWhatsApp() {
                 try {
                     // Ambil port yang aktif dari global settings atau fallback
                     const activePort = global.appSettings?.port || getSetting('server_port', '3001');
-                    const serverHost = global.appSettings?.host || getSetting('server_host', '192.168.8.151');
+                    const serverHost = global.appSettings?.host || getSetting('server_host', 'localhost');
                     
                     // Ambil header pendek untuk template sambutan
                     const companyHeaderShort = getSetting('company_header_short', 'ALIJAYA NETWORK');
@@ -6116,7 +6120,7 @@ function getAppSettings() {
 function getGenieacsConfig() {
     const { getSetting } = require('./settingsManager');
     return {
-        genieacsUrl: getSetting('genieacs_url', 'http://192.168.8.151:7557'),
+        genieacsUrl: getSetting('genieacs_url', 'http://localhost:7557'),
         genieacsUsername: getSetting('genieacs_username', 'admin'),
         genieacsPassword: getSetting('genieacs_password', 'password'),
     };

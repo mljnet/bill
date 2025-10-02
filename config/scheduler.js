@@ -1,7 +1,6 @@
 const cron = require('node-cron');
 const billingManager = require('./billing');
 const logger = require('./logger');
-const { getSetting } = require('./settingsManager');
 
 class InvoiceScheduler {
     constructor() {
@@ -20,7 +19,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
 
         logger.info('Invoice scheduler initialized - will run on 1st of every month at 08:00');
@@ -39,7 +38,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
         
         logger.info('Due date reminder scheduler initialized - will run daily at 09:00');
@@ -55,7 +54,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
         
         logger.info('Voucher cleanup scheduler initialized - will run every 6 hours');
@@ -71,7 +70,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
         
         logger.info('Monthly summary scheduler initialized - will run on 1st of every month at 23:59');
@@ -87,7 +86,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
         
         logger.info('Monthly reset scheduler initialized - will run on 1st of every month at 00:01');
@@ -104,7 +103,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
 
         // Schedule daily service restoration check at 11:00
@@ -119,7 +118,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
 
         logger.info('Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00');
@@ -133,7 +132,7 @@ class InvoiceScheduler {
                 const https = require('http');
 
                 const options = {
-                    hostname: '192.168.8.151',
+                    hostname: 'localhost',
                     port: process.env.PORT || 3004,
                     path: '/voucher/cleanup-expired',
                     method: 'POST',
@@ -176,7 +175,7 @@ class InvoiceScheduler {
             }
         }, {
             scheduled: true,
-            timezone: getSetting('app_timezone', 'Asia/Jakarta')
+            timezone: "Asia/Jakarta"
         });
 
         logger.info('Voucher cleanup scheduler initialized - will run every 6 hours');
@@ -251,10 +250,11 @@ class InvoiceScheduler {
                         continue;
                     }
 
+                    // Set due date based on customer's billing_day (1-28), capped to month's last day
                     const billingDay = (() => {
                         const v = parseInt(customer.billing_day, 10);
                         if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
-                        return parseInt(getSetting('default_billing_day', '15')); // Default dari settings.json
+                        return 15;
                     })();
                     const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
                     const targetDay = Math.min(billingDay, lastDayOfMonth);
@@ -264,7 +264,7 @@ class InvoiceScheduler {
                     const basePrice = packageData.price;
                     const taxRate = (packageData.tax_rate === 0 || (typeof packageData.tax_rate === 'number' && packageData.tax_rate > -1))
                         ? Number(packageData.tax_rate)
-                        : 0; // Default 0% jika tidak ada PPN
+                        : 11.00; // Default 11% only when undefined/null/invalid
                     const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
                     
                     const invoiceData = {
@@ -317,7 +317,7 @@ class InvoiceScheduler {
                     const normalizedBillingDay = (() => {
                         const v = parseInt(customer.billing_day, 10);
                         if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
-                        return parseInt(getSetting('default_billing_day', '15')); // Default dari settings.json
+                        return 15;
                     })();
 
                     // If today matches the customer's billing day (allowing month shorter than 31)
@@ -348,9 +348,11 @@ class InvoiceScheduler {
                         .toISOString()
                         .split('T')[0];
 
+                    // Calculate amount with tax
+                    const basePrice = packageData.price;
                     const taxRate = (packageData.tax_rate === 0 || (typeof packageData.tax_rate === 'number' && packageData.tax_rate > -1))
                         ? Number(packageData.tax_rate)
-                        : 0; // Default 0% jika tidak ada PPN
+                        : 11.00;
                     const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate); // Sudah include rounding
 
                     const invoiceData = {
