@@ -659,105 +659,105 @@
         <div class="row">
             <%- include('../partials/technician-responsive-sidebar', { page: 'mapping', technician: technician }) %>
             <main class="col-md-10 ms-sm-auto main-content" style="min-height: 100vh;">
-                <div class="header-nav">
-                    <h1><i class="bx bx-map-marked-alt"></i> Network Mapping - Teknisi</h1>
+    <div class="header-nav">
+        <h1><i class="bx bx-map-marked-alt"></i> Network Mapping - Teknisi</h1>
+    </div>
+    <div class="map-container">
+        <div id="loading" class="loading">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
-                <div class="map-container">
-                    <div id="loading" class="loading">
-                        <div class="text-center">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <div class="mt-2">Loading network data...</div>
-                        </div>
-                    </div>
-                    <div id="map"></div>
-                </div>
-                <div class="panels-container">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="control-panel">
-                                <h5><i class="bx bx-layer-group me-2"></i>Layer Controls</h5>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="odpLayer" checked>
-                                    <label class="form-check-label" for="odpLayer">
+                <div class="mt-2">Loading network data...</div>
+            </div>
+        </div>
+        <div id="map"></div>
+    </div>
+    <div class="panels-container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="control-panel">
+                    <h5><i class="bx bx-layer-group me-2"></i>Layer Controls</h5>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="odpLayer" checked>
+                        <label class="form-check-label" for="odpLayer">
                                         <span class="stat-icon odp me-2" style="font-size: 12px;">⚡</span>ODPs
-                                    </label>
-                                </div>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="customerLayer" checked>
-                                    <label class="form-check-label" for="customerLayer">
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="customerLayer" checked>
+                        <label class="form-check-label" for="customerLayer">
                                         <span class="stat-icon customer me-2" style="font-size: 12px;">📶</span>ONUs
-                                    </label>
-                                </div>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="cableLayer">
-                                    <label class="form-check-label" for="cableLayer">
-                                        <span class="stat-icon cable me-2">K</span>Cable Routes
-                                    </label>
-                                </div>
-                                
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="backboneLayer">
-                                    <label class="form-check-label" for="backboneLayer">
-                                        <span class="stat-icon backbone me-2">B</span>Backbone
-                                    </label>
-                                </div>
-                                
-                                <hr>
-                                
-                                <h6 class="mb-2">Base Map</h6>
-                                <select class="form-select form-select-sm" id="baseMapSelect">
-                                    <option value="satellite">Satellite</option>
-                                    <option value="light">Light Theme</option>
-                                    <option value="dark">Dark Theme</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="stats-panel">
-                                <h5><i class="bx bx-bar-chart me-2"></i>Network Statistics</h5>
-                                
-                                <div class="stat-item">
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="cableLayer">
+                        <label class="form-check-label" for="cableLayer">
+                            <span class="stat-icon cable me-2">K</span>Cable Routes
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="backboneLayer">
+                        <label class="form-check-label" for="backboneLayer">
+                            <span class="stat-icon backbone me-2">B</span>Backbone
+                        </label>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-2">Base Map</h6>
+                    <select class="form-select form-select-sm" id="baseMapSelect">
+                        <option value="satellite">Satellite</option>
+                        <option value="light">Light Theme</option>
+                        <option value="dark">Dark Theme</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="stats-panel">
+                    <h5><i class="bx bx-bar-chart me-2"></i>Network Statistics</h5>
+                    
+                    <div class="stat-item">
                                     <span class="stat-icon odp" style="font-size: 12px;">⚡</span>
-                                    <div>
-                                        <div class="fw-bold">ODPs</div>
-                                        <small class="text-muted" id="odpCount">0</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="stat-item">
+                        <div>
+                            <div class="fw-bold">ODPs</div>
+                            <small class="text-muted" id="odpCount">0</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
                                     <span class="stat-icon customer" style="font-size: 12px;">📶</span>
-                                    <div>
+                        <div>
                                         <div class="fw-bold">ONUs</div>
-                                        <small class="text-muted" id="customerCount">0</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="stat-item">
-                                    <span class="stat-icon cable">K</span>
-                                    <div>
-                                        <div class="fw-bold">Cable Routes</div>
-                                        <small class="text-muted" id="cableCount">0</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="stat-item">
-                                    <span class="stat-icon backbone">B</span>
-                                    <div>
-                                        <div class="fw-bold">Backbone</div>
-                                        <small class="text-muted" id="backboneCount">0</small>
-                                    </div>
-                                </div>
-                            </div>
+                            <small class="text-muted" id="customerCount">0</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-icon cable">K</span>
+                        <div>
+                            <div class="fw-bold">Cable Routes</div>
+                            <small class="text-muted" id="cableCount">0</small>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-icon backbone">B</span>
+                        <div>
+                            <div class="fw-bold">Backbone</div>
+                            <small class="text-muted" id="backboneCount">0</small>
                         </div>
                     </div>
                 </div>
-                <%- include('partials/mobile-navbar', { currentPage: 'mapping' }) %>
+            </div>
+        </div>
+    </div>
+    <%- include('partials/mobile-navbar', { currentPage: 'mapping' }) %>
                 <button class="mobile-toggle" id="mobileToggle">
                     <i class="bx bx-menu"></i>
                 </button>
@@ -765,173 +765,173 @@
                     <i class="bx bx-layer"></i>
                 </button>
                 <!-- Leaflet JS, Bootstrap JS, and scripts... -->
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                
-                <!-- Bootstrap JS -->
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-                
-                <script>
-                    // Global variables
-                    let map;
-                    let networkData = {};
-                    let customerLayer, odpLayer, cableLayer, backboneLayer;
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Global variables
+        let map;
+        let networkData = {};
+        let customerLayer, odpLayer, cableLayer, backboneLayer;
 
-                    // Initialize map
-                    function initMap() {
-                        console.log('🗺️ Initializing technician mapping...');
-                        
-                        try {
-                            // Create map centered on Jakarta
-                            map = L.map('map').setView([-6.2088, 106.8456], 13);
-                            console.log('✅ Map instance created successfully');
-                        } catch (error) {
-                            console.error('❌ Error creating map:', error);
-                            return;
-                        }
-                        
-                        // Add tile layers
-                        const lightTheme = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                            attribution: '© OpenStreetMap © CartoDB',
-                            subdomains: 'abcd',
-                            maxZoom: 19
-                        });
-                        
-                        const darkTheme = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                            attribution: '© OpenStreetMap © CartoDB',
-                            subdomains: 'abcd',
-                            maxZoom: 19
-                        });
-                        
-                        const satelliteTheme = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                            attribution: '© Esri © DigitalGlobe © GeoEye © i-cubed © USDA FSA © USGS © AeroGRID © IGN © IGP'
-                        });
-                        
-                        // Add default satellite theme
-                        satelliteTheme.addTo(map);
-                        
-                        // Create base layers object (Satellite is default)
-                        const baseLayers = {
-                            "Satellite": satelliteTheme,
-                            "Light Theme": lightTheme,
-                            "Dark Theme": darkTheme
-                        };
-                            
-                        // Initialize layers
-                        customerLayer = L.layerGroup().addTo(map);
-                        odpLayer = L.layerGroup().addTo(map);
-                        cableLayer = L.layerGroup().addTo(map);
-                        backboneLayer = L.layerGroup().addTo(map);
-                        
-                        // Create overlay layers object
-                        const overlayLayers = {
-                            "ODPs": odpLayer,
-                            "Customers": customerLayer,
-                            "Cable Routes": cableLayer,
-                            "Backbone": backboneLayer
-                        };
-                        
+        // Initialize map
+        function initMap() {
+            console.log('🗺️ Initializing technician mapping...');
+            
+            try {
+                // Create map centered on Jakarta
+                map = L.map('map').setView([-6.2088, 106.8456], 13);
+                console.log('✅ Map instance created successfully');
+            } catch (error) {
+                console.error('❌ Error creating map:', error);
+                return;
+            }
+            
+            // Add tile layers
+            const lightTheme = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap © CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19
+            });
+            
+            const darkTheme = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap © CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19
+            });
+            
+            const satelliteTheme = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri © DigitalGlobe © GeoEye © i-cubed © USDA FSA © USGS © AeroGRID © IGN © IGP'
+            });
+            
+            // Add default satellite theme
+            satelliteTheme.addTo(map);
+            
+            // Create base layers object (Satellite is default)
+            const baseLayers = {
+                "Satellite": satelliteTheme,
+                "Light Theme": lightTheme,
+                "Dark Theme": darkTheme
+            };
+                
+            // Initialize layers
+            customerLayer = L.layerGroup().addTo(map);
+            odpLayer = L.layerGroup().addTo(map);
+            cableLayer = L.layerGroup().addTo(map);
+            backboneLayer = L.layerGroup().addTo(map);
+            
+            // Create overlay layers object
+            const overlayLayers = {
+                "ODPs": odpLayer,
+                "Customers": customerLayer,
+                "Cable Routes": cableLayer,
+                "Backbone": backboneLayer
+            };
+            
                         // Add layer control (collapsed by default)
-                        const layerControl = L.control.layers(baseLayers, overlayLayers, {
-                            position: 'topright',
+            const layerControl = L.control.layers(baseLayers, overlayLayers, {
+                position: 'topright',
                             collapsed: true
-                        }).addTo(map);
-                        
-                        console.log('✅ Map initialized successfully with satellite view as default');
-                        
-                        // Load network data
-                        loadNetworkData();
-                    }
-                    
-                    // Note: Using L.circleMarker instead of L.divIcon for proper zoom/pan behavior
-                    // This follows the same approach as the working technicianMapping.ejs file
+            }).addTo(map);
+            
+            console.log('✅ Map initialized successfully with satellite view as default');
+            
+            // Load network data
+            loadNetworkData();
+        }
+        
+        // Note: Using L.circleMarker instead of L.divIcon for proper zoom/pan behavior
+        // This follows the same approach as the working technicianMapping.ejs file
 
 
+        
+        function createCableIcon() {
+            return L.divIcon({
+                className: 'custom-cable-icon',
+                html: '',
+                iconSize: [8, 8],
+                iconAnchor: [4, 4]
+            });
+        }
+        
+        function createBackboneIcon() {
+            return L.divIcon({
+                className: 'custom-backbone-icon',
+                html: '',
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+            });
+        }
+        
+        // Load network data from API
+        async function loadNetworkData() {
+            try {
+                console.log('📡 Loading network data...');
+                showLoading();
+                
+                const response = await fetch('/technician/api/mapping-data');
+                console.log('📡 API Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📡 API Response data:', data);
+                
+                if (data.success) {
+                    networkData = data.data;
+                    console.log('📡 Network data loaded:', networkData);
                     
-                    function createCableIcon() {
-                        return L.divIcon({
-                            className: 'custom-cable-icon',
-                            html: '',
-                            iconSize: [8, 8],
-                            iconAnchor: [4, 4]
-                        });
-                    }
+                    // Debug: Log detailed data structure
+                    console.log('🔍 Detailed network data structure:');
+                    console.log('- ODPs:', networkData.odps);
+                    console.log('- Customers:', networkData.customers);
+                    console.log('- Cables:', networkData.cables);
+                    console.log('- Backbone:', networkData.backbone);
                     
-                    function createBackboneIcon() {
-                        return L.divIcon({
-                            className: 'custom-backbone-icon',
-                            html: '',
-                            iconSize: [12, 12],
-                            iconAnchor: [6, 6]
-                        });
-                    }
+                    renderNetworkData();
+                    updateStatistics();
+                    hideLoading();
+                } else {
+                    console.error('Failed to load network data:', data.message);
+                    showError('Failed to load network data: ' + data.message);
+                    hideLoading();
+                }
+            } catch (error) {
+                console.error('Error loading network data:', error);
+                showError('Error loading network data: ' + error.message);
+                hideLoading();
+            }
+        }
+        
+        // Render network data on map
+        function renderNetworkData() {
+            console.log('🎨 Rendering network data...');
+            
+            // Clear existing layers
+            customerLayer.clearLayers();
+            odpLayer.clearLayers();
+            cableLayer.clearLayers();
+            backboneLayer.clearLayers();
+            
+            // Render ODPs (following admin map approach - simple and clean)
+            if (networkData.odps && networkData.odps.length > 0) {
+                console.log(`📡 Rendering ${networkData.odps.length} ODPs...`);
+                
+                networkData.odps.forEach((odp, index) => {
+                    console.log(`ODP ${index + 1}:`, {
+                        name: odp.name,
+                        latitude: odp.latitude,
+                        longitude: odp.longitude,
+                        code: odp.code,
+                        status: odp.status
+                    });
                     
-                    // Load network data from API
-                    async function loadNetworkData() {
-                        try {
-                            console.log('📡 Loading network data...');
-                            showLoading();
-                            
-                            const response = await fetch('/technician/api/mapping-data');
-                            console.log('📡 API Response status:', response.status);
-                            
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-                            
-                            const data = await response.json();
-                            console.log('📡 API Response data:', data);
-                            
-                            if (data.success) {
-                                networkData = data.data;
-                                console.log('📡 Network data loaded:', networkData);
-                                
-                                // Debug: Log detailed data structure
-                                console.log('🔍 Detailed network data structure:');
-                                console.log('- ODPs:', networkData.odps);
-                                console.log('- Customers:', networkData.customers);
-                                console.log('- Cables:', networkData.cables);
-                                console.log('- Backbone:', networkData.backbone);
-                                
-                                renderNetworkData();
-                                updateStatistics();
-                                hideLoading();
-                            } else {
-                                console.error('Failed to load network data:', data.message);
-                                showError('Failed to load network data: ' + data.message);
-                                hideLoading();
-                            }
-                        } catch (error) {
-                            console.error('Error loading network data:', error);
-                            showError('Error loading network data: ' + error.message);
-                            hideLoading();
-                        }
-                    }
-                    
-                    // Render network data on map
-                    function renderNetworkData() {
-                        console.log('🎨 Rendering network data...');
-                        
-                        // Clear existing layers
-                        customerLayer.clearLayers();
-                        odpLayer.clearLayers();
-                        cableLayer.clearLayers();
-                        backboneLayer.clearLayers();
-                        
-                        // Render ODPs (following admin map approach - simple and clean)
-                        if (networkData.odps && networkData.odps.length > 0) {
-                            console.log(`📡 Rendering ${networkData.odps.length} ODPs...`);
-                            
-                            networkData.odps.forEach((odp, index) => {
-                                console.log(`ODP ${index + 1}:`, {
-                                    name: odp.name,
-                                    latitude: odp.latitude,
-                                    longitude: odp.longitude,
-                                    code: odp.code,
-                                    status: odp.status
-                                });
-                                
-                                if (odp.latitude && odp.longitude) {
-                                    console.log(`🎯 Creating ODP marker for "${odp.name}" at [${odp.latitude}, ${odp.longitude}]`);
+                    if (odp.latitude && odp.longitude) {
+                        console.log(`🎯 Creating ODP marker for "${odp.name}" at [${odp.latitude}, ${odp.longitude}]`);
                                         // Create ODP marker dengan icon tower yang lebih kecil dan elegan
                                         const odpIcon = L.divIcon({
                                             className: 'custom-odp-icon',

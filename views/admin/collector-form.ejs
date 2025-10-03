@@ -180,6 +180,50 @@
                             </div>
                         </div>
 
+                        <!-- Security Information -->
+                        <div class="form-section">
+                            <h5 class="section-title">
+                                <i class="bi bi-shield-lock"></i>Keamanan
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">
+                                            Password <%= action === 'add' ? '*' : '' %>
+                                            <% if (action === 'edit') { %>
+                                                <small class="text-muted">(kosongkan jika tidak ingin mengubah)</small>
+                                            <% } %>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="password" name="password" 
+                                                   <%= action === 'add' ? 'required' : '' %>>
+                                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                                <i class="bi bi-eye" id="passwordIcon"></i>
+                                            </button>
+                                        </div>
+                                        <% if (action === 'add') { %>
+                                            <div class="form-text">Minimal 6 karakter</div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label">
+                                            Konfirmasi Password <%= action === 'add' ? '*' : '' %>
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                                                   <%= action === 'add' ? 'required' : '' %>>
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                                <i class="bi bi-eye" id="confirmPasswordIcon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Address Information -->
                         <div class="form-section">
                             <h5 class="section-title">
@@ -253,13 +297,28 @@
             
             try {
                 const formData = new FormData(this);
+                // Password validation
+                const password = formData.get('password');
+                const confirmPassword = formData.get('confirmPassword');
+                
+                if (action === 'add' && (!password || password.length < 6)) {
+                    showAlert('danger', 'Error!', 'Password minimal 6 karakter');
+                    return;
+                }
+                
+                if (password && password !== confirmPassword) {
+                    showAlert('danger', 'Error!', 'Password dan konfirmasi password tidak sama');
+                    return;
+                }
+                
                 const collectorData = {
                     name: formData.get('name'),
                     phone: formData.get('phone'),
                     email: formData.get('email'),
                     address: formData.get('address'),
                     commission_rate: parseFloat(formData.get('commission_rate')) || 5,
-                    status: formData.get('status')
+                    status: formData.get('status'),
+                    password: password || undefined // Only include if provided
                 };
                 
                 const url = action === 'add' ? '/admin/collectors' : `/admin/collectors/${collectorId}`;
@@ -329,6 +388,77 @@
                 value = '0' + value;
             }
             e.target.value = value;
+        });
+        
+        // Password toggle functionality
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'bi bi-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'bi bi-eye';
+            }
+        });
+        
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const confirmPasswordIcon = document.getElementById('confirmPasswordIcon');
+            
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                confirmPasswordIcon.className = 'bi bi-eye-slash';
+            } else {
+                confirmPasswordInput.type = 'password';
+                confirmPasswordIcon.className = 'bi bi-eye';
+            }
+        });
+        
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthIndicator = document.getElementById('passwordStrength');
+            
+            if (!strengthIndicator) {
+                const indicator = document.createElement('div');
+                indicator.id = 'passwordStrength';
+                indicator.className = 'form-text';
+                e.target.parentNode.parentNode.appendChild(indicator);
+            }
+            
+            const indicator = document.getElementById('passwordStrength');
+            let strength = 0;
+            let message = '';
+            
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            switch (strength) {
+                case 0:
+                case 1:
+                    message = '<span class="text-danger">Lemah</span>';
+                    break;
+                case 2:
+                case 3:
+                    message = '<span class="text-warning">Sedang</span>';
+                    break;
+                case 4:
+                case 5:
+                    message = '<span class="text-success">Kuat</span>';
+                    break;
+            }
+            
+            if (password.length > 0) {
+                indicator.innerHTML = `Kekuatan password: ${message}`;
+            } else {
+                indicator.innerHTML = '';
+            }
         });
     </script>
 </body>
