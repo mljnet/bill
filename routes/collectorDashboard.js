@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcrypt');
 const { getSetting } = require('../config/settingsManager');
 const { collectorAuth } = require('./collectorAuth');
 const billingManager = require('../config/billing');
@@ -365,8 +366,10 @@ router.post('/api/profile/update-password', collectorAuth, async (req, res) => {
             });
         }
         
-        // Verify current password (simple comparison for now)
-        if (collector.password !== currentPassword) {
+        // Verify current password using bcrypt
+        const validPassword = collector.password ? bcrypt.compareSync(currentPassword, collector.password) : false;
+        
+        if (!validPassword) {
             db.close();
             return res.status(400).json({
                 success: false,
@@ -374,13 +377,16 @@ router.post('/api/profile/update-password', collectorAuth, async (req, res) => {
             });
         }
         
+        // Hash new password
+        const hashedNewPassword = bcrypt.hashSync(newPassword, 10);
+        
         // Update password
         await new Promise((resolve, reject) => {
             db.run(`
                 UPDATE collectors 
                 SET password = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            `, [newPassword, collectorId], (err) => {
+            `, [hashedNewPassword, collectorId], (err) => {
                 if (err) reject(err);
                 else resolve();
             });

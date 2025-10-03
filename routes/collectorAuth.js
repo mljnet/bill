@@ -8,6 +8,7 @@ const router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const { getSetting } = require('../config/settingsManager');
 
 // Middleware untuk mengecek session tukang tagih
@@ -76,9 +77,8 @@ router.post('/login', async (req, res) => {
             });
         }
         
-        // For now, we'll use a simple password check
-        // In production, you should hash passwords
-        const validPassword = password === '123456'; // Default password for testing
+        // Check password using bcrypt
+        const validPassword = collector.password ? bcrypt.compareSync(password, collector.password) : false;
         
         if (!validPassword) {
             db.close();

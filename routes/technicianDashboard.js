@@ -14,6 +14,10 @@ const db = new sqlite3.Database(dbPath);
 const billingManager = require('../config/billing');
 const { addPPPoESecret, getPPPoEProfiles } = require('../config/mikrotik');
 
+function getDb() {
+    return typeof billingManager.getDb === 'function' ? billingManager.getDb() : billingManager.db;
+}
+
 /**
  * Dashboard Teknisi - Halaman utama terpisah dari admin
  */
@@ -241,7 +245,7 @@ router.get('/customers', technicianAuth, async (req, res) => {
         
         // Get ODPs for dropdown selection (termasuk sub ODP)
         const odps = await new Promise((resolve, reject) => {
-            const db = require('../config/billing').db;
+            const db = getDb();
             db.all(`
                 SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status, o.parent_odp_id,
                        p.name as parent_name, p.code as parent_code
@@ -444,8 +448,7 @@ router.put('/api/customers/:id', technicianAuth, async (req, res) => {
             package_id,
             status,
             pppoe_username,
-            odp_id,
-            notes
+            odp_id
         } = req.body;
 
         // Validate required fields
@@ -488,7 +491,7 @@ router.put('/api/customers/:id', technicianAuth, async (req, res) => {
 
         // Validate ODP if provided
         if (odp_id) {
-            const db = require('../config/billing').db;
+            const db = getDb();
             const odp = await new Promise((resolve, reject) => {
                 db.get('SELECT id FROM odps WHERE id = ? AND status = "active"', [odp_id], (err, row) => {
                     if (err) reject(err);
@@ -503,39 +506,24 @@ router.put('/api/customers/:id', technicianAuth, async (req, res) => {
             }
         }
 
-        // Update customer in database
-        const db = require('../config/billing').db;
-        await new Promise((resolve, reject) => {
-            const updateFields = [];
-            const values = [];
+        // Update customer using billingManager (same as admin) to ensure cable routes sync
+        const updateData = {
+            id: customerId,
+            name: name || existingCustomer.name,
+            phone: phone || existingCustomer.phone,
+            email: email || existingCustomer.email,
+            address: address || existingCustomer.address,
+            package_id: package_id || existingCustomer.package_id,
+            status: status || existingCustomer.status,
+            pppoe_username: pppoe_username || existingCustomer.pppoe_username,
+            odp_id: odp_id !== undefined ? odp_id : existingCustomer.odp_id
+        };
 
-            if (name) { updateFields.push('name = ?'); values.push(name); }
-            if (phone) { updateFields.push('phone = ?'); values.push(phone); }
-            if (email) { updateFields.push('email = ?'); values.push(email); }
-            if (address) { updateFields.push('address = ?'); values.push(address); }
-            if (package_id) { updateFields.push('package_id = ?'); values.push(package_id); }
-            if (status) { updateFields.push('status = ?'); values.push(status); }
-            if (pppoe_username) { updateFields.push('pppoe_username = ?'); values.push(pppoe_username); }
-            if (odp_id) { updateFields.push('odp_id = ?'); values.push(odp_id); }
-            if (notes !== undefined) { updateFields.push('notes = ?'); values.push(notes); }
-
-            // Add updated timestamp
-            updateFields.push('updated_at = CURRENT_TIMESTAMP');
-            values.push(customerId);
-
-            const sql = `UPDATE customers SET ${updateFields.join(', ')} WHERE id = ?`;
-            
-            db.run(sql, values, function(err) {
-                if (err) reject(err);
-                else resolve(this);
-            });
-        });
+        // Use billingManager.updateCustomerById to ensure cable routes are synced
+        const updatedCustomer = await billingManager.updateCustomerById(customerId, updateData);
 
         // Log activity
         await authManager.logActivity(req.technician.id, 'customer_edit', `Mengedit customer ${name} (ID: ${customerId})`);
-
-        // Get updated customer data
-        const updatedCustomer = await billingManager.getCustomerById(customerId);
 
         res.json({
             success: true,
@@ -545,9 +533,11 @@ router.put('/api/customers/:id', technicianAuth, async (req, res) => {
 
     } catch (error) {
         logger.error('Error updating customer by technician:', error);
+        // Tambahkan error detail ke response untuk debugging
         res.status(500).json({ 
             success: false, 
-            message: 'Gagal mengupdate customer' 
+            message: 'Gagal mengupdate customer',
+            error: error && error.message ? error.message : error
         });
     }
 });
@@ -650,7 +640,7 @@ router.get('/api/packages', technicianAuth, async (req, res) => {
 // API untuk mendapatkan ODPs
 router.get('/api/odps', technicianAuth, async (req, res) => {
     try {
-        const db = require('../config/billing').db;
+        const db = getDb();
         const odps = await new Promise((resolve, reject) => {
             db.all(`
                 SELECT id, name, code, capacity, used_ports, status
@@ -2142,7 +2132,10 @@ router.get('/mobile/mapping', technicianAuth, async (req, res) => {
 // API: Mapping data untuk teknisi (menggunakan data real dari database seperti admin)
 router.get('/api/mapping-data', technicianAuth, async (req, res) => {
     try {
-        const db = require('../config/billing').db;
+        // Fix database connection issue
+        const sqlite3 = require('sqlite3').verbose();
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
         
         // Get ODPs data from database
         const odps = await new Promise((resolve, reject) => {
@@ -2228,6 +2221,26 @@ router.get('/api/mapping-data', technicianAuth, async (req, res) => {
             to_customer: cable.customer_name
         }));
         
+        // Generate cables dynamically from customers and ODPs
+        const dynamicCables = customers
+            .filter(cust => cust.odp_id && cust.latitude && cust.longitude)
+            .map(cust => {
+                const odp = odps.find(o => o.id === cust.odp_id);
+                if (!odp) return null;
+                return {
+                    id: `odp${odp.id}-cust${cust.id}`,
+                    name: `Cable-ODP${odp.id}-CUST${cust.id}`,
+                    start_lat: odp.latitude,
+                    start_lng: odp.longitude,
+                    end_lat: cust.latitude,
+                    end_lng: cust.longitude,
+                    from_odp: odp.name,
+                    to_customer: cust.name,
+                    status: cust.status
+                };
+            })
+            .filter(Boolean);
+        
         // Format backbone for map (sesuai struktur tabel odp_connections)
         const formattedBackbone = backbone.map(backboneItem => ({
             id: backboneItem.id,
@@ -2244,22 +2257,69 @@ router.get('/api/mapping-data', technicianAuth, async (req, res) => {
             to_odp: backboneItem.end_odp_name
         }));
         
-        logger.info(`✅ Loaded mapping data: ${odps.length} ODPs, ${customers.length} customers, ${formattedCables.length} cables, ${formattedBackbone.length} backbone routes`);
+        logger.info(`✅ Loaded mapping data: ${odps.length} ODPs, ${customers.length} customers, ${dynamicCables.length} cables, ${formattedBackbone.length} backbone routes`);
+        
+        // Close database connection
+        db.close();
         
         res.json({
             success: true,
             data: {
                 odps: odps,
                 customers: customers,
-                cables: formattedCables,
+                cables: dynamicCables,
                 backbone: formattedBackbone
             }
         });
     } catch (error) {
+        // Ensure database is closed on error
+        try {
+            if (db) db.close();
+        } catch (closeError) {
+            logger.error('Error closing database:', closeError);
+        }
+        
         logger.error('Error getting mapping data:', error);
         res.json({
             success: false,
             message: 'Failed to load mapping data: ' + error.message
+        });
+    }
+});
+
+// TEST: Mapping data tanpa authentication (untuk debugging)
+router.get('/api/test-mapping-data', async (req, res) => {
+    try {
+        // Fix database connection issue
+        const sqlite3 = require('sqlite3').verbose();
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Get ODPs data from database
+        const odps = await new Promise((resolve, reject) => {
+            db.all(`SELECT * FROM odps WHERE latitude IS NOT NULL AND longitude IS NOT NULL`, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        // Close database connection
+        db.close();
+        
+        console.log(`✅ Test mapping data: ${odps.length} ODPs found`);
+        
+        res.json({
+            success: true,
+            data: {
+                odps: odps,
+                message: `${odps.length} ODPs loaded successfully`
+            }
+        });
+    } catch (error) {
+        console.error('Test mapping error:', error);
+        res.json({
+            success: false,
+            message: 'Test mapping failed: ' + error.message
         });
     }
 });
@@ -2782,7 +2842,7 @@ router.get('/mobile/customers', technicianAuth, async (req, res) => {
         
         // Get ODPs for dropdown selection (termasuk sub ODP)
         const odps = await new Promise((resolve, reject) => {
-            const db = require('../config/billing').db;
+            const db = getDb();
             db.all(`
                 SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status, o.parent_odp_id,
                        p.name as parent_name, p.code as parent_code

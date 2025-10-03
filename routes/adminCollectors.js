@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcrypt');
 const { getSetting } = require('../config/settingsManager');
 const { adminAuth } = require('./adminAuth');
 
@@ -117,12 +118,19 @@ router.get('/:id/edit', adminAuth, async (req, res) => {
 // Create collector
 router.post('/', adminAuth, async (req, res) => {
     try {
-        const { name, phone, email, address, commission_rate, status } = req.body;
+        const { name, phone, email, address, commission_rate, status, password } = req.body;
         
         if (!name || !phone) {
             return res.status(400).json({
                 success: false,
                 message: 'Nama dan nomor telepon harus diisi'
+            });
+        }
+        
+        if (!password || password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password minimal 6 karakter'
             });
         }
         
@@ -145,12 +153,15 @@ router.post('/', adminAuth, async (req, res) => {
             });
         }
         
+        // Hash password
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        
         // Insert new collector
         const collectorId = await new Promise((resolve, reject) => {
             db.run(`
-                INSERT INTO collectors (name, phone, email, address, commission_rate, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            `, [name, phone, email, address, commission_rate || 5, status || 'active'], function(err) {
+                INSERT INTO collectors (name, phone, email, address, commission_rate, status, password)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `, [name, phone, email, address, commission_rate || 5, status || 'active', hashedPassword], function(err) {
                 if (err) reject(err);
                 else resolve(this.lastID);
             });
@@ -177,12 +188,19 @@ router.post('/', adminAuth, async (req, res) => {
 router.put('/:id', adminAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, email, address, commission_rate, status } = req.body;
+        const { name, phone, email, address, commission_rate, status, password } = req.body;
         
         if (!name || !phone) {
             return res.status(400).json({
                 success: false,
                 message: 'Nama dan nomor telepon harus diisi'
+            });
+        }
+        
+        if (password && password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password minimal 6 karakter'
             });
         }
         
@@ -205,13 +223,31 @@ router.put('/:id', adminAuth, async (req, res) => {
             });
         }
         
-        // Update collector
-        await new Promise((resolve, reject) => {
-            db.run(`
+        // Prepare update data
+        let updateQuery, updateParams;
+        
+        if (password) {
+            // Update with password
+            const hashedPassword = bcrypt.hashSync(password, 10);
+            updateQuery = `
+                UPDATE collectors 
+                SET name = ?, phone = ?, email = ?, address = ?, commission_rate = ?, status = ?, password = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `;
+            updateParams = [name, phone, email, address, commission_rate, status, hashedPassword, id];
+        } else {
+            // Update without password
+            updateQuery = `
                 UPDATE collectors 
                 SET name = ?, phone = ?, email = ?, address = ?, commission_rate = ?, status = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            `, [name, phone, email, address, commission_rate, status, id], (err) => {
+            `;
+            updateParams = [name, phone, email, address, commission_rate, status, id];
+        }
+        
+        // Update collector
+        await new Promise((resolve, reject) => {
+            db.run(updateQuery, updateParams, (err) => {
                 if (err) reject(err);
                 else resolve();
             });
