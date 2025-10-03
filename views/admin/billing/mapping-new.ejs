@@ -16,6 +16,8 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Admin Mobile Optimizations -->
+    <link href="/css/admin-mobile.css" rel="stylesheet">
     
     <style>
         body {
@@ -730,12 +732,12 @@
         }
         
         .mobile-toggle.stats-toggle {
-            bottom: 20px;
+            bottom: 80px; /* Move up to avoid bottom navbar */
             right: 20px;
         }
         
         .mobile-toggle.layer-toggle {
-            bottom: 20px;
+            bottom: 80px; /* Move up to avoid bottom navbar */
             left: 20px;
         }
         
@@ -746,6 +748,35 @@
                 align-items: center;
                 justify-content: center;
                 font-size: 18px;
+            }
+            
+            /* Hide layer control by default on mobile */
+            .leaflet-control-layers {
+                display: none;
+                position: fixed !important;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%) !important;
+                z-index: 1001 !important;
+                max-width: 90%;
+                max-height: calc(100vh - 120px); /* Leave space for bottom navbar */
+                overflow-y: auto;
+            }
+            
+            .leaflet-control-layers.show {
+                display: block !important;
+            }
+            
+            /* Add overlay when layer control is shown */
+            .leaflet-control-layers.show::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: -1;
             }
             
             .control-panel {
@@ -763,6 +794,22 @@
             
             .control-panel.show {
                 transform: translateY(0);
+            }
+            
+            /* Add bottom padding to prevent overlap with navbar */
+            .main-content {
+                padding-bottom: 100px !important;
+            }
+            
+            /* Hide header on mobile to save space */
+            .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+                display: none !important;
+            }
+            
+            /* Adjust map container margin on mobile */
+            .map-container {
+                margin-top: 10px !important;
+                margin-bottom: 10px !important;
             }
             
             .control-panel h5 {
@@ -967,7 +1014,7 @@
             
             .stats-panel {
                 position: fixed;
-                bottom: 10px;
+                bottom: 100px; /* Move up to avoid bottom navbar */
                 left: 10px;
                 right: 10px;
                 top: auto;
@@ -985,7 +1032,7 @@
             
             .leaflet-control-layers {
                 position: fixed !important;
-                bottom: 10px;
+                bottom: 100px; /* Move up to avoid bottom navbar */
                 left: 10px;
                 right: 10px;
                 top: auto;
@@ -1311,6 +1358,17 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Mobile Toggle Buttons -->
+                <button class="mobile-toggle control-toggle" id="controlToggle" title="Show Layer Controls">
+                    <i class="fas fa-cogs"></i>
+                </button>
+                <button class="mobile-toggle stats-toggle" id="statsToggle" title="Show Network Statistics">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
+                <button class="mobile-toggle layer-toggle" id="layerToggle" title="Show Base Maps & Layers">
+                    <i class="fas fa-layer-group"></i>
+                </button>
             </main>
         </div>
     </div>
@@ -1380,10 +1438,10 @@
                 "ONU Devices": onuLayer
             };
             
-            // Add layer control
+            // Add layer control (collapsed by default)
             const layerControl = L.control.layers(baseLayers, overlayLayers, {
                 position: 'topright',
-                collapsed: false
+                collapsed: true
             }).addTo(map);
             
             // Ensure layer control is always visible and positioned correctly
@@ -2881,6 +2939,17 @@
                     if (layerControl.classList.contains('show')) {
                         layerToggle.innerHTML = '<i class="fas fa-times"></i>';
                         layerToggle.title = 'Hide Base Maps & Layers';
+                        
+                        // Add click outside to close
+                        setTimeout(() => {
+                            document.addEventListener('click', function(e) {
+                                if (!layerControl.contains(e.target) && !layerToggle.contains(e.target)) {
+                                    layerControl.classList.remove('show');
+                                    layerToggle.innerHTML = '<i class="fas fa-layer-group"></i>';
+                                    layerToggle.title = 'Show Base Maps & Layers';
+                                }
+                            });
+                        }, 100);
                     } else {
                         layerToggle.innerHTML = '<i class="fas fa-layer-group"></i>';
                         layerToggle.title = 'Show Base Maps & Layers';
