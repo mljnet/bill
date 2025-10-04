@@ -109,14 +109,14 @@ class AgentAdminCommands {
             }
 
             // Help command
-            if (command === 'bantuanagent' || command === 'agenthelp') {
+            if (command === 'agent' || command === 'bantuanagent' || command === 'agenthelp') {
                 await this.handleAgentHelp(remoteJid);
                 return;
             }
 
             // If no command matches, send unknown command message
             await this.sendMessage(remoteJid, 
-                `❓ *PERINTAH AGENT TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *bantuanagent* untuk melihat daftar perintah agent.`
+                `❓ *PERINTAH AGENT TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *agent* untuk melihat daftar perintah agent.`
             );
 
         } catch (error) {
@@ -551,7 +551,7 @@ class AgentAdminCommands {
 • setujuirequest 1 Request disetujui
 • tolakrequest 1 Data tidak lengkap
 
-❓ *BANTUAN:* Ketik *bantuanagent* untuk melihat menu ini lagi.`;
+❓ *BANTUAN:* Ketik *agent* untuk melihat menu ini lagi.`;
 
         await this.sendMessage(remoteJid, message);
     }
@@ -559,8 +559,12 @@ class AgentAdminCommands {
     // Send message helper
     async sendMessage(remoteJid, message) {
         // This will be handled by the main WhatsApp handler
-        // For now, we'll just log it
-        console.log(`WhatsApp to ${remoteJid}: ${message}`);
+        // The sendMessage function is set by whatsapp-message-handlers.js
+        if (this._sendMessage && typeof this._sendMessage === 'function') {
+            await this._sendMessage(remoteJid, message);
+        } else {
+            console.log(`WhatsApp to ${remoteJid}: ${message}`);
+        }
         return true;
     }
 }

@@ -173,13 +173,17 @@ class WhatsAppMessageHandlers {
             // Debug logging
             logger.info(`🔍 [ROUTING] Processing command: "${originalCommand}" (lowercase: "${command}")`);
             logger.info(`🔍 [ROUTING] Sender: ${senderNumber}, isAdmin: ${isAdmin}, canAccessTechnician: ${canAccessTechnician}`);
+            console.log(`🔍 [ROUTING DEBUG] isAdmin=${isAdmin}, typeof isAdmin=${typeof isAdmin}`);
             
             // Admin commands (termasuk command teknisi)
             if (isAdmin) {
                 logger.info(`🔍 [ROUTING] Routing to handleAdminCommands`);
+                console.log(`🔍 [ROUTING] Calling handleAdminCommands for command: "${command}"`);
                 await this.handleAdminCommands(remoteJid, senderNumber, command, messageText);
                 return;
             }
+            
+            console.log(`🔍 [ROUTING] NOT routing to admin handler, isAdmin=${isAdmin}`);
             
             // Technician commands (untuk teknisi yang bukan admin)
             if (canAccessTechnician && !isAdmin) {
@@ -386,7 +390,17 @@ class WhatsAppMessageHandlers {
 
     // Handle admin commands
     async handleAdminCommands(remoteJid, senderNumber, command, messageText) {
-        // GenieACS Commands
+        // Tangkap SEMUA perintah yang mengandung kata 'agent' lebih dulu
+        if (command.includes('agent') || command === 'agent' || command.includes('daftaragent')) {
+            logger.info(`DEBUG Routing ke handler agent admin: "${command}"`);
+            this.agentAdminCommands._sendMessage = async (jid, message) => {
+                await this.commands.sendMessage(jid, message);
+            };
+            await this.agentAdminCommands.handleAgentAdminCommands(remoteJid, senderNumber, command, messageText);
+            return;
+        }
+
+        // Handler admin WhatsApp lain (cek, refresh, menu, status, dsb)
         if (command.startsWith('cek ')) {
             const customerNumber = messageText.split(' ')[1];
             await this.commands.handleCekStatus(remoteJid, customerNumber);
@@ -503,30 +517,6 @@ class WhatsAppMessageHandlers {
             return;
         }
         
-        // Agent Admin Commands
-        if (command.startsWith('daftaragent') || command.startsWith('tambahagent') || 
-            command.startsWith('saldoagent') || command.startsWith('tambahsaldoagent') ||
-            command.startsWith('statistikagent') || command.startsWith('requestagent') ||
-            command.startsWith('setujuirequest') || command.startsWith('tolakrequest') ||
-            command === 'bantuanagent' ||
-            // Backward compatibility with English commands
-            command.startsWith('listagent') || command.startsWith('addagent') || 
-            command.startsWith('agentbalance') || command.startsWith('addagentbalance') ||
-            command.startsWith('agentstats') || command.startsWith('agentrequests') ||
-            command.startsWith('approveagentrequest') || command.startsWith('rejectagentrequest') ||
-            command === 'agenthelp') {
-            
-            logger.info(`🤖 [ROUTING] Routing agent command: "${command}" to AgentAdminCommands`);
-            
-            // Set WhatsApp manager for notifications
-            this.agentAdminCommands.sendMessage = async (jid, message) => {
-                await this.commands.sendMessage(jid, message);
-            };
-            
-            await this.agentAdminCommands.handleAgentAdminCommands(remoteJid, senderNumber, command, messageText);
-            return;
-        }
-
         // System Commands
         if (command === 'status') {
             await this.commands.handleStatus(remoteJid);

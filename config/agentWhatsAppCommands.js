@@ -1,12 +1,12 @@
 const AgentManager = require('./agentManager');
 const AgentWhatsAppManager = require('./agentWhatsApp');
-const BillingManager = require('./billing');
+const billingManager = require('./billing');
 
 class AgentWhatsAppCommands {
     constructor() {
         this.agentManager = new AgentManager();
         this.whatsappManager = new AgentWhatsAppManager();
-        this.billingManager = new BillingManager();
+        this.billingManager = billingManager; // Gunakan instance singleton
     }
 
     // Handle incoming WhatsApp messages from agents
@@ -15,8 +15,11 @@ class AgentWhatsAppCommands {
             const phone = from.replace('@s.whatsapp.net', '');
             
             // Check if this is an agent
+            console.log(`🔍 [AGENT DEBUG] Checking agent for phone: ${phone}`);
             const agent = await this.agentManager.getAgentByPhone(phone);
+            console.log(`🔍 [AGENT DEBUG] Agent found:`, agent);
             if (!agent) {
+                console.log(`🔍 [AGENT DEBUG] Agent not found for phone: ${phone}`);
                 return this.sendMessage(from, "❌ Anda belum terdaftar sebagai agent. Hubungi admin untuk pendaftaran.");
             }
 
@@ -130,6 +133,68 @@ class AgentWhatsAppCommands {
         return {
             amount: parseFloat(parts[requestIndex + 1]),
             notes: parts.slice(requestIndex + 2).join(' ')
+        };
+    }
+
+    // Parse buy voucher parameters
+    parseBuyVoucherParams(text) {
+        // Format: BELI VOUCHER [PAKET] [NOMOR_HP]
+        const parts = text.split(' ');
+        const beliIndex = parts.findIndex(p => p.includes('beli'));
+        
+        if (beliIndex === -1 || parts.length < beliIndex + 3) {
+            return null;
+        }
+        
+        return {
+            package: parts[beliIndex + 2], // PAKET
+            customerPhone: parts[beliIndex + 3] || null // NOMOR_HP (optional)
+        };
+    }
+
+    // Parse sell voucher parameters
+    parseSellParams(text) {
+        // Format: JUAL [PAKET] [NOMOR_HP]
+        const parts = text.split(' ');
+        const jualIndex = parts.findIndex(p => p.includes('jual'));
+        
+        if (jualIndex === -1 || parts.length < jualIndex + 2) {
+            return null;
+        }
+        
+        return {
+            package: parts[jualIndex + 1], // PAKET
+            customerPhone: parts[jualIndex + 2] || null // NOMOR_HP (optional)
+        };
+    }
+
+    // Parse check bill parameters
+    parseCheckBillParams(text) {
+        // Format: CEK TAGIHAN [NAMA_PELANGGAN]
+        const parts = text.split(' ');
+        const cekIndex = parts.findIndex(p => p.includes('cek'));
+        
+        if (cekIndex === -1 || parts.length < cekIndex + 3) {
+            return null;
+        }
+        
+        return {
+            customerName: parts.slice(cekIndex + 2).join(' ') // NAMA_PELANGGAN
+        };
+    }
+
+    // Parse pay bill parameters
+    parsePayBillParams(text) {
+        // Format: BAYAR TAGIHAN [NAMA_PELANGGAN]
+        const parts = text.split(' ');
+        const bayarIndex = parts.findIndex(p => p.includes('bayar'));
+        
+        if (bayarIndex === -1 || parts.length < bayarIndex + 3) {
+            return null;
+        }
+        
+        return {
+            customerName: parts.slice(bayarIndex + 2).join(' ') // NAMA_PELANGGAN
         };
     }
 
@@ -375,15 +440,25 @@ class AgentWhatsAppCommands {
     // Send message via WhatsApp
     async sendMessage(to, message) {
         try {
-            // This would integrate with the existing WhatsApp gateway
-            // For now, we'll just log the message
-            console.log(`WhatsApp to ${to}: ${message}`);
+            // Try to get socket from whatsapp module
+            let sock = null;
+            try {
+                const whatsapp = require('./whatsapp');
+                sock = whatsapp.getSock ? whatsapp.getSock() : null;
+            } catch (e) {
+                console.log('Could not get socket from whatsapp module');
+            }
             
-            // TODO: Integrate with actual WhatsApp gateway
-            return true;
+            if (sock && sock.sendMessage) {
+                await sock.sendMessage(to, { text: message });
+                console.log(`📤 [AGENT] Sent message to ${to}: ${message}`);
+            } else {
+                console.log(`📤 [AGENT] [MOCK] Would send to ${to}: ${message}`);
+            }
+            return null; // Don't return true, let agentWhatsAppIntegration handle the response
         } catch (error) {
             console.error('Error sending WhatsApp message:', error);
-            return false;
+            return null;
         }
     }
     
@@ -394,14 +469,15 @@ class AgentWhatsAppCommands {
         }
         
         try {
-            // Find customer by name
-            const customer = await this.billingManager.getCustomerByName(params.customerName);
+            // Find customer by name or phone
+            const customer = await this.billingManager.getCustomerByNameOrPhone(params.customerName);
             if (!customer) {
                 return this.sendMessage(from, ` Pelanggan dengan nama "${params.customerName}" tidak ditemukan.`);
             }
             
-            // Get customer bills
-            const bills = await this.billingManager.getCustomerInvoices(customer.id);
+            // Get customer bills and filter unpaid ones
+            const allBills = await this.billingManager.getInvoicesByCustomer(customer.id);
+            const bills = allBills.filter(bill => bill.status === 'unpaid');
             if (bills.length === 0) {
                 return this.sendMessage(from, ` Pelanggan "${params.customerName}" tidak memiliki tagihan yang belum dibayar.`);
             }
@@ -431,41 +507,66 @@ class AgentWhatsAppCommands {
         }
         
         try {
-            // Find customer by name
-            const customer = await this.billingManager.getCustomerByName(params.customerName);
+            // Find customer by name or phone
+            const customer = await this.billingManager.getCustomerByNameOrPhone(params.customerName);
             if (!customer) {
                 return this.sendMessage(from, ` Pelanggan dengan nama "${params.customerName}" tidak ditemukan.`);
             }
             
-            // Get unpaid invoices
-            const unpaidInvoices = await this.billingManager.getUnpaidInvoices(customer.id);
+            // Get all invoices and filter unpaid ones
+            const allInvoices = await this.billingManager.getInvoicesByCustomer(customer.id);
+            const unpaidInvoices = allInvoices.filter(invoice => invoice.status === 'unpaid');
             if (unpaidInvoices.length === 0) {
                 return this.sendMessage(from, ` Pelanggan "${params.customerName}" tidak memiliki tagihan yang belum dibayar.`);
             }
             
             // Process payment for the first unpaid invoice
             const invoice = unpaidInvoices[0];
-            const result = await this.billingManager.recordPayment(invoice.id, invoice.amount, 'agent_payment', agent.id);
+            console.log('[AGENT][DEBUG] invoice:', invoice);
+            const result = await this.billingManager.recordPayment({
+                invoice_id: invoice.id,
+                amount: invoice.base_amount, // potong saldo agent sesuai harga agent
+                payment_method: 'agent_payment',
+                reference_number: agent.id,
+                notes: ''
+            });
             
             if (result.success) {
+                // Update status invoice menjadi paid
+                await this.billingManager.updateInvoiceStatus(invoice.id, 'paid', 'agent_payment');
+                // Potong saldo agent dan catat transaksi
+                await this.agentManager.updateAgentBalance(
+                    agent.id,
+                    -invoice.base_amount, // potong saldo agent
+                    'monthly_payment',
+                    `Pembayaran tagihan pelanggan ${params.customerName}`,
+                    invoice.id
+                );
+                // Ambil saldo akhir agent
+                const saldoAkhir = await this.agentManager.getAgentBalance(agent.id);
+                const komisi = invoice.amount - invoice.base_amount;
                 let message = `✅ *PEMBAYARAN TAGIHAN BERHASIL*
 
 👤 Pelanggan: ${params.customerName}
-💰 Jumlah: Rp ${invoice.amount.toLocaleString('id-ID')}
+💰 Jumlah dibayar pelanggan: Rp ${invoice.amount.toLocaleString('id-ID')}
+💵 Saldo agent terpotong: Rp ${invoice.base_amount.toLocaleString('id-ID')}
+🎁 Komisi: Rp ${komisi.toLocaleString('id-ID')}
 📅 Tanggal: ${new Date().toLocaleString('id-ID')}
-
 `;
                 // Send confirmation to customer if phone is available
                 if (customer.phone) {
-                    await this.whatsappManager.sendPaymentSuccessNotification(customer.phone, customer.name, invoice.amount);
+                    await this.sendMessage(customer.phone, `✅ Pembayaran tagihan atas nama ${customer.name} sebesar Rp ${invoice.amount.toLocaleString('id-ID')} telah berhasil!`);
                     message += `📱 Konfirmasi telah dikirim ke pelanggan.`;
                 }
+                // Tambahkan saldo akhir ke pesan
+                message += `\n💰 Saldo akhir: Rp ${saldoAkhir.toLocaleString('id-ID')}`;
                 
                 return this.sendMessage(from, message);
             } else {
                 return this.sendMessage(from, ` Gagal memproses pembayaran: ${result.message}`);
             }
         } catch (error) {
+            console.error('[AGENT][ERROR] handlePayBill:', error);
             return this.sendMessage(from, " Terjadi kesalahan saat memproses pembayaran.");
         }
     }
@@ -499,7 +600,7 @@ class AgentWhatsAppCommands {
                 agent.id,
                 voucherCode,
                 selectedPackage.id,
-                params.customerName || 'Customer',
+                params.customerPhone || 'Customer',
                 params.customerPhone || ''
             );
 

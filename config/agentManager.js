@@ -292,32 +292,29 @@ class AgentManager {
     // ===== VOUCHER SALES METHODS =====
 
     async sellVoucher(agentId, voucherCode, packageId, customerName, customerPhone) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const self = this; // Store reference to this
-                
-                // Get package data from voucher_pricing table
-                const packageData = await this.getPackageById(packageId);
-                if (!packageData) {
-                    resolve({ success: false, message: 'Paket tidak ditemukan' });
-                    return;
-                }
+        try {
+            // Get package data from voucher_pricing table
+            const packageData = await this.getPackageById(packageId);
+            if (!packageData) {
+                return { success: false, message: 'Paket tidak ditemukan' };
+            }
 
-                // Check agent balance
-                const currentBalance = await this.getAgentBalance(agentId);
-                if (currentBalance < packageData.agentPrice) {
-                    resolve({ 
-                        success: false, 
-                        message: `Saldo tidak cukup. Dibutuhkan: Rp ${packageData.agentPrice.toLocaleString()}, Tersedia: Rp ${currentBalance.toLocaleString()}` 
-                    });
-                    return;
-                }
+            // Check agent balance
+            const currentBalance = await this.getAgentBalance(agentId);
+            if (currentBalance < packageData.agentPrice) {
+                return { 
+                    success: false, 
+                    message: `Saldo tidak cukup. Dibutuhkan: Rp ${packageData.agentPrice.toLocaleString()}, Tersedia: Rp ${currentBalance.toLocaleString()}` 
+                };
+            }
 
-                const db = this.db; // Store database reference
-                
-                // Generate password for Mikrotik (same as voucher code for simplicity)
-                const voucherPassword = voucherCode;
-                
+            const db = this.db; // Store database reference
+            const self = this; // Store this reference for callbacks
+            
+            // Generate password for Mikrotik (same as voucher code for simplicity)
+            const voucherPassword = voucherCode;
+            
+            return new Promise((resolve, reject) => {
                 db.serialize(() => {
                     db.run('BEGIN TRANSACTION');
 
@@ -347,107 +344,125 @@ class AgentManager {
                             return;
                         }
 
-                    // Update agent balance (deduct agent price)
-                    const updateBalanceSql = `
-                        UPDATE agent_balances 
-                        SET balance = balance - ?, last_updated = CURRENT_TIMESTAMP 
-                        WHERE agent_id = ?
-                    `;
-                    
-                    db.run(updateBalanceSql, [packageData.agentPrice, agentId], function(err) {
-                        if (err) {
-                            db.run('ROLLBACK');
-                            reject(err);
-                            return;
-                        }
-
-                        // Record transaction (hanya transaksi penjualan)
-                        const insertTransactionSql = `
-                            INSERT INTO agent_transactions (agent_id, transaction_type, amount, description, reference_id)
-                            VALUES (?, 'voucher_sale', ?, ?, ?)
+                        // Update agent balance (deduct agent price)
+                        const updateBalanceSql = `
+                            UPDATE agent_balances 
+                            SET balance = balance - ?, last_updated = CURRENT_TIMESTAMP 
+                            WHERE agent_id = ?
                         `;
                         
-                        db.run(insertTransactionSql, [
-                            agentId,
-                            -packageData.agentPrice,
-                            `Penjualan voucher ${packageData.name} (Customer: Rp ${packageData.customerPrice.toLocaleString()})`,
-                            voucherCode
-                        ], function(err) {
+                        db.run(updateBalanceSql, [packageData.agentPrice, agentId], function(err) {
                             if (err) {
                                 db.run('ROLLBACK');
                                 reject(err);
                                 return;
                             }
 
-                            db.run('COMMIT', async (err) => {
+                            // Record transaction (hanya transaksi penjualan)
+                            const insertTransactionSql = `
+                                INSERT INTO agent_transactions (agent_id, transaction_type, amount, description, reference_id)
+                                VALUES (?, 'voucher_sale', ?, ?, ?)
+                            `;
+                            
+                            db.run(insertTransactionSql, [
+                                agentId,
+                                -packageData.agentPrice,
+                                `Penjualan voucher ${packageData.name} (Customer: Rp ${packageData.customerPrice.toLocaleString()})`,
+                                voucherCode
+                            ], function(err) {
                                 if (err) {
+                                    db.run('ROLLBACK');
                                     reject(err);
                                     return;
                                 }
-                                
-                                // Add voucher to Mikrotik after successful database commit
-                                try {
-                                    const { addHotspotUser } = require('./mikrotik');
-                                    
-                                    // Get agent information for Mikrotik comment
-                                    const agent = await self.getAgentById(agentId);
-                                    
-                                    // Get hotspot profile from package data
-                                    const hotspotProfile = packageData.hotspotProfile || 'default';
-                                    
-                                    // Determine username and password based on account type
-                                    let mikrotikUsername, mikrotikPassword;
-                                    const accountType = packageData.accountType || 'voucher';
-                                    
-                                    if (accountType === 'member') {
-                                        // For MEMBER: username and password are different
-                                        mikrotikUsername = `M${voucherCode}`;
-                                        mikrotikPassword = voucherPassword;
-                                    } else {
-                                        // For VOUCHER: username and password are the same
-                                        mikrotikUsername = voucherCode;
-                                        mikrotikPassword = voucherCode;
+
+                                db.run('COMMIT', async (err) => {
+                                    if (err) {
+                                        reject(err);
+                                        return;
                                     }
                                     
-                                    // Create comment with agent information (optimized for Mikrotik)
-                                    const agentComment = agent ? self.createAgentComment(agent.name, agent.phone, packageData.name) : `Voucher ${packageData.name}`;
-                                    
-                                    console.log(`🔧 Attempting to add user to Mikrotik: ${mikrotikUsername}/${mikrotikPassword} with profile ${hotspotProfile}`);
-                                    console.log(`📝 Comment: ${agentComment}`);
-                                    
-                                    // Add user to Mikrotik hotspot
-                                    const mikrotikResult = await addHotspotUser(
-                                        mikrotikUsername, // username
-                                        mikrotikPassword, // password
-                                        hotspotProfile,   // profile
-                                        agentComment      // comment
-                                    );
-                                    
-                                    if (mikrotikResult.success) {
-                                        console.log(`✅ Voucher ${voucherCode} berhasil ditambahkan ke Mikrotik dengan profile ${hotspotProfile}`);
+                                    // Add voucher to Mikrotik after successful database commit
+                                    try {
+                                        const { addHotspotUser } = require('./mikrotik');
                                         
-                                        // Get new balance after transaction
-                                        const newBalance = await self.getAgentBalance(agentId);
+                                        // Get agent information for Mikrotik comment
+                                        const agent = await self.getAgentById(agentId);
                                         
-                                        resolve({ 
-                                            success: true, 
-                                            voucherCode,
-                                            packageName: packageData.name,
-                                            customerPrice: packageData.customerPrice,
-                                            agentPrice: packageData.agentPrice,
-                                            commissionAmount: packageData.commissionAmount,
-                                            newBalance: newBalance,
-                                            mikrotikUsername,
-                                            mikrotikPassword,
-                                            accountType,
-                                            saleId: this.lastID,
-                                            mikrotikAdded: true
-                                        });
-                                    } else {
-                                        console.error(`❌ Gagal menambahkan voucher ${voucherCode} ke Mikrotik:`, mikrotikResult.message);
+                                        // Get hotspot profile from package data
+                                        const hotspotProfile = packageData.hotspotProfile || 'default';
+                                        
+                                        // Determine username and password based on account type
+                                        let mikrotikUsername, mikrotikPassword;
+                                        const accountType = packageData.accountType || 'voucher';
+                                        
+                                        if (accountType === 'member') {
+                                            // For MEMBER: username and password are different
+                                            mikrotikUsername = `M${voucherCode}`;
+                                            mikrotikPassword = voucherPassword;
+                                        } else {
+                                            // For VOUCHER: username and password are the same
+                                            mikrotikUsername = voucherCode;
+                                            mikrotikPassword = voucherCode;
+                                        }
+                                        
+                                        // Create comment with agent information (optimized for Mikrotik)
+                                        const agentComment = agent ? self.createAgentComment(agent.name, agent.phone, packageData.name) : `Voucher ${packageData.name}`;
+                                        
+                                        console.log(`🔧 Attempting to add user to Mikrotik: ${mikrotikUsername}/${mikrotikPassword} with profile ${hotspotProfile}`);
+                                        console.log(`📝 Comment: ${agentComment}`);
+                                        
+                                        // Add user to Mikrotik hotspot
+                                        const mikrotikResult = await addHotspotUser(
+                                            mikrotikUsername, // username
+                                            mikrotikPassword, // password
+                                            hotspotProfile,   // profile
+                                            agentComment      // comment
+                                        );
+                                        
+                                        if (mikrotikResult.success) {
+                                            console.log(`✅ Voucher ${voucherCode} berhasil ditambahkan ke Mikrotik dengan profile ${hotspotProfile}`);
+                                            
+                                            // Get new balance after transaction
+                                            const newBalance = await self.getAgentBalance(agentId);
+                                            
+                                            resolve({ 
+                                                success: true, 
+                                                voucherCode,
+                                                packageName: packageData.name,
+                                                customerPrice: packageData.customerPrice,
+                                                agentPrice: packageData.agentPrice,
+                                                commissionAmount: packageData.commissionAmount,
+                                                newBalance: newBalance,
+                                                mikrotikUsername,
+                                                mikrotikPassword,
+                                                accountType,
+                                                saleId: this.lastID,
+                                                mikrotikAdded: true
+                                            });
+                                        } else {
+                                            console.error(`❌ Gagal menambahkan voucher ${voucherCode} ke Mikrotik:`, mikrotikResult.message);
+                                            
+                                            // Even if Mikrotik fails, the database transaction is already committed
+                                            // Log the error but don't fail the whole process
+                                            const newBalance = await self.getAgentBalance(agentId);
+                                            resolve({ 
+                                                success: true, 
+                                                voucherCode,
+                                                packageName: packageData.name,
+                                                customerPrice: packageData.customerPrice,
+                                                agentPrice: packageData.agentPrice,
+                                                commissionAmount: packageData.commissionAmount,
+                                                newBalance: newBalance,
+                                                saleId: this.lastID,
+                                                mikrotikAdded: false,
+                                                mikrotikError: mikrotikResult.message
+                                            });
+                                        }
+                                    } catch (mikrotikError) {
+                                        console.error('❌ Error saat menambahkan voucher ke Mikrotik:', mikrotikError.message);
                                         
                                         // Even if Mikrotik fails, the database transaction is already committed
-                                        // Log the error but don't fail the whole process
                                         const newBalance = await self.getAgentBalance(agentId);
                                         resolve({ 
                                             success: true, 
@@ -459,27 +474,10 @@ class AgentManager {
                                             newBalance: newBalance,
                                             saleId: this.lastID,
                                             mikrotikAdded: false,
-                                            mikrotikError: mikrotikResult.message
+                                            mikrotikError: mikrotikError.message
                                         });
                                     }
-                                } catch (mikrotikError) {
-                                    console.error('❌ Error saat menambahkan voucher ke Mikrotik:', mikrotikError.message);
-                                    
-                                    // Even if Mikrotik fails, the database transaction is already committed
-                                    const newBalance = await self.getAgentBalance(agentId);
-                                    resolve({ 
-                                        success: true, 
-                                        voucherCode,
-                                        packageName: packageData.name,
-                                        customerPrice: packageData.customerPrice,
-                                        agentPrice: packageData.agentPrice,
-                                        commissionAmount: packageData.commissionAmount,
-                                        newBalance: newBalance,
-                                        saleId: this.lastID,
-                                        mikrotikAdded: false,
-                                        mikrotikError: mikrotikError.message
-                                    });
-                                }
+                                });
                             });
                         });
                     });
@@ -487,9 +485,8 @@ class AgentManager {
             });
         } catch (error) {
             console.error('Error in sellVoucher:', error);
-            resolve({ success: false, message: error.message });
+            return { success: false, message: error.message };
         }
-        });
     }
 
     generateVoucherCode(packageData = null) {
@@ -1214,9 +1211,15 @@ class AgentManager {
     }
 
     async getAgentByPhone(phone) {
+        // Normalisasi ke format 628...
+        let normalized = phone.replace(/\D/g, '');
+        if (normalized.startsWith('0')) normalized = '62' + normalized.slice(1);
+        if (!normalized.startsWith('62')) normalized = '62' + normalized;
+        // Juga buat versi 08...
+        let local = normalized.replace(/^62/, '0');
         return new Promise((resolve, reject) => {
-            const sql = 'SELECT * FROM agents WHERE phone = ?';
-            this.db.get(sql, [phone], (err, row) => {
+            const sql = 'SELECT * FROM agents WHERE (phone = ? OR phone = ?) AND status = "active"';
+            this.db.get(sql, [normalized, local], (err, row) => {
                 if (err) {
                     reject(err);
                     return;
@@ -1387,8 +1390,8 @@ class AgentManager {
                     (SELECT COALESCE(SUM(commission), 0) FROM agent_voucher_sales WHERE agent_id = ?) as total_commission_earned,
                     
                     -- Total monthly payments
-                    (SELECT COUNT(*) FROM agent_payments WHERE agent_id = ?) as total_monthly_payments,
-                    (SELECT COALESCE(SUM(amount), 0) FROM agent_payments WHERE agent_id = ?) as total_payment_amount,
+                    (SELECT COUNT(*) FROM agent_monthly_payments WHERE agent_id = ?) as total_monthly_payments,
+                    (SELECT COALESCE(SUM(amount), 0) FROM agent_monthly_payments WHERE agent_id = ?) as total_payment_amount,
                     
                     -- Balance requests
                     (SELECT COUNT(*) FROM agent_balance_requests WHERE agent_id = ?) as total_balance_requests,
@@ -1396,7 +1399,7 @@ class AgentManager {
                     
                     -- Recent activity (last 30 days)
                     (SELECT COUNT(*) FROM agent_voucher_sales WHERE agent_id = ? AND sold_at >= datetime('now', '-30 days')) as recent_voucher_sales,
-                    (SELECT COUNT(*) FROM agent_payments WHERE agent_id = ? AND paid_at >= datetime('now', '-30 days')) as recent_payments,
+                    (SELECT COUNT(*) FROM agent_monthly_payments WHERE agent_id = ? AND paid_at >= datetime('now', '-30 days')) as recent_payments,
                     
                     -- Current balance
                     (SELECT COALESCE(balance, 0) FROM agent_balances WHERE agent_id = ?) as current_balance
@@ -1421,9 +1424,15 @@ class AgentManager {
     // ===== WHATSAPP COMMAND METHODS =====
 
     async getAgentByPhone(phone) {
+        // Normalisasi ke format 628...
+        let normalized = phone.replace(/\D/g, '');
+        if (normalized.startsWith('0')) normalized = '62' + normalized.slice(1);
+        if (!normalized.startsWith('62')) normalized = '62' + normalized;
+        // Juga buat versi 08...
+        let local = normalized.replace(/^62/, '0');
         return new Promise((resolve, reject) => {
-            const sql = 'SELECT * FROM agents WHERE phone = ? AND status = "active"';
-            this.db.get(sql, [phone], (err, row) => {
+            const sql = 'SELECT * FROM agents WHERE (phone = ? OR phone = ?) AND status = "active"';
+            this.db.get(sql, [normalized, local], (err, row) => {
                 if (err) {
                     reject(err);
                     return;
