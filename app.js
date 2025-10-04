@@ -457,67 +457,16 @@ try {
             // Initialize database tables for legacy databases without agent feature
             const initAgentTables = () => {
                 return new Promise((resolve, reject) => {
-                    db.serialize(() => {
-                        // Create agents table if not exists
-                        db.run(`
-                            CREATE TABLE IF NOT EXISTS agents (
-                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                name TEXT NOT NULL,
-                                phone TEXT UNIQUE NOT NULL,
-                                email TEXT,
-                                balance REAL DEFAULT 0,
-                                commission_rate REAL DEFAULT 0.1,
-                                status TEXT DEFAULT 'active',
-                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                            )
-                        `, (err) => {
-                            if (err) {
-                                console.error('Error creating agents table:', err);
-                                reject(err);
-                            } else {
-                                db.run(`
-                                    CREATE TABLE IF NOT EXISTS agent_transactions (
-                                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                        agent_id INTEGER NOT NULL,
-                                        transaction_type TEXT NOT NULL,
-                                        amount REAL NOT NULL,
-                                        description TEXT,
-                                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                        FOREIGN KEY (agent_id) REFERENCES agents (id) ON DELETE CASCADE
-                                    )
-                                `, (err) => {
-                                    if (err) {
-                                        console.error('Error creating agent_transactions table:', err);
-                                        reject(err);
-                                    } else {
-                                        db.run(`
-                                            CREATE TABLE IF NOT EXISTS agent_vouchers (
-                                                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                agent_id INTEGER NOT NULL,
-                                                voucher_code TEXT UNIQUE NOT NULL,
-                                                package_id INTEGER NOT NULL,
-                                                customer_name TEXT,
-                                                customer_phone TEXT,
-                                                status TEXT DEFAULT 'sold',
-                                                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                                FOREIGN KEY (agent_id) REFERENCES agents (id) ON DELETE CASCADE,
-                                                FOREIGN KEY (package_id) REFERENCES packages (id) ON DELETE CASCADE
-                                            )
-                                        `, (err) => {
-                                            if (err) {
-                                                console.error('Error creating agent_vouchers table:', err);
-                                                reject(err);
-                                            } else {
-                                                console.log('Agent tables initialized successfully');
-                                                resolve();
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    });
+                    try {
+                        // AgentManager sudah memiliki createTables() yang otomatis membuat semua tabel agent
+                        const AgentManager = require('./config/agentManager');
+                        const agentManager = new AgentManager();
+                        console.log('✅ Agent tables created/verified by AgentManager');
+                        resolve();
+                    } catch (error) {
+                        console.error('Error initializing agent tables:', error);
+                        reject(error);
+                    }
                 });
             };
 
