@@ -240,6 +240,47 @@ router.post('/agents/add', adminAuth, async (req, res) => {
         const result = await agentManager.createAgent(agentData);
         
         if (result.success) {
+            // Send WhatsApp notification to admin
+            try {
+                const AgentWhatsAppManager = require('../config/agentWhatsApp');
+                const whatsappManager = new AgentWhatsAppManager();
+                
+                if (whatsappManager.sock) {
+                    const adminNumbers = [];
+                    const { getSetting } = require('../config/settingsManager');
+                    let i = 0;
+                    while (true) {
+                        const adminNum = getSetting(`admins.${i}`);
+                        if (!adminNum) break;
+                        adminNumbers.push(adminNum);
+                        i++;
+                    }
+                    
+                    const adminMessage = `*AGENT BARU DITAMBAHKAN OLEH ADMIN*
+
+👤 **Nama:** ${name}
+🆔 **Username:** ${username}
+📱 **HP:** ${phone}
+📧 **Email:** ${email || '-'}
+🏠 **Alamat:** ${address || '-'}
+💰 **Komisi:** ${commission_rate}%
+🆔 **ID Agent:** ${result.agentId}
+
+Agent dapat login menggunakan username dan password yang diberikan.`;
+                    
+                    for (const adminNum of adminNumbers) {
+                        try {
+                            await whatsappManager.sock.sendMessage(adminNum + '@s.whatsapp.net', { text: adminMessage });
+                        } catch (e) { 
+                            logger.error('WA admin notif error:', e); 
+                        }
+                    }
+                }
+            } catch (whatsappError) {
+                logger.error('WhatsApp notification error:', whatsappError);
+                // Don't fail the transaction if WhatsApp fails
+            }
+            
             res.json({ success: true, message: 'Agent berhasil ditambahkan' });
         } else {
             res.json({ success: false, message: 'Gagal menambahkan agent' });
@@ -673,6 +714,28 @@ router.post('/agents/add-balance', adminAuth, async (req, res) => {
         const result = await agentManager.addBalance(agentId, parseInt(amount), notes || 'Saldo ditambahkan oleh admin');
         
         if (result.success) {
+            // Send WhatsApp notification to agent
+            try {
+                const AgentWhatsAppManager = require('../config/agentWhatsApp');
+                const whatsappManager = new AgentWhatsAppManager();
+                
+                // Get agent details
+                const agent = await agentManager.getAgentById(agentId);
+                if (agent && whatsappManager.sock) {
+                    const balanceData = {
+                        previousBalance: agent.balance - parseInt(amount),
+                        currentBalance: agent.balance,
+                        change: parseInt(amount),
+                        description: notes || 'Saldo ditambahkan oleh admin'
+                    };
+                    
+                    await whatsappManager.sendBalanceUpdateNotification(agent, balanceData);
+                }
+            } catch (whatsappError) {
+                logger.error('WhatsApp notification error:', whatsappError);
+                // Don't fail the transaction if WhatsApp fails
+            }
+            
             res.json({ success: true, message: 'Saldo berhasil ditambahkan' });
         } else {
             res.json({ success: false, message: result.message });
