@@ -544,3 +544,5 @@ class AgentWhatsAppCommands {
         }
     }
 }
+
+module.exports = AgentWhatsAppCommands;
