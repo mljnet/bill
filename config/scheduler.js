@@ -282,6 +282,16 @@ class InvoiceScheduler {
                     const newInvoice = await billingManager.createInvoice(invoiceData);
                     logger.info(`Created invoice ${newInvoice.invoice_number} for customer ${customer.username}`);
 
+                    // Kirim notifikasi WhatsApp setelah invoice berhasil dibuat
+                    try {
+                        const whatsappNotifications = require('./whatsapp-notifications');
+                        await whatsappNotifications.sendInvoiceCreatedNotification(customer.id, newInvoice.id);
+                        logger.info(`WhatsApp notification sent for invoice ${newInvoice.invoice_number} to customer ${customer.username}`);
+                    } catch (notificationError) {
+                        logger.error(`Failed to send WhatsApp notification for invoice ${newInvoice.invoice_number}:`, notificationError);
+                        // Jangan stop proses invoice generation jika notifikasi gagal
+                    }
+
                 } catch (error) {
                     logger.error(`Error creating invoice for customer ${customer.username}:`, error);
                 }
@@ -367,6 +377,16 @@ class InvoiceScheduler {
 
                     const newInvoice = await billingManager.createInvoice(invoiceData);
                     logger.info(`(Daily) Created invoice ${newInvoice.invoice_number} for customer ${customer.username}`);
+
+                    // Kirim notifikasi WhatsApp setelah invoice berhasil dibuat (untuk daily generation juga)
+                    try {
+                        const whatsappNotifications = require('./whatsapp-notifications');
+                        await whatsappNotifications.sendInvoiceCreatedNotification(customer.id, newInvoice.id);
+                        logger.info(`(Daily) WhatsApp notification sent for invoice ${newInvoice.invoice_number} to customer ${customer.username}`);
+                    } catch (notificationError) {
+                        logger.error(`(Daily) Failed to send WhatsApp notification for invoice ${newInvoice.invoice_number}:`, notificationError);
+                        // Jangan stop proses invoice generation jika notifikasi gagal
+                    }
 
                 } catch (error) {
                     logger.error(`(Daily) Error creating invoice for customer ${customer.username}:`, error);
