@@ -1,10 +1,12 @@
 const AgentManager = require('./agentManager');
 const AgentWhatsAppManager = require('./agentWhatsApp');
+const BillingManager = require('./billing');
 
 class AgentWhatsAppCommands {
     constructor() {
         this.agentManager = new AgentManager();
         this.whatsappManager = new AgentWhatsAppManager();
+        this.billingManager = new BillingManager();
     }
 
     // Handle incoming WhatsApp messages from agents
@@ -26,6 +28,12 @@ class AgentWhatsAppCommands {
                     return this.handleHelp(from);
                 case 'saldo':
                     return this.handleCheckBalance(from, agent);
+                case 'cek_tagihan':
+                    return this.handleCheckBill(from, agent, command.params);
+                case 'bayar_tagihan':
+                    return this.handlePayBill(from, agent, command.params);
+                case 'beli_voucher':
+                    return this.handleBuyVoucher(from, agent, command.params);
                 case 'jual':
                     return this.handleSellVoucher(from, agent, command.params);
                 case 'bayar':
@@ -55,13 +63,27 @@ class AgentWhatsAppCommands {
             return { type: 'saldo' };
         }
         
+        if (text.includes('cek tagihan') || text.includes('cek_tagihan')) {
+            const params = this.parseCheckBillParams(text);
+            return { type: 'cek_tagihan', params };
+        }
+        
+        if (text.includes('bayar tagihan') || text.includes('bayar_tagihan')) {
+            const params = this.parsePayBillParams(text);
+            return { type: 'bayar_tagihan', params };
+        }
+        
+        if (text.includes('beli voucher') || text.includes('beli_voucher')) {
+            const params = this.parseBuyVoucherParams(text);
+            return { type: 'beli_voucher', params };
+        }
+        
         if (text.includes('jual') || text.includes('sell')) {
             const params = this.parseSellParams(text);
             return { type: 'jual', params };
         }
         
         if (text.includes('bayar') || text.includes('payment')) {
-            const params = this.parsePaymentParams(text);
             return { type: 'bayar', params };
         }
         
@@ -75,103 +97,6 @@ class AgentWhatsAppCommands {
         }
         
         return { type: 'unknown' };
-    }
-
-    // Parse sell voucher parameters
-    parseSellParams(text) {
-        // Format Simple:
-        // 1. "JUAL 3K" - Jual voucher tanpa kirim ke konsumen (hanya notif ke agent)
-        // 2. "JUAL 3K 0852222222222" - Jual voucher dan kirim ke konsumen + notif ke agent
-        
-        const parts = text.split(' ');
-        const jualIndex = parts.findIndex(p => p.includes('jual'));
-        
-        if (jualIndex === -1) {
-            return null;
-        }
-        
-        // Everything after 'jual' is package + optional phone number
-        const remainingParts = parts.slice(jualIndex + 1);
-        
-        if (remainingParts.length === 0) {
-            return null;
-        }
-        
-        // Check if last part is a phone number
-        const phonePattern = /^[0-9]+$/;
-        const lastPart = remainingParts[remainingParts.length - 1];
-        const hasPhoneNumber = phonePattern.test(lastPart);
-        
-        let packageParts, customerPhone;
-        
-        if (hasPhoneNumber) {
-            // Format: JUAL [PAKET] [NOMOR_HP]
-            customerPhone = lastPart;
-            packageParts = remainingParts.slice(0, -1);
-        } else {
-            // Format: JUAL [PAKET]
-            customerPhone = null;
-            packageParts = remainingParts;
-        }
-        
-        if (packageParts.length === 0) {
-            return null;
-        }
-        
-        // Find matching package
-        const availablePackages = ['3k', '5k', '10k', '15k', '25k', '50k', 'member 7 hari', 'member 30 hari', 'member 90 hari'];
-        
-        let packageName = '';
-        let bestMatch = '';
-        let bestMatchLength = 0;
-        
-        // Find the best matching package (exact match first, then substring)
-        for (const pkg of availablePackages) {
-            const pkgParts = pkg.split(' ');
-            if (packageParts.length >= pkgParts.length) {
-                // Check if first parts match package name exactly
-                const exactMatch = pkgParts.every((pkgPart, index) => 
-                    packageParts[index] && packageParts[index].toLowerCase() === pkgPart.toLowerCase()
-                );
-                
-                if (exactMatch && pkgParts.length > bestMatchLength) {
-                    bestMatch = pkg;
-                    bestMatchLength = pkgParts.length;
-                }
-            }
-        }
-        
-        // If no exact match found, try substring match
-        if (!bestMatch) {
-            for (const pkg of availablePackages) {
-                const pkgParts = pkg.split(' ');
-                if (packageParts.length >= pkgParts.length) {
-                    // Check if first parts contain package name (substring match)
-                    const substringMatch = pkgParts.every((pkgPart, index) => 
-                        packageParts[index] && packageParts[index].toLowerCase().includes(pkgPart.toLowerCase())
-                    );
-                    
-                    if (substringMatch && pkgParts.length > bestMatchLength) {
-                        bestMatch = pkg;
-                        bestMatchLength = pkgParts.length;
-                    }
-                }
-            }
-        }
-        
-        if (bestMatch) {
-            packageName = bestMatch;
-        } else {
-            // Fallback: use first part as package name
-            packageName = packageParts[0];
-        }
-        
-        return {
-            package: packageName,
-            customerName: '', // No customer name in simple format
-            customerPhone: customerPhone,
-            sendWhatsApp: hasPhoneNumber // Send to customer only if phone number provided
-        };
     }
 
     // Parse payment parameters
@@ -215,6 +140,10 @@ class AgentWhatsAppCommands {
 📋 *Daftar Command:*
 
 🔍 *SALDO* - Cek saldo agent
+📋 *CEK TAGIHAN [NAMA_PELANGGAN]* - Cek tagihan pelanggan
+💰 *BAYAR TAGIHAN [NAMA_PELANGGAN]* - Bayar tagihan pelanggan
+🛒 *BELI VOUCHER [PAKET]* - Beli voucher (hanya untuk agent)
+🛒 *BELI VOUCHER [PAKET] [NOMOR_PELANGGAN]* - Beli voucher dan kirim ke pelanggan
 📱 *JUAL [PAKET]* - Jual voucher (tanpa kirim ke konsumen)
 📱 *JUAL [PAKET] [NOMOR_HP]* - Jual voucher + kirim ke konsumen
 💰 *BAYAR [NAMA] [HP] [JUMLAH] [YA/TIDAK]* - Terima pembayaran
@@ -223,9 +152,12 @@ class AgentWhatsAppCommands {
 
 📝 *Contoh Penggunaan:*
 • SALDO
+• CEK TAGIHAN John Doe
+• BAYAR TAGIHAN John Doe
+• BELI VOUCHER 3K
+• BELI VOUCHER 10K 081234567890
 • JUAL 3K
 • JUAL 10K 081234567890
-• JUAL Member 7 Hari 081234567891
 • BAYAR Jane 081234567891 50000 YA
 • REQUEST 100000 Top up saldo
 • RIWAYAT
@@ -454,6 +386,161 @@ class AgentWhatsAppCommands {
             return false;
         }
     }
-}
+    
+    // Handle check bill
+    async handleCheckBill(from, agent, params) {
+        if (!params || !params.customerName) {
+            return this.sendMessage(from, " Format salah. Gunakan: *CEK TAGIHAN [NAMA_PELANGGAN]*");
+        }
+        
+        try {
+            // Find customer by name
+            const customer = await this.billingManager.getCustomerByName(params.customerName);
+            if (!customer) {
+                return this.sendMessage(from, ` Pelanggan dengan nama "${params.customerName}" tidak ditemukan.`);
+            }
+            
+            // Get customer bills
+            const bills = await this.billingManager.getCustomerInvoices(customer.id);
+            if (bills.length === 0) {
+                return this.sendMessage(from, ` Pelanggan "${params.customerName}" tidak memiliki tagihan yang belum dibayar.`);
+            }
+            
+            let message = `📋 *TAGIHAN PELANGGAN: ${params.customerName}*
 
-module.exports = AgentWhatsAppCommands;
+`;
+            bills.forEach((bill, index) => {
+                const status = bill.status === 'unpaid' ? 'Belum Dibayar' : 'Sudah Dibayar';
+                message += `${index + 1}. Jumlah: Rp ${bill.amount.toLocaleString('id-ID')} - Status: ${status}\n`;
+                if (bill.due_date) {
+                    message += `   Jatuh Tempo: ${new Date(bill.due_date).toLocaleDateString('id-ID')}\n`;
+                }
+                message += '\n';
+            });
+            
+            return this.sendMessage(from, message);
+        } catch (error) {
+            return this.sendMessage(from, " Gagal mengambil data tagihan.");
+        }
+    }
+    
+    // Handle pay bill
+    async handlePayBill(from, agent, params) {
+        if (!params || !params.customerName) {
+            return this.sendMessage(from, " Format salah. Gunakan: *BAYAR TAGIHAN [NAMA_PELANGGAN]*");
+        }
+        
+        try {
+            // Find customer by name
+            const customer = await this.billingManager.getCustomerByName(params.customerName);
+            if (!customer) {
+                return this.sendMessage(from, ` Pelanggan dengan nama "${params.customerName}" tidak ditemukan.`);
+            }
+            
+            // Get unpaid invoices
+            const unpaidInvoices = await this.billingManager.getUnpaidInvoices(customer.id);
+            if (unpaidInvoices.length === 0) {
+                return this.sendMessage(from, ` Pelanggan "${params.customerName}" tidak memiliki tagihan yang belum dibayar.`);
+            }
+            
+            // Process payment for the first unpaid invoice
+            const invoice = unpaidInvoices[0];
+            const result = await this.billingManager.recordPayment(invoice.id, invoice.amount, 'agent_payment', agent.id);
+            
+            if (result.success) {
+                let message = `✅ *PEMBAYARAN TAGIHAN BERHASIL*
+
+👤 Pelanggan: ${params.customerName}
+💰 Jumlah: Rp ${invoice.amount.toLocaleString('id-ID')}
+📅 Tanggal: ${new Date().toLocaleString('id-ID')}
+
+`;
+                // Send confirmation to customer if phone is available
+                if (customer.phone) {
+                    await this.whatsappManager.sendPaymentSuccessNotification(customer.phone, customer.name, invoice.amount);
+                    message += `📱 Konfirmasi telah dikirim ke pelanggan.`;
+                }
+                
+                return this.sendMessage(from, message);
+            } else {
+                return this.sendMessage(from, ` Gagal memproses pembayaran: ${result.message}`);
+            }
+        } catch (error) {
+            return this.sendMessage(from, " Terjadi kesalahan saat memproses pembayaran.");
+        }
+    }
+    
+    // Handle buy voucher
+    async handleBuyVoucher(from, agent, params) {
+        if (!params || !params.package) {
+            return this.sendMessage(from, " Format salah. Gunakan: *BELI VOUCHER [PAKET]* atau *BELI VOUCHER [PAKET] [NOMOR_PELANGGAN]*");
+        }
+        
+        try {
+            // Get agent balance and available packages
+            const balance = await this.agentManager.getAgentBalance(agent.id);
+            const packages = await this.agentManager.getAvailablePackages();
+            const selectedPackage = packages.find(p => p.name.toLowerCase().includes(params.package.toLowerCase()));
+            
+            if (!selectedPackage) {
+                return this.sendMessage(from, ` Paket "${params.package}" tidak ditemukan. Paket tersedia: ${packages.map(p => p.name).join(', ')}`);
+            }
+            
+            const price = selectedPackage.price; // Use dynamic price from database
+            if (balance < price) {
+                return this.sendMessage(from, ` Saldo tidak mencukupi. Saldo: Rp ${balance.toLocaleString('id-ID')}, Dibutuhkan: Rp ${price.toLocaleString('id-ID')}`);
+            }
+            
+            // Generate voucher code using package settings
+            const voucherCode = this.agentManager.generateVoucherCode(selectedPackage);
+            
+            // Sell voucher using the same method as web agent
+            const result = await this.agentManager.sellVoucher(
+                agent.id,
+                voucherCode,
+                selectedPackage.id,
+                params.customerName || 'Customer',
+                params.customerPhone || ''
+            );
+
+            if (result.success) {
+                let message = `🎉 *VOUCHER BERHASIL DIBELI*
+
+🎫 Kode Voucher: *${result.voucherCode}*
+📦 Paket: ${result.packageName}
+💰 Harga Jual: Rp ${result.customerPrice.toLocaleString('id-ID')}
+💳 Harga Agent: Rp ${result.agentPrice.toLocaleString('id-ID')}
+💵 Komisi: Rp ${result.commissionAmount.toLocaleString('id-ID')}
+
+💰 Saldo tersisa: Rp ${result.newBalance.toLocaleString('id-ID')}`;
+
+                // Send to customer if phone number provided
+                if (params.sendWhatsApp && params.customerPhone) {
+                    // Prepare agent info for customer message
+                    const agentInfo = {
+                        name: agent.name,
+                        phone: agent.phone
+                    };
+                    
+                    await this.whatsappManager.sendVoucherToCustomer(
+                        params.customerPhone,
+                        params.customerName || 'Customer',
+                        result.voucherCode,
+                        result.packageName,
+                        result.customerPrice,
+                        agentInfo
+                    );
+                    message += `\n\n📱 Notifikasi telah dikirim ke pelanggan (${params.customerPhone}).`;
+                } else {
+                    message += `\n\nℹ️ Voucher siap diberikan ke pelanggan secara langsung.`;
+                }
+
+                return this.sendMessage(from, message);
+            } else {
+                return this.sendMessage(from, `❌ Gagal menjual voucher: ${result.message}`);
+            }
+        } catch (error) {
+            return this.sendMessage(from, "❌ Terjadi kesalahan saat membeli voucher. Silakan coba lagi.");
+        }
+    }
+}

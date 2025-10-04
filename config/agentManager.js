@@ -1194,6 +1194,25 @@ class AgentManager {
         });
     }
 
+    async getAgentByNameOrUsername(identifier) {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT a.*, ab.balance 
+                FROM agents a 
+                LEFT JOIN agent_balances ab ON a.id = ab.agent_id
+                WHERE LOWER(a.username) = LOWER(?) OR LOWER(a.name) = LOWER(?)
+            `;
+            
+            this.db.get(sql, [identifier, identifier], (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row);
+            });
+        });
+    }
+
     async getAgentByPhone(phone) {
         return new Promise((resolve, reject) => {
             const sql = 'SELECT * FROM agents WHERE phone = ?';

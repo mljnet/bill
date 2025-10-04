@@ -30,11 +30,12 @@ class AgentWhatsAppManager {
             }
 
             const settings = getSettingsWithCache();
-            const companyHeader = settings.company_header || '📱 ALIJAYA DIGITAL NETWORK 📱\n\n';
+            const companyHeader = settings.company_header || settings.app_name || 'GEMBOK-BILLING';
+            const formattedHeader = companyHeader.includes('📱') ? companyHeader + '\n\n' : `📱 ${companyHeader} 📱\n\n`;
             const footerInfo = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' + (settings.footer_info || 'Powered by Alijaya Digital Network');
 
             // Message untuk agent
-            const agentMessage = `${companyHeader}🎫 **VOUCHER BERHASIL DIJUAL**
+            const agentMessage = `${formattedHeader}🎫 **VOUCHER BERHASIL DIJUAL**
 
 📋 **Detail Voucher:**
 • Kode: \`${voucherData.voucherCode}\`
@@ -49,7 +50,7 @@ class AgentWhatsAppManager {
 ✅ Voucher telah berhasil dijual dan komisi telah ditambahkan ke saldo Anda.${footerInfo}`;
 
             // Message untuk pelanggan
-            const customerMessage = `${companyHeader}🎫 **VOUCHER HOTSPOT ANDA**
+            const customerMessage = `${formattedHeader}🎫 **VOUCHER HOTSPOT ANDA**
 
 📋 **Detail Voucher:**
 • Kode: \`${voucherData.voucherCode}\`
@@ -89,7 +90,8 @@ class AgentWhatsAppManager {
             }
 
             const settings = getSettingsWithCache();
-            const companyHeader = settings.company_header || '📱 ALIJAYA DIGITAL NETWORK 📱\n\n';
+            const companyHeader = settings.company_header || settings.app_name || 'GEMBOK-BILLING';
+            const formattedHeader = companyHeader.includes('📱') ? companyHeader + '\n\n' : `📱 ${companyHeader} 📱\n\n`;
             const footerInfo = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' + (settings.footer_info || 'Powered by Alijaya Digital Network');
 
             // Create agent info text
@@ -102,7 +104,7 @@ class AgentWhatsAppManager {
             }
 
             // Message untuk customer (tanpa harga internal)
-            const customerMessage = `${companyHeader}🎫 **VOUCHER HOTSPOT ANDA**
+            const customerMessage = `${formattedHeader}🎫 **VOUCHER HOTSPOT ANDA**
 
 📋 **Detail Voucher:**
 • Kode: \`${voucherCode}\`
@@ -137,11 +139,12 @@ class AgentWhatsAppManager {
             }
 
             const settings = getSettingsWithCache();
-            const companyHeader = settings.company_header || '📱 ALIJAYA DIGITAL NETWORK 📱\n\n';
+            const companyHeader = settings.company_header || settings.app_name || 'GEMBOK-BILLING';
+            const formattedHeader = companyHeader.includes('📱') ? companyHeader + '\n\n' : `📱 ${companyHeader} 📱\n\n`;
             const footerInfo = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' + (settings.footer_info || 'Powered by Alijaya Digital Network');
 
             // Message untuk agent
-            const agentMessage = `${companyHeader}💰 **PEMBAYARAN BERHASIL DIPROSES**
+            const agentMessage = `${formattedHeader}💰 **PEMBAYARAN BERHASIL DIPROSES**
 
 📋 **Detail Pembayaran:**
 • Jumlah: Rp ${paymentData.amount.toLocaleString()}
@@ -155,7 +158,7 @@ class AgentWhatsAppManager {
 ✅ Pembayaran telah berhasil diproses dan komisi telah ditambahkan ke saldo Anda.${footerInfo}`;
 
             // Message untuk pelanggan
-            const customerMessage = `${companyHeader}✅ **PEMBAYARAN DITERIMA**
+            const customerMessage = `${formattedHeader}✅ **PEMBAYARAN DITERIMA**
 
 📋 **Detail Pembayaran:**
 • Jumlah: Rp ${paymentData.amount.toLocaleString()}
@@ -193,10 +196,11 @@ class AgentWhatsAppManager {
             }
 
             const settings = getSettingsWithCache();
-            const companyHeader = settings.company_header || '📱 ALIJAYA DIGITAL NETWORK 📱\n\n';
+            const companyHeader = settings.company_header || settings.app_name || 'GEMBOK-BILLING';
+            const formattedHeader = companyHeader.includes('📱') ? companyHeader + '\n\n' : `📱 ${companyHeader} 📱\n\n`;
             const footerInfo = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' + (settings.footer_info || 'Powered by Alijaya Digital Network');
 
-            const message = `${companyHeader}💰 **SALDO TELAH DIUPDATE**
+            const message = `${formattedHeader}💰 **SALDO TELAH DIUPDATE**
 
 📋 **Detail Saldo:**
 • Saldo Sebelumnya: Rp ${balanceData.previousBalance.toLocaleString()}
@@ -228,10 +232,11 @@ class AgentWhatsAppManager {
             }
 
             const settings = getSettingsWithCache();
-            const companyHeader = settings.company_header || '📱 ALIJAYA DIGITAL NETWORK 📱\n\n';
+            const companyHeader = settings.company_header || settings.app_name || 'GEMBOK-BILLING';
+            const formattedHeader = companyHeader.includes('📱') ? companyHeader + '\n\n' : `📱 ${companyHeader} 📱\n\n`;
             const footerInfo = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' + (settings.footer_info || 'Powered by Alijaya Digital Network');
 
-            const message = `${companyHeader}✅ **REQUEST SALDO DISETUJUI**
+            const message = `${formattedHeader}✅ **REQUEST SALDO DISETUJUI**
 
 📋 **Detail Request:**
 • Jumlah: Rp ${requestData.amount.toLocaleString()}
@@ -265,10 +270,11 @@ class AgentWhatsAppManager {
             }
 
             const settings = getSettingsWithCache();
-            const companyHeader = settings.company_header || '📱 ALIJAYA DIGITAL NETWORK 📱\n\n';
+            const companyHeader = settings.company_header || settings.app_name || 'GEMBOK-BILLING';
+            const formattedHeader = companyHeader.includes('📱') ? companyHeader + '\n\n' : `📱 ${companyHeader} 📱\n\n`;
             const footerInfo = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' + (settings.footer_info || 'Powered by Alijaya Digital Network');
 
-            const message = `${companyHeader}❌ **REQUEST SALDO DITOLAK**
+            const message = `${formattedHeader}❌ **REQUEST SALDO DITOLAK**
 
 📋 **Detail Request:**
 • Jumlah: Rp ${requestData.amount.toLocaleString()}

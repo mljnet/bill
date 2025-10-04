@@ -2,6 +2,7 @@ const logger = require('./logger');
 const { getAdminHelpMessage, getTechnicianHelpMessage, getCustomerHelpMessage, getGeneralHelpMessage, getVersionMessage, getSystemInfoMessage } = require('./help-messages');
 const WhatsAppTroubleCommands = require('./whatsapp-trouble-commands');
 const WhatsAppPPPoECommands = require('./whatsapp-pppoe-commands');
+const AgentAdminCommands = require('./agentAdminCommands');
 
 class WhatsAppMessageHandlers {
     constructor(whatsappCore, whatsappCommands) {
@@ -9,6 +10,7 @@ class WhatsAppMessageHandlers {
         this.commands = whatsappCommands;
         this.troubleCommands = new WhatsAppTroubleCommands(whatsappCore);
         this.pppoeCommands = new WhatsAppPPPoECommands(whatsappCore);
+        this.agentAdminCommands = new AgentAdminCommands();
         
         // Parameter paths for different device parameters (from genieacs-commands.js)
         this.parameterPaths = {
@@ -501,6 +503,28 @@ class WhatsAppMessageHandlers {
             return;
         }
         
+        // Agent Admin Commands
+        if (command.startsWith('daftaragent') || command.startsWith('tambahagent') || 
+            command.startsWith('saldoagent') || command.startsWith('tambahsaldoagent') ||
+            command.startsWith('statistikagent') || command.startsWith('requestagent') ||
+            command.startsWith('setujuirequest') || command.startsWith('tolakrequest') ||
+            command === 'bantuanagent' ||
+            // Backward compatibility with English commands
+            command.startsWith('listagent') || command.startsWith('addagent') || 
+            command.startsWith('agentbalance') || command.startsWith('addagentbalance') ||
+            command.startsWith('agentstats') || command.startsWith('agentrequests') ||
+            command.startsWith('approveagentrequest') || command.startsWith('rejectagentrequest') ||
+            command === 'agenthelp') {
+            
+            // Set WhatsApp manager for notifications
+            this.agentAdminCommands.sendMessage = async (jid, message) => {
+                await this.commands.sendMessage(jid, message);
+            };
+            
+            await this.agentAdminCommands.handleAgentAdminCommands(remoteJid, senderNumber, command, messageText);
+            return;
+        }
+
         // System Commands
         if (command === 'status') {
             await this.commands.handleStatus(remoteJid);

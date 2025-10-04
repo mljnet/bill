@@ -90,6 +90,17 @@ function getAdminHelpMessage() {
     message += `• *catatan [id] [catatan]* — Tambah catatan\n`;
     message += `• *help trouble* — Bantuan trouble report\n\n`;
     
+    message += `👥 *MANAJEMEN AGENT:*\n`;
+    message += `• *daftaragent* — Daftar semua agent\n`;
+    message += `• *tambahagent [username] [nama] [phone] [password]* — Tambah agent baru\n`;
+    message += `• *saldoagent [nama_agen/agent_id]* — Cek saldo agent\n`;
+    message += `• *tambahsaldoagent [nama_agen/agent_id] [jumlah] [catatan]* — Tambah saldo agent\n`;
+    message += `• *statistikagent* — Statistik agent\n`;
+    message += `• *requestagent* — Daftar request saldo pending\n`;
+    message += `• *setujuirequest [id] [catatan]* — Setujui request saldo\n`;
+    message += `• *tolakrequest [id] [alasan]* — Tolak request saldo\n`;
+    message += `• *bantuanagent* — Bantuan perintah agent\n\n`;
+    
     message += `🌐 *PPPoE MANAGEMENT:*\n`;
     message += `• *addpppoe [user] [pass] [profile] [ip] [info]* — Tambah user PPPoE\n`;
     message += `• *editpppoe [user] [field] [value]* — Edit user PPPoE\n`;
