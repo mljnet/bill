@@ -48,7 +48,11 @@ class AgentAdminCommands {
                     await this.handleAddAgent(remoteJid, username, name, phone, password);
                 } else {
                     await this.sendMessage(remoteJid, 
-                        `❌ *FORMAT SALAH*\n\nFormat: *tambahagent [username] [nama] [phone] [password]*\n\nContoh: tambahagent john John Doe 081234567890 password123`);
+                        `❌ *FORMAT SALAH*
+
+Format: *tambahagent [username] [nama] [phone] [password]*
+
+Contoh: tambahagent john John Doe 081234567890 password123`);
                 }
                 return;
             }
@@ -69,7 +73,13 @@ class AgentAdminCommands {
                     await this.handleAddAgentBalance(remoteJid, agentIdentifier, amount, notes);
                 } else {
                     await this.sendMessage(remoteJid, 
-                        `❌ *FORMAT SALAH*\n\nFormat: *tambahsaldoagent [nama_agen/agent_id] [jumlah] [catatan]*\n\nContoh: \n• tambahsaldoagent budi 100000 Top up saldo\n• tambahsaldoagent 1 100000 Top up saldo`);
+                        `❌ *FORMAT SALAH*
+
+Format: *tambahsaldoagent [nama_agen/agent_id] [jumlah] [catatan]*
+
+Contoh: 
+• tambahsaldoagent budi 100000 Top up saldo
+• tambahsaldoagent 1 100000 Top up saldo`);
                 }
                 return;
             }
@@ -103,7 +113,11 @@ class AgentAdminCommands {
                     await this.handleRejectAgentRequest(remoteJid, requestId, reason);
                 } else {
                     await this.sendMessage(remoteJid, 
-                        `❌ *FORMAT SALAH*\n\nFormat: *tolakrequest [request_id] [alasan]*\n\nContoh: tolakrequest 1 Data tidak lengkap`);
+                        `❌ *FORMAT SALAH*
+
+Format: *tolakrequest [request_id] [alasan]*
+
+Contoh: tolakrequest 1 Data tidak lengkap`);
                 }
                 return;
             }
@@ -115,13 +129,19 @@ class AgentAdminCommands {
             }
 
             // If no command matches, send unknown command message
-            await this.sendMessage(remoteJid, 
-                `❓ *PERINTAH AGENT TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *agent* untuk melihat daftar perintah agent.`
-            );
+            // JANGAN kirim pesan untuk command yang tidak dikenali
+            // Ini akan mencegah respon otomatis terhadap setiap pesan
+            console.log(`Perintah agent tidak dikenali: ${command}`);
+            // await this.sendMessage(remoteJid, 
+            //     `❓ *PERINTAH AGENT TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *agent* untuk melihat daftar perintah agent.`
+            // );
 
         } catch (error) {
             logger.error('Agent admin command error:', error);
-            await this.sendMessage(remoteJid, '❌ Terjadi kesalahan saat memproses perintah agent.');
+            // JANGAN kirim pesan error ke pengirim - hanya log error saja
+            // Ini akan mencegah respon otomatis terhadap setiap pesan
+            console.error('Error processing agent admin command:', error);
+            // await this.sendMessage(remoteJid, '❌ Terjadi kesalahan saat memproses perintah agent.');
         }
     }
 

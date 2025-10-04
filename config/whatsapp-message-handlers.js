@@ -383,9 +383,10 @@ class WhatsAppMessageHandlers {
         }
         
         // Unknown command for technician
-        await this.commands.sendMessage(remoteJid, 
-            `❓ *PERINTAH TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *teknisi* untuk melihat menu teknisi.`
-        );
+        console.log(`Perintah tidak dikenali dari teknisi: ${command}`);
+        // await this.commands.sendMessage(remoteJid, 
+        //     `❓ *PERINTAH TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *teknisi* untuk melihat menu teknisi.`
+        // );
     }
 
     // Handle admin commands
@@ -701,9 +702,16 @@ class WhatsAppMessageHandlers {
         }
         
         // Unknown command
-        await this.commands.sendMessage(remoteJid, 
-            `❓ *PERINTAH TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *admin* untuk melihat menu lengkap.`
-        );
+        // JANGAN kirim pesan untuk command yang tidak dikenali
+        // Ini akan mencegah respon otomatis terhadap setiap pesan
+        console.log(`Perintah tidak dikenali dari admin: ${command}`);
+        // await this.commands.sendMessage(remoteJid, 
+        //     `❓ *PERINTAH TIDAK DIKENAL*
+        //
+        // Perintah "${command}" tidak dikenali.
+        //
+        // Ketik *admin* untuk melihat menu lengkap.`
+        // );
     }
 
     // Handle customer commands
@@ -739,9 +747,12 @@ class WhatsAppMessageHandlers {
         }
         
         // Unknown command for customer
-        await this.commands.sendMessage(remoteJid, 
-            `❓ *PERINTAH TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *menu* untuk melihat menu pelanggan.`
-        );
+        // JANGAN kirim pesan untuk command yang tidak dikenali
+        // Ini akan mencegah respon otomatis terhadap setiap pesan
+        console.log(`Perintah tidak dikenali dari pelanggan: ${command}`);
+        // await this.commands.sendMessage(remoteJid, 
+        //     `❓ *PERINTAH TIDAK DIKENAL*\n\nPerintah "${command}" tidak dikenali.\n\nKetik *menu* untuk melihat menu pelanggan.`
+        // );
     }
 
     // Send admin help message
@@ -766,7 +777,6 @@ class WhatsAppMessageHandlers {
     async handleCustomerStatus(remoteJid, senderNumber) {
         try {
             // Implementasi cek status pelanggan
-            // ... existing code ...
             
             await this.commands.sendMessage(remoteJid, 
                 `📱 *STATUS PELANGGAN*\n\nSedang mengecek status perangkat Anda...\nMohon tunggu sebentar.`
@@ -788,7 +798,6 @@ class WhatsAppMessageHandlers {
     async handleCustomerInfo(remoteJid, senderNumber) {
         try {
             // Implementasi info layanan pelanggan
-            // ... existing code ...
             
             await this.commands.sendMessage(remoteJid, 
                 `📋 *INFO LAYANAN*\n\nSedang mengambil informasi layanan Anda...\nMohon tunggu sebentar.`
@@ -1571,7 +1580,15 @@ class WhatsAppMessageHandlers {
                 const superAdminJid = this.core.createJID(this.core.getSuperAdmin());
                 if (superAdminJid) {
                     await sock.sendMessage(superAdminJid, {
-                        text: `${this.core.getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi Untuk Pembangunan Masjid\n# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN\n\n${this.core.getSetting('footer_info', 'Internet Tanpa Batas')}`
+                        text: `${this.core.getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}
+👋 *Selamat datang, Super Admin!*
+
+Aplikasi WhatsApp Bot berhasil dijalankan.
+
+Rekening Donasi Untuk Pembangunan Masjid
+# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN
+
+${this.core.getSetting('footer_info', 'Internet Tanpa Batas')}`
                     });
                     global.superAdminWelcomeSent = true;
                     logger.info('Pesan selamat datang terkirim ke super admin');

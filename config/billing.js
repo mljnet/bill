@@ -1527,6 +1527,52 @@ class BillingManager {
         });
     }
 
+    async getUnpaidInvoices() {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT i.*, c.username, c.name as customer_name, c.phone as customer_phone,
+                       p.name as package_name, p.speed as package_speed
+                FROM invoices i
+                JOIN customers c ON i.customer_id = c.id
+                JOIN packages p ON i.package_id = p.id
+                WHERE i.status = 'unpaid'
+                ORDER BY i.due_date ASC, i.created_at DESC
+            `;
+
+            this.db.all(sql, [], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            });
+        });
+    }
+
+    async getPaidInvoices() {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT i.*, c.username, c.name as customer_name, c.phone as customer_phone,
+                       p.name as package_name, p.speed as package_speed,
+                       pay.payment_date, pay.payment_method
+                FROM invoices i
+                JOIN customers c ON i.customer_id = c.id
+                JOIN packages p ON i.package_id = p.id
+                LEFT JOIN payments pay ON i.id = pay.invoice_id
+                WHERE i.status = 'paid'
+                ORDER BY i.payment_date DESC, i.created_at DESC
+            `;
+
+            this.db.all(sql, [], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            });
+        });
+    }
+
     async getInvoicesCount(customerUsername = null) {
         return new Promise((resolve, reject) => {
             let sql = 'SELECT COUNT(*) as count FROM invoices i';

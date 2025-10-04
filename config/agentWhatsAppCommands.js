@@ -9,22 +9,32 @@ class AgentWhatsAppCommands {
         this.billingManager = billingManager; // Gunakan instance singleton
     }
 
-    // Handle incoming WhatsApp messages from agents
+    // Handle incoming message
     async handleMessage(from, message) {
         try {
-            const phone = from.replace('@s.whatsapp.net', '');
+            // Extract phone number from WhatsApp JID
+            const phoneNumber = from.replace('@s.whatsapp.net', '');
             
-            // Check if this is an agent
-            console.log(`🔍 [AGENT DEBUG] Checking agent for phone: ${phone}`);
-            const agent = await this.agentManager.getAgentByPhone(phone);
-            console.log(`🔍 [AGENT DEBUG] Agent found:`, agent);
+            // Authenticate agent by phone number
+            const agent = await this.agentManager.getAgentByPhone(phoneNumber);
             if (!agent) {
-                console.log(`🔍 [AGENT DEBUG] Agent not found for phone: ${phone}`);
-                return this.sendMessage(from, "❌ Anda belum terdaftar sebagai agent. Hubungi admin untuk pendaftaran.");
+                // JANGAN kirim pesan untuk agent yang tidak dikenali
+                // Ini akan mencegah respon otomatis terhadap setiap pesan
+                console.log(`Agent tidak dikenali: ${from}`);
+                return null;
+                // return this.sendMessage(from, "❌ Anda tidak terdaftar sebagai agent. Silakan hubungi admin.");
             }
 
             // Parse command
             const command = this.parseCommand(message);
+            
+            // If command is not recognized, don't send any response
+            if (!command) {
+                // JANGAN kirim pesan untuk command yang tidak dikenali
+                // Ini akan mencegah respon otomatis terhadap setiap pesan
+                console.log(`Command tidak dikenali: ${message}`);
+                return null;
+            }
             
             switch (command.type) {
                 case 'help':
@@ -41,16 +51,25 @@ class AgentWhatsAppCommands {
                     return this.handleSellVoucher(from, agent, command.params);
                 case 'bayar':
                     return this.handleProcessPayment(from, agent, command.params);
-                case 'request':
-                    return this.handleRequestBalance(from, agent, command.params);
+                case 'list_tagihan':
+                    return this.handleListTagihan(from, agent);
+                case 'list_bayar':
+                    return this.handleListBayar(from, agent);
                 case 'riwayat':
-                    return this.handleTransactionHistory(from, agent);
+                    return this.handleListBayar(from, agent);
                 default:
-                    return this.sendMessage(from, "❌ Command tidak dikenali. Ketik *HELP* untuk melihat daftar command.");
+                    // JANGAN kirim pesan untuk command yang tidak dikenali
+                    // Ini akan mencegah respon otomatis terhadap setiap pesan
+                    console.log(`Command tidak dikenali: ${command.type}`);
+                    return null;
+                    // return this.sendMessage(from, "❌ Command tidak dikenali. Ketik *HELP* untuk melihat daftar command.");
             }
         } catch (error) {
             console.error('Error handling WhatsApp message:', error);
-            return this.sendMessage(from, "❌ Terjadi kesalahan. Silakan coba lagi.");
+            // JANGAN kirim pesan error ke pengirim - hanya log error saja
+            // Ini akan mencegah respon otomatis terhadap setiap pesan
+            // return this.sendMessage(from, "❌ Terjadi kesalahan. Silakan coba lagi.");
+            return null;
         }
     }
 
@@ -87,6 +106,7 @@ class AgentWhatsAppCommands {
         }
         
         if (text.includes('bayar') || text.includes('payment')) {
+            const params = this.parsePaymentParams(text);
             return { type: 'bayar', params };
         }
         
@@ -95,11 +115,20 @@ class AgentWhatsAppCommands {
             return { type: 'request', params };
         }
         
+        if (text.includes('list tagihan') || text.includes('list_tagihan')) {
+            return { type: 'list_tagihan' };
+        }
+
+        if (text.includes('list bayar') || text.includes('list_bayar')) {
+            return { type: 'list_bayar' };
+        }
+
         if (text.includes('riwayat') || text.includes('history')) {
             return { type: 'riwayat' };
         }
-        
-        return { type: 'unknown' };
+
+        // Return null for unrecognized commands instead of undefined
+        return null;
     }
 
     // Parse payment parameters
@@ -204,21 +233,23 @@ class AgentWhatsAppCommands {
 
 📋 *Daftar Command:*
 
-🔍 *SALDO* - Cek saldo agent
 📋 *CEK TAGIHAN [NAMA_PELANGGAN]* - Cek tagihan pelanggan
 💰 *BAYAR TAGIHAN [NAMA_PELANGGAN]* - Bayar tagihan pelanggan
+📋 *LIST TAGIHAN* - Lihat semua pelanggan yang belum bayar
+💰 *LIST BAYAR* - Lihat semua pelanggan yang sudah bayar
 🛒 *BELI VOUCHER [PAKET]* - Beli voucher (hanya untuk agent)
-🛒 *BELI VOUCHER [PAKET] [NOMOR_PELANGGAN]* - Beli voucher dan kirim ke pelanggan
+🛒 *BELI VOUCHER [PAKET] [NOMOR_HP]* - Beli voucher dan kirim ke pelanggan
 📱 *JUAL [PAKET]* - Jual voucher (tanpa kirim ke konsumen)
 📱 *JUAL [PAKET] [NOMOR_HP]* - Jual voucher + kirim ke konsumen
 💰 *BAYAR [NAMA] [HP] [JUMLAH] [YA/TIDAK]* - Terima pembayaran
 📤 *REQUEST [JUMLAH] [CATATAN]* - Request saldo ke admin
 📊 *RIWAYAT* - Lihat riwayat transaksi
 
-📝 *Contoh Penggunaan:*
 • SALDO
 • CEK TAGIHAN John Doe
 • BAYAR TAGIHAN John Doe
+• LIST TAGIHAN
+• LIST BAYAR
 • BELI VOUCHER 3K
 • BELI VOUCHER 10K 081234567890
 • JUAL 3K
@@ -399,6 +430,165 @@ class AgentWhatsAppCommands {
         } catch (error) {
             return this.sendMessage(from, "❌ Terjadi kesalahan saat mengajukan request.");
         }
+    }
+
+    // Handle list tagihan (unpaid customers)
+    async handleListTagihan(from, agent) {
+        try {
+            // Get all unpaid invoices
+            const unpaidInvoices = await this.billingManager.getUnpaidInvoices();
+
+            if (unpaidInvoices.length === 0) {
+                return this.sendMessage(from, "✅ *LIST TAGIHAN*\n\n📝 Tidak ada pelanggan yang memiliki tagihan belum dibayar.");
+            }
+
+            let message = `📋 *LIST TAGIHAN BELUM DIBAYAR*\n\n`;
+            message += `📊 Total pelanggan: ${unpaidInvoices.length}\n\n`;
+
+            // Group by customer and show details
+            const customerGroups = {};
+            unpaidInvoices.forEach(invoice => {
+                if (!customerGroups[invoice.customer_id]) {
+                    customerGroups[invoice.customer_id] = {
+                        customer: invoice.customer_name,
+                        phone: invoice.customer_phone,
+                        invoices: []
+                    };
+                }
+                customerGroups[invoice.customer_id].invoices.push(invoice);
+            });
+
+            let customerIndex = 1;
+            for (const customerId in customerGroups) {
+                const group = customerGroups[customerId];
+                message += `${customerIndex}. 👤 ${group.customer}\n`;
+                if (group.phone) {
+                    message += `   📱 ${group.phone}\n`;
+                }
+
+                group.invoices.forEach((invoice, idx) => {
+                    const dueDate = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('id-ID') : 'N/A';
+                    const daysOverdue = invoice.due_date ?
+                        Math.floor((new Date() - new Date(invoice.due_date)) / (1000 * 60 * 60 * 24)) : 0;
+
+                    message += `   ${idx + 1}. 💰 Rp ${invoice.amount.toLocaleString('id-ID')}\n`;
+                    message += `      📅 Due: ${dueDate}`;
+                    if (daysOverdue > 0) {
+                        message += ` (${daysOverdue} hari telat)`;
+                    }
+                    message += `\n`;
+                    message += `      🆔 ${invoice.invoice_number}\n`;
+                });
+                message += `\n`;
+                customerIndex++;
+            }
+
+            // Split message if too long (WhatsApp limit)
+            if (message.length > 4000) {
+                const parts = this.splitMessage(message, 4000);
+                for (const part of parts) {
+                    await this.sendMessage(from, part);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between parts
+                }
+            } else {
+                return this.sendMessage(from, message);
+            }
+
+        } catch (error) {
+            console.error('Error in handleListTagihan:', error);
+            return this.sendMessage(from, "❌ Gagal mengambil data tagihan. Silakan coba lagi.");
+        }
+    }
+
+    // Handle list bayar (paid customers)
+    async handleListBayar(from, agent) {
+        try {
+            // Get all paid invoices
+            const paidInvoices = await this.billingManager.getPaidInvoices();
+
+            if (paidInvoices.length === 0) {
+                return this.sendMessage(from, "✅ *LIST PEMBAYARAN*\n\n📝 Tidak ada pelanggan yang sudah melakukan pembayaran.");
+            }
+
+            let message = `💰 *LIST PELANGGAN SUDAH BAYAR*\n\n`;
+            message += `📊 Total pelanggan: ${paidInvoices.length}\n\n`;
+
+            // Group by customer and show details
+            const customerGroups = {};
+            paidInvoices.forEach(invoice => {
+                if (!customerGroups[invoice.customer_id]) {
+                    customerGroups[invoice.customer_id] = {
+                        customer: invoice.customer_name,
+                        phone: invoice.customer_phone,
+                        invoices: []
+                    };
+                }
+                customerGroups[invoice.customer_id].invoices.push(invoice);
+            });
+
+            let customerIndex = 1;
+            for (const customerId in customerGroups) {
+                const group = customerGroups[customerId];
+                message += `${customerIndex}. 👤 ${group.customer}\n`;
+                if (group.phone) {
+                    message += `   📱 ${group.phone}\n`;
+                }
+
+                group.invoices.forEach((invoice, idx) => {
+                    const paymentDate = invoice.payment_date ?
+                        new Date(invoice.payment_date).toLocaleDateString('id-ID') : 'N/A';
+
+                    message += `   ${idx + 1}. 💰 Rp ${invoice.amount.toLocaleString('id-ID')}\n`;
+                    message += `      💳 Dibayar: ${paymentDate}\n`;
+                    message += `      🆔 ${invoice.invoice_number}\n`;
+                    if (invoice.payment_method) {
+                        message += `      💳 Via: ${invoice.payment_method}\n`;
+                    }
+                });
+                message += `\n`;
+                customerIndex++;
+            }
+
+            // Split message if too long (WhatsApp limit)
+            if (message.length > 4000) {
+                const parts = this.splitMessage(message, 4000);
+                for (const part of parts) {
+                    await this.sendMessage(from, part);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between parts
+                }
+            } else {
+                return this.sendMessage(from, message);
+            }
+
+        } catch (error) {
+            console.error('Error in handleListBayar:', error);
+            return this.sendMessage(from, "❌ Gagal mengambil data pembayaran. Silakan coba lagi.");
+        }
+    }
+
+    // Utility function to split long messages
+    splitMessage(message, maxLength) {
+        const parts = [];
+        let currentPart = '';
+
+        const lines = message.split('\n');
+
+        for (const line of lines) {
+            if ((currentPart + line + '\n').length <= maxLength) {
+                currentPart += line + '\n';
+            } else {
+                if (currentPart) {
+                    parts.push(currentPart.trim());
+                    currentPart = line + '\n';
+                }
+            }
+        }
+
+        if (currentPart) {
+            parts.push(currentPart.trim());
+        }
+
+        return parts;
     }
 
     // Handle transaction history

@@ -6006,16 +6006,23 @@ Pesan GenieACS telah diaktifkan kembali.`);
     } catch (error) {
         console.error('Error handling incoming message:', error);
         
-        // Coba kirim pesan error ke pengirim
+        // JANGAN kirim pesan error ke pengirim - hanya log error saja
+        // Ini akan mencegah respon otomatis terhadap setiap pesan
+        /*
         try {
             if (sock && message && message.key && message.key.remoteJid) {
                 await sock.sendMessage(message.key.remoteJid, { 
-                    text: `âŒ *ERROR*\n\nTerjadi kesalahan saat memproses pesan: ${error.message}\n\nSilakan coba lagi nanti.`
+                    text: `❌ *ERROR*
+
+Terjadi kesalahan saat memproses pesan: ${error.message}
+
+Silakan coba lagi nanti.`
                 });
             }
         } catch (sendError) {
             console.error('Error sending error message:', sendError);
         }
+        */
     }
 }
 

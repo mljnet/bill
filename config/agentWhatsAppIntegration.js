@@ -64,14 +64,19 @@ class AgentWhatsAppIntegration {
             // Handle agent commands
             const response = await this.commands.handleMessage(from, text);
             
-            // Mark message as processed to prevent main handler from processing it
-            message._agentProcessed = true;
-            
-            console.log(`📤 [AGENT] DEBUG: Response from commands: ${response}, type: ${typeof response}`);
-            
-            // Commands already handle sending messages, so we don't need to send again
-            // Just mark as processed to prevent main handler from processing
-            return true; // Message processed by agent handler
+            // Only mark as processed if a response was actually sent
+            if (response !== null) {
+                // Mark message as processed to prevent main handler from processing it
+                message._agentProcessed = true;
+                console.log(`📤 [AGENT] DEBUG: Response from commands: ${response}, type: ${typeof response}`);
+                // Commands already handle sending messages, so we don't need to send again
+                // Just mark as processed to prevent main handler from processing
+                return true; // Message processed by agent handler
+            } else {
+                // If no response was sent, let the main handler process the message
+                console.log(`📤 [AGENT] No response sent, allowing main handler to process`);
+                return false; // Let main handler process it
+            }
         } catch (error) {
             console.error('Error processing agent WhatsApp message:', error);
             return false;
