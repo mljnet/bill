@@ -5108,6 +5108,82 @@ router.get('/settings', getAppSettings, async (req, res) => {
     }
 });
 
+// API: Get list of unpaid invoices (tagihan)
+router.get('/api/list-tagihan', adminAuth, async (req, res) => {
+    try {
+        const unpaidInvoices = await billingManager.getUnpaidInvoices();
+
+        // Group by customer for better display
+        const customerGroups = {};
+        unpaidInvoices.forEach(invoice => {
+            if (!customerGroups[invoice.customer_id]) {
+                customerGroups[invoice.customer_id] = {
+                    customer_name: invoice.customer_name,
+                    customer_phone: invoice.customer_phone,
+                    total_amount: 0,
+                    invoices: []
+                };
+            }
+            customerGroups[invoice.customer_id].total_amount += parseFloat(invoice.amount);
+            customerGroups[invoice.customer_id].invoices.push(invoice);
+        });
+
+        res.json({
+            success: true,
+            data: {
+                total_customers: Object.keys(customerGroups).length,
+                total_invoices: unpaidInvoices.length,
+                customers: customerGroups
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting unpaid invoices:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting unpaid invoices: ' + error.message
+        });
+    }
+});
+
+// API: Get list of paid invoices (bayar)
+router.get('/api/list-bayar', adminAuth, async (req, res) => {
+    try {
+        const paidInvoices = await billingManager.getPaidInvoices();
+
+        // Group by customer for better display
+        const customerGroups = {};
+        paidInvoices.forEach(invoice => {
+            if (!customerGroups[invoice.customer_id]) {
+                customerGroups[invoice.customer_id] = {
+                    customer_name: invoice.customer_name,
+                    customer_phone: invoice.customer_phone,
+                    total_amount: 0,
+                    invoices: []
+                };
+            }
+            customerGroups[invoice.customer_id].total_amount += parseFloat(invoice.amount);
+            customerGroups[invoice.customer_id].invoices.push(invoice);
+        });
+
+        res.json({
+            success: true,
+            data: {
+                total_customers: Object.keys(customerGroups).length,
+                total_invoices: paidInvoices.length,
+                customers: customerGroups
+            }
+        });
+
+    } catch (error) {
+        console.error('Error getting paid invoices:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting paid invoices: ' + error.message
+        });
+    }
+});
+
 // GET: Billing Reports
 router.get('/reports', getAppSettings, async (req, res) => {
     try {
