@@ -1,5 +1,5 @@
 const AgentManager = require('./agentManager');
-const { getSettingsWithCache } = require('./settingsManager');
+const { getSettingsWithCache, getSetting } = require('./settingsManager');
 const logger = require('./logger');
 
 class AgentAdminCommands {
@@ -10,85 +10,109 @@ class AgentAdminCommands {
     // Handle agent admin commands
     async handleAgentAdminCommands(remoteJid, senderNumber, command, messageText, whatsappManager) {
         try {
-        // List agents command
-        if (command === 'daftaragent' || command === 'listagent' || command === 'listagents') {
-            await this.handleListAgents(remoteJid);
-            return;
-        }
-
-        // Add agent command
-        if (command.startsWith('tambahagent ') || command.startsWith('addagent ')) {
-            const params = messageText.split(' ').slice(1);
-            if (params.length >= 4) {
-                const [username, name, phone, password] = params;
-                await this.handleAddAgent(remoteJid, username, name, phone, password);
-            } else {
-                await this.sendMessage(remoteJid, 
-                    `❌ *FORMAT SALAH*\n\nFormat: *tambahagent [username] [nama] [phone] [password]*\n\nContoh: tambahagent john John Doe 081234567890 password123`);
+            logger.info(`🤖 [AGENT COMMANDS] Processing command: "${command}" from ${senderNumber}`);
+            
+            // Check if sender is admin
+            const adminNumbers = [];
+            let i = 0;
+            while (true) {
+                const adminNum = getSetting(`admins.${i}`);
+                if (!adminNum) break;
+                adminNumbers.push(adminNum);
+                i++;
             }
-            return;
-        }
-
-        // Agent balance command
-        if (command.startsWith('saldoagent ') || command.startsWith('agentbalance ')) {
-            const agentIdentifier = messageText.split(' ')[1];
-            await this.handleAgentBalance(remoteJid, agentIdentifier);
-            return;
-        }
-
-        // Add agent balance command
-        if (command.startsWith('tambahsaldoagent ') || command.startsWith('addagentbalance ')) {
-            const params = messageText.split(' ').slice(1);
-            if (params.length >= 2) {
-                const [agentIdentifier, amount] = params;
-                const notes = params.slice(2).join(' ') || 'Saldo ditambahkan via WhatsApp';
-                await this.handleAddAgentBalance(remoteJid, agentIdentifier, amount, notes);
-            } else {
-                await this.sendMessage(remoteJid, 
-                    `❌ *FORMAT SALAH*\n\nFormat: *tambahsaldoagent [nama_agen/agent_id] [jumlah] [catatan]*\n\nContoh: \n• tambahsaldoagent budi 100000 Top up saldo\n• tambahsaldoagent 1 100000 Top up saldo`);
+            
+            logger.info(`🤖 [AGENT COMMANDS] Admin numbers: ${JSON.stringify(adminNumbers)}`);
+            
+            const cleanSenderNumber = senderNumber.replace('@s.whatsapp.net', '');
+            const isAdmin = adminNumbers.includes(cleanSenderNumber);
+            
+            logger.info(`🤖 [AGENT COMMANDS] Sender: ${cleanSenderNumber}, isAdmin: ${isAdmin}`);
+            
+            if (!isAdmin) {
+                await this.sendMessage(remoteJid, '❌ Anda tidak memiliki akses untuk perintah agent. Hanya admin yang dapat menggunakan perintah ini.');
+                return;
             }
-            return;
-        }
-
-        // Agent stats command
-        if (command === 'statistikagent' || command === 'agentstats') {
-            await this.handleAgentStats(remoteJid);
-            return;
-        }
-
-        // Agent requests command
-        if (command === 'requestagent' || command === 'agentrequests') {
-            await this.handleAgentRequests(remoteJid);
-            return;
-        }
-
-        // Approve agent request command
-        if (command.startsWith('setujuirequest ') || command.startsWith('approveagentrequest ')) {
-            const requestId = messageText.split(' ')[1];
-            const notes = messageText.split(' ').slice(2).join(' ') || 'Request disetujui via WhatsApp';
-            await this.handleApproveAgentRequest(remoteJid, requestId, notes);
-            return;
-        }
-
-        // Reject agent request command
-        if (command.startsWith('tolakrequest ') || command.startsWith('rejectagentrequest ')) {
-            const params = messageText.split(' ').slice(1);
-            if (params.length >= 2) {
-                const [requestId, ...reasonParts] = params;
-                const reason = reasonParts.join(' ') || 'Request ditolak via WhatsApp';
-                await this.handleRejectAgentRequest(remoteJid, requestId, reason);
-            } else {
-                await this.sendMessage(remoteJid, 
-                    `❌ *FORMAT SALAH*\n\nFormat: *tolakrequest [request_id] [alasan]*\n\nContoh: tolakrequest 1 Data tidak lengkap`);
+            
+            // List agents command
+            if (command === 'daftaragent' || command === 'listagent' || command === 'listagents') {
+                await this.handleListAgents(remoteJid);
+                return;
             }
-            return;
-        }
 
-        // Help command
-        if (command === 'bantuanagent' || command === 'agenthelp') {
-            await this.handleAgentHelp(remoteJid);
-            return;
-        }
+            // Add agent command
+            if (command.startsWith('tambahagent ') || command.startsWith('addagent ')) {
+                const params = messageText.split(' ').slice(1);
+                if (params.length >= 4) {
+                    const [username, name, phone, password] = params;
+                    await this.handleAddAgent(remoteJid, username, name, phone, password);
+                } else {
+                    await this.sendMessage(remoteJid, 
+                        `❌ *FORMAT SALAH*\n\nFormat: *tambahagent [username] [nama] [phone] [password]*\n\nContoh: tambahagent john John Doe 081234567890 password123`);
+                }
+                return;
+            }
+
+            // Agent balance command
+            if (command.startsWith('saldoagent ') || command.startsWith('agentbalance ')) {
+                const agentIdentifier = messageText.split(' ')[1];
+                await this.handleAgentBalance(remoteJid, agentIdentifier);
+                return;
+            }
+
+            // Add agent balance command
+            if (command.startsWith('tambahsaldoagent ') || command.startsWith('addagentbalance ')) {
+                const params = messageText.split(' ').slice(1);
+                if (params.length >= 2) {
+                    const [agentIdentifier, amount] = params;
+                    const notes = params.slice(2).join(' ') || 'Saldo ditambahkan via WhatsApp';
+                    await this.handleAddAgentBalance(remoteJid, agentIdentifier, amount, notes);
+                } else {
+                    await this.sendMessage(remoteJid, 
+                        `❌ *FORMAT SALAH*\n\nFormat: *tambahsaldoagent [nama_agen/agent_id] [jumlah] [catatan]*\n\nContoh: \n• tambahsaldoagent budi 100000 Top up saldo\n• tambahsaldoagent 1 100000 Top up saldo`);
+                }
+                return;
+            }
+
+            // Agent stats command
+            if (command === 'statistikagent' || command === 'agentstats') {
+                await this.handleAgentStats(remoteJid);
+                return;
+            }
+
+            // Agent requests command
+            if (command === 'requestagent' || command === 'agentrequests') {
+                await this.handleAgentRequests(remoteJid);
+                return;
+            }
+
+            // Approve agent request command
+            if (command.startsWith('setujuirequest ') || command.startsWith('approveagentrequest ')) {
+                const requestId = messageText.split(' ')[1];
+                const notes = messageText.split(' ').slice(2).join(' ') || 'Request disetujui via WhatsApp';
+                await this.handleApproveAgentRequest(remoteJid, requestId, notes);
+                return;
+            }
+
+            // Reject agent request command
+            if (command.startsWith('tolakrequest ') || command.startsWith('rejectagentrequest ')) {
+                const params = messageText.split(' ').slice(1);
+                if (params.length >= 2) {
+                    const [requestId, ...reasonParts] = params;
+                    const reason = reasonParts.join(' ') || 'Request ditolak via WhatsApp';
+                    await this.handleRejectAgentRequest(remoteJid, requestId, reason);
+                } else {
+                    await this.sendMessage(remoteJid, 
+                        `❌ *FORMAT SALAH*\n\nFormat: *tolakrequest [request_id] [alasan]*\n\nContoh: tolakrequest 1 Data tidak lengkap`);
+                }
+                return;
+            }
+
+            // Help command
+            if (command === 'bantuanagent' || command === 'agenthelp') {
+                await this.handleAgentHelp(remoteJid);
+                return;
+            }
 
             // If no command matches, send unknown command message
             await this.sendMessage(remoteJid, 

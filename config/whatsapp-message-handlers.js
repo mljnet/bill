@@ -516,6 +516,8 @@ class WhatsAppMessageHandlers {
             command.startsWith('approveagentrequest') || command.startsWith('rejectagentrequest') ||
             command === 'agenthelp') {
             
+            logger.info(`🤖 [ROUTING] Routing agent command: "${command}" to AgentAdminCommands`);
+            
             // Set WhatsApp manager for notifications
             this.agentAdminCommands.sendMessage = async (jid, message) => {
                 await this.commands.sendMessage(jid, message);
