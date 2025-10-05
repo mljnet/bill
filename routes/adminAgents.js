@@ -298,24 +298,20 @@ router.put('/agents/:id', adminAuth, async (req, res) => {
         const agentId = req.params.id;
         const { name, phone, email, address, commission_rate, status } = req.body;
         
-        const sqlite3 = require('sqlite3').verbose();
-        const db = new sqlite3.Database('./data/billing.db');
-        
-        const updateSql = `
-            UPDATE agents 
-            SET name = ?, phone = ?, email = ?, address = ?, commission_rate = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
-            WHERE id = ?
-        `;
-        
-        db.run(updateSql, [name, phone, email, address, commission_rate, status, agentId], function(err) {
-            db.close();
-            
-            if (err) {
-                return res.json({ success: false, message: 'Gagal mengupdate agent' });
-            }
-            
-            res.json({ success: true, message: 'Agent berhasil diupdate' });
+        const result = await agentManager.updateAgent(agentId, {
+            name, 
+            phone, 
+            email, 
+            address, 
+            commission_rate, 
+            status
         });
+        
+        if (result.success) {
+            res.json({ success: true, message: 'Agent berhasil diupdate' });
+        } else {
+            res.json({ success: false, message: result.message || 'Gagal mengupdate agent' });
+        }
     } catch (error) {
         logger.error('Update agent error:', error);
         res.json({ success: false, message: 'Terjadi kesalahan saat mengupdate agent' });
@@ -327,51 +323,13 @@ router.delete('/agents/:id', adminAuth, async (req, res) => {
     try {
         const agentId = req.params.id;
         
-        const sqlite3 = require('sqlite3').verbose();
-        const db = new sqlite3.Database('./data/billing.db');
+        const result = await agentManager.deleteAgent(agentId);
         
-        // Start transaction
-        db.serialize(() => {
-            db.run('BEGIN TRANSACTION');
-            
-            // Delete in correct order to respect foreign key constraints
-            const deleteQueries = [
-                'DELETE FROM agent_voucher_sales WHERE agent_id = ?',
-                'DELETE FROM agent_balances WHERE agent_id = ?',
-                'DELETE FROM agent_notifications WHERE agent_id = ?',
-                'DELETE FROM agent_transactions WHERE agent_id = ?',
-                'DELETE FROM agent_monthly_payments WHERE agent_id = ?',
-                'DELETE FROM agent_balance_requests WHERE agent_id = ?',
-                'DELETE FROM agents WHERE id = ?'
-            ];
-            
-            let completed = 0;
-            let hasError = false;
-            
-            deleteQueries.forEach((query, index) => {
-                db.run(query, [agentId], function(err) {
-                    if (err) {
-                        console.error(`Error deleting from query ${index + 1}:`, err.message);
-                        hasError = true;
-                    }
-                    
-                    completed++;
-                    
-                    // Check if all queries are completed
-                    if (completed === deleteQueries.length) {
-                        if (hasError) {
-                            db.run('ROLLBACK');
-                            db.close();
-                            return res.json({ success: false, message: 'Gagal menghapus data agent terkait' });
-                        } else {
-                            db.run('COMMIT');
-                            db.close();
-                            res.json({ success: true, message: 'Agent dan semua data terkait berhasil dihapus' });
-                        }
-                    }
-                });
-            });
-        });
+        if (result.success) {
+            res.json({ success: true, message: result.message });
+        } else {
+            res.json({ success: false, message: result.message || 'Gagal menghapus agent' });
+        }
     } catch (error) {
         logger.error('Delete agent error:', error);
         res.json({ success: false, message: 'Terjadi kesalahan saat menghapus agent' });
@@ -506,73 +464,24 @@ router.post('/agents/reject-request', adminAuth, async (req, res) => {
 // GET: Get agent statistics
 router.get('/agents/stats', adminAuth, async (req, res) => {
     try {
-        const sqlite3 = require('sqlite3').verbose();
-        const db = new sqlite3.Database('./data/billing.db');
+        // Use agentManager methods instead of direct database connection
+        const agents = await agentManager.getAllAgents();
+        const balanceStats = await agentManager.getBalanceRequestStats();
+        const voucherStats = await agentManager.getVoucherSalesStats();
+        const paymentStats = await agentManager.getMonthlyPaymentStats();
         
-        const stats = {};
+        const stats = {
+            totalAgents: agents.length,
+            activeAgents: agents.filter(agent => agent.status === 'active').length,
+            totalBalanceRequests: balanceStats.total || 0,
+            pendingBalanceRequests: balanceStats.pending || 0,
+            totalVoucherSales: voucherStats.total || 0,
+            totalVoucherSalesValue: voucherStats.total_value || 0,
+            totalMonthlyPayments: paymentStats.total || 0,
+            totalMonthlyPaymentsValue: paymentStats.total_value || 0
+        };
         
-        // Get total agents
-        db.get('SELECT COUNT(*) as total FROM agents', (err, row) => {
-            if (err) {
-                db.close();
-                return res.json({ success: false, message: 'Error getting agent count' });
-            }
-            
-            stats.totalAgents = row.total;
-            
-            // Get active agents
-            db.get('SELECT COUNT(*) as active FROM agents WHERE status = "active"', (err, row) => {
-                if (err) {
-                    db.close();
-                    return res.json({ success: false, message: 'Error getting active agents' });
-                }
-                
-                stats.activeAgents = row.active;
-                
-                // Get total balance requests
-                db.get('SELECT COUNT(*) as total FROM agent_balance_requests', (err, row) => {
-                    if (err) {
-                        db.close();
-                        return res.json({ success: false, message: 'Error getting balance requests' });
-                    }
-                    
-                    stats.totalBalanceRequests = row.total;
-                    
-                    // Get pending balance requests
-                    db.get('SELECT COUNT(*) as pending FROM agent_balance_requests WHERE status = "pending"', (err, row) => {
-                        if (err) {
-                            db.close();
-                            return res.json({ success: false, message: 'Error getting pending requests' });
-                        }
-                        
-                        stats.pendingBalanceRequests = row.pending;
-                        
-                        // Get total voucher sales
-                        db.get('SELECT COUNT(*) as total FROM agent_voucher_sales', (err, row) => {
-                            if (err) {
-                                db.close();
-                                return res.json({ success: false, message: 'Error getting voucher sales' });
-                            }
-                            
-                            stats.totalVoucherSales = row.total;
-                            
-                            // Get total monthly payments
-                            db.get('SELECT COUNT(*) as total FROM agent_monthly_payments', (err, row) => {
-                                if (err) {
-                                    db.close();
-                                    return res.json({ success: false, message: 'Error getting monthly payments' });
-                                }
-                                
-                                stats.totalMonthlyPayments = row.total;
-                                
-                                db.close();
-                                res.json({ success: true, stats });
-                            });
-                        });
-                    });
-                });
-            });
-        });
+        res.json({ success: true, stats });
     } catch (error) {
         logger.error('Get agent stats error:', error);
         res.json({ success: false, message: 'Error loading agent statistics' });
