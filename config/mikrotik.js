@@ -36,7 +36,8 @@ async function connectToMikrotik() {
             port,
             user,
             password,
-            keepalive: true
+            keepalive: true,
+            timeout: 5000 // 5 second timeout
         });
         
         // Connect ke Mikrotik

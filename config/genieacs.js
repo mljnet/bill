@@ -19,7 +19,8 @@ function getAxiosInstance() {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-        }
+        },
+        timeout: 5000 // 5 second timeout
     });
 }
 

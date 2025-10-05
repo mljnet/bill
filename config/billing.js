@@ -832,37 +832,66 @@ class BillingManager {
                     }
                     
                     // Jika ada nomor telepon dan PPPoE username, coba tambahkan tag ke GenieACS
+                    // Tambahkan timeout dan error handling untuk mencegah delay
                     if (phone && autoPPPoEUsername) {
                         try {
-                            const genieacs = require('./genieacs');
-                            // Cari device berdasarkan PPPoE Username
-                            const device = await genieacs.findDeviceByPPPoE(autoPPPoEUsername);
+                            // Timeout untuk operasi GenieACS
+                            const genieacsPromise = new Promise(async (resolve, reject) => {
+                                const timeout = setTimeout(() => reject(new Error('GenieACS operation timeout')), 3000); // 3 second timeout
+                                
+                                try {
+                                    const genieacs = require('./genieacs');
+                                    // Cari device berdasarkan PPPoE Username
+                                    const device = await genieacs.findDeviceByPPPoE(autoPPPoEUsername);
+                                    
+                                    if (device) {
+                                        // Tambahkan tag nomor telepon ke device
+                                        await genieacs.addTagToDevice(device._id, phone);
+                                        console.log(`✅ Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (PPPoE: ${autoPPPoEUsername})`);
+                                    } else {
+                                        console.log(`ℹ️ No device found with PPPoE Username ${autoPPPoEUsername} for customer ${finalUsername} - this is normal for new customers`);
+                                    }
+                                    clearTimeout(timeout);
+                                    resolve();
+                                } catch (genieacsError) {
+                                    clearTimeout(timeout);
+                                    reject(genieacsError);
+                                }
+                            });
                             
-                            if (device) {
-                                // Tambahkan tag nomor telepon ke device
-                                await genieacs.addTagToDevice(device._id, phone);
-                                console.log(`✅ Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (PPPoE: ${autoPPPoEUsername})`);
-                            } else {
-                                console.log(`ℹ️ No device found with PPPoE Username ${autoPPPoEUsername} for customer ${finalUsername} - this is normal for new customers`);
-                            }
+                            await genieacsPromise;
                         } catch (genieacsError) {
-                            console.log(`⚠️ GenieACS integration skipped for customer ${finalUsername}: ${genieacsError.message}`);
+                            console.log(`⚠️ GenieACS integration skipped for customer ${finalUsername} (timeout or error): ${genieacsError.message}`);
                             // Jangan reject, karena customer sudah berhasil dibuat di billing
                         }
                     } else if (phone && finalUsername) {
                         // Fallback: coba dengan username jika pppoe_username tidak ada
                         try {
-                            const genieacs = require('./genieacs');
-                            const device = await genieacs.findDeviceByPPPoE(finalUsername);
+                            // Timeout untuk operasi GenieACS
+                            const genieacsPromise = new Promise(async (resolve, reject) => {
+                                const timeout = setTimeout(() => reject(new Error('GenieACS operation timeout')), 3000); // 3 second timeout
+                                
+                                try {
+                                    const genieacs = require('./genieacs');
+                                    const device = await genieacs.findDeviceByPPPoE(finalUsername);
+                                    
+                                    if (device) {
+                                        await genieacs.addTagToDevice(device._id, phone);
+                                        console.log(`✅ Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (using username as PPPoE)`);
+                                    } else {
+                                        console.log(`ℹ️ No device found with PPPoE Username ${finalUsername} for customer ${finalUsername} - this is normal for new customers`);
+                                    }
+                                    clearTimeout(timeout);
+                                    resolve();
+                                } catch (genieacsError) {
+                                    clearTimeout(timeout);
+                                    reject(genieacsError);
+                                }
+                            });
                             
-                            if (device) {
-                                await genieacs.addTagToDevice(device._id, phone);
-                                console.log(`✅ Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (using username as PPPoE)`);
-                            } else {
-                                console.log(`ℹ️ No device found with PPPoE Username ${finalUsername} for customer ${finalUsername} - this is normal for new customers`);
-                            }
+                            await genieacsPromise;
                         } catch (genieacsError) {
-                            console.log(`⚠️ GenieACS integration skipped for customer ${finalUsername}: ${genieacsError.message}`);
+                            console.log(`⚠️ GenieACS integration skipped for customer ${finalUsername} (timeout or error): ${genieacsError.message}`);
                         }
                     }
                     
@@ -1212,33 +1241,47 @@ class BillingManager {
                         const newPhone = phone || oldPhone;
                         if (newPhone && (newPhone !== oldPhone || pppoe_username !== oldPPPoE)) {
                             try {
-                                const genieacs = require('./genieacs');
-                                
-                                // Hapus tag lama jika ada
-                                                                        if (oldPhone && oldPPPoE) {
+                                // Timeout untuk operasi GenieACS
+                                const genieacsPromise = new Promise(async (resolve, reject) => {
+                                    const timeout = setTimeout(() => reject(new Error('GenieACS operation timeout')), 3000); // 3 second timeout
+                                    
                                     try {
-                                        const oldDevice = await genieacs.findDeviceByPPPoE(oldPPPoE);
-                                        if (oldDevice) {
-                                            await genieacs.removeTagFromDevice(oldDevice._id, oldPhone);
-                                            console.log(`Removed old phone tag ${oldPhone} from device ${oldDevice._id} for customer ${oldCustomer.username}`);
+                                        const genieacs = require('./genieacs');
+                                        
+                                        // Hapus tag lama jika ada
+                                        if (oldPhone && oldPPPoE) {
+                                            try {
+                                                const oldDevice = await genieacs.findDeviceByPPPoE(oldPPPoE);
+                                                if (oldDevice) {
+                                                    await genieacs.removeTagFromDevice(oldDevice._id, oldPhone);
+                                                    console.log(`Removed old phone tag ${oldPhone} from device ${oldDevice._id} for customer ${oldCustomer.username}`);
+                                                }
+                                            } catch (error) {
+                                                console.warn(`Error removing old phone tag for customer ${oldCustomer.username}:`, error.message);
+                                            }
                                         }
-                                    } catch (error) {
-                                        console.warn(`Error removing old phone tag for customer ${oldCustomer.username}:`, error.message);
+                                        
+                                        // Tambahkan tag baru
+                                        const pppoeToUse = pppoe_username || oldCustomer.username; // Fallback ke username jika pppoe_username kosong
+                                        const device = await genieacs.findDeviceByPPPoE(pppoeToUse);
+                                        
+                                        if (device) {
+                                            await genieacs.addTagToDevice(device._id, newPhone);
+                                            console.log(`Successfully updated phone tag to ${newPhone} for device ${device._id} and customer ${oldCustomer.username} (PPPoE: ${pppoeToUse})`);
+                                        } else {
+                                            console.warn(`No device found with PPPoE Username ${pppoeToUse} for customer ${oldCustomer.username}`);
+                                        }
+                                        clearTimeout(timeout);
+                                        resolve();
+                                    } catch (genieacsError) {
+                                        clearTimeout(timeout);
+                                        reject(genieacsError);
                                     }
-                                }
+                                });
                                 
-                                // Tambahkan tag baru
-                                const pppoeToUse = pppoe_username || oldCustomer.username; // Fallback ke username jika pppoe_username kosong
-                                const device = await genieacs.findDeviceByPPPoE(pppoeToUse);
-                                
-                                if (device) {
-                                    await genieacs.addTagToDevice(device._id, newPhone);
-                                    console.log(`Successfully updated phone tag to ${newPhone} for device ${device._id} and customer ${oldCustomer.username} (PPPoE: ${pppoeToUse})`);
-                                } else {
-                                    console.warn(`No device found with PPPoE Username ${pppoeToUse} for customer ${oldCustomer.username}`);
-                                }
+                                await genieacsPromise;
                             } catch (genieacsError) {
-                                console.error(`Error updating phone tag in GenieACS for customer ${oldCustomer.username}:`, genieacsError.message);
+                                console.error(`Error updating phone tag in GenieACS for customer ${oldCustomer.username} (timeout or error):`, genieacsError.message);
                                 // Jangan reject, karena customer sudah berhasil diupdate di billing
                             }
                         }

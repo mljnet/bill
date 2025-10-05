@@ -320,7 +320,7 @@ class AgentWhatsAppCommands {
 💰 Saldo tersisa: Rp ${result.newBalance.toLocaleString('id-ID')}`;
 
                 // Send to customer if phone number provided
-                if (params.sendWhatsApp && params.customerPhone) {
+                if (params.customerPhone) {
                     // Prepare agent info for customer message
                     const agentInfo = {
                         name: agent.name,
@@ -806,7 +806,7 @@ class AgentWhatsAppCommands {
 💰 Saldo tersisa: Rp ${result.newBalance.toLocaleString('id-ID')}`;
 
                 // Send to customer if phone number provided
-                if (params.sendWhatsApp && params.customerPhone) {
+                if (params.customerPhone) {
                     // Prepare agent info for customer message
                     const agentInfo = {
                         name: agent.name,

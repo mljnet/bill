@@ -1235,7 +1235,7 @@ class AgentManager {
                 INSERT INTO admin_notifications (type, title, message, agent_id, status, created_at)
                 VALUES (?, ?, ?, ?, 'unread', CURRENT_TIMESTAMP)
             `;
-            db.run(sql, [type, title, message, agentId], (err) => {
+            this.db.run(sql, [type, title, message, agentId], (err) => {
                 if (err) {
                     reject(err);
                     return;
@@ -1249,7 +1249,7 @@ class AgentManager {
     async updateAgentStatus(agentId, status) {
         return new Promise((resolve, reject) => {
             const sql = 'UPDATE agents SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-            db.run(sql, [status, agentId], (err) => {
+            this.db.run(sql, [status, agentId], (err) => {
                 if (err) {
                     reject(err);
                     return;
@@ -1280,7 +1280,7 @@ class AgentManager {
             sql += ' WHERE id = ?';
             params.push(agentId);
             
-            db.run(sql, params, (err) => {
+            this.db.run(sql, params, (err) => {
                 if (err) {
                     reject(err);
                     return;
