@@ -430,6 +430,10 @@ try {
         if (sock) {
             // Set sock instance untuk whatsapp
             whatsapp.setSock(sock);
+            
+            // Make WhatsApp socket globally available
+            global.whatsappSocket = sock;
+            global.getWhatsAppSocket = () => sock;
 
             // Set sock instance untuk PPPoE monitoring
             pppoeMonitor.setSock(sock);

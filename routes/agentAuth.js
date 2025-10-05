@@ -5,10 +5,51 @@ const AgentWhatsAppManager = require('../config/agentWhatsApp');
 const { getSettingsWithCache, getSetting } = require('../config/settingsManager');
 const logger = require('../config/logger');
 
+// Helper function to format phone number for WhatsApp
+function formatPhoneNumberForWhatsApp(phoneNumber) {
+    if (!phoneNumber) return null;
+    
+    // Remove all non-digit characters
+    let cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
+    
+    // Add country code if not present
+    if (cleanPhone.startsWith('0')) {
+        cleanPhone = '62' + cleanPhone.substring(1);
+    } else if (cleanPhone.startsWith('+')) {
+        cleanPhone = cleanPhone.substring(1);
+    } else if (!cleanPhone.startsWith('62')) {
+        cleanPhone = '62' + cleanPhone;
+    }
+    
+    return cleanPhone + '@s.whatsapp.net';
+}
+
 // Initialize AgentManager
 const agentManager = new AgentManager();
 // Initialize WhatsApp Manager
 const whatsappManager = new AgentWhatsAppManager();
+
+// Set WhatsApp socket when available
+if (global.whatsappStatus && global.whatsappStatus.connected) {
+    // Try to get socket from various sources
+    let sock = null;
+    
+    // Check if there's a global whatsapp socket
+    if (typeof global.getWhatsAppSocket === 'function') {
+        sock = global.getWhatsAppSocket();
+    } else if (global.whatsappSocket) {
+        sock = global.whatsappSocket;
+    } else if (global.whatsapp && typeof global.whatsapp.getSock === 'function') {
+        sock = global.whatsapp.getSock();
+    }
+    
+    if (sock) {
+        whatsappManager.setSocket(sock);
+        logger.info('WhatsApp socket set for AgentWhatsAppManager in agentAuth');
+    } else {
+        logger.warn('WhatsApp socket not available for AgentWhatsAppManager in agentAuth');
+    }
+}
 
 // Middleware untuk check agent session
 const requireAgentAuth = (req, res, next) => {
@@ -131,11 +172,25 @@ Username: ${username}
 HP: ${phone}
 Email: ${email || '-'}
 Alamat: ${address}`;
+            
+            // Log for debugging
+            logger.info(`Sending admin notifications to ${adminNumbers.length} admins`);
+            
             for (const adminNum of adminNumbers) {
                 try {
-                    await whatsappManager.sock?.sendMessage(adminNum + '@s.whatsapp.net', { text: adminWAmsg });
-                } catch (e) { logger.error('WA admin notif error:', e); }
+                    // Format phone number properly for WhatsApp
+                    const formattedAdminNum = formatPhoneNumberForWhatsApp(adminNum);
+                    if (whatsappManager.sock) {
+                        await whatsappManager.sock.sendMessage(formattedAdminNum, { text: adminWAmsg });
+                        logger.info(`Admin notification sent to ${formattedAdminNum}`);
+                    } else {
+                        logger.warn('WhatsApp socket not available for admin notification');
+                    }
+                } catch (e) { 
+                    logger.error(`WA admin notif error for ${adminNum}:`, e); 
+                }
             }
+            
             // WhatsApp ke agent
             const serverHost = getSetting('server_host', 'localhost');
             const serverPort = getSetting('server_port', '3001');
@@ -155,9 +210,19 @@ Untuk mulai transaksi, silakan lakukan deposit terlebih dahulu melalui menu "Dep
 Jika butuh bantuan, hubungi admin di WhatsApp: ${adminContact}
 
 Terima kasih telah bergabung!`;
+            
             try {
-                await whatsappManager.sock?.sendMessage(phone + '@s.whatsapp.net', { text: agentWAmsg });
-            } catch (e) { logger.error('WA agent notif error:', e); }
+                // Format phone number properly for WhatsApp
+                const formattedAgentPhone = formatPhoneNumberForWhatsApp(phone);
+                if (whatsappManager.sock) {
+                    await whatsappManager.sock.sendMessage(formattedAgentPhone, { text: agentWAmsg });
+                    logger.info(`Agent notification sent to ${formattedAgentPhone}`);
+                } else {
+                    logger.warn('WhatsApp socket not available for agent notification');
+                }
+            } catch (e) { 
+                logger.error(`WA agent notif error for ${phone}:`, e); 
+            }
             
             logger.info(`New agent registration: ${name} (${username}) - ${phone}`);
             

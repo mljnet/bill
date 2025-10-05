@@ -14,6 +14,15 @@ function getSettingsWithCache() {
 class AgentWhatsAppManager {
     constructor() {
         this.sock = null;
+        
+        // Try to get socket from global if available
+        if (typeof global !== 'undefined') {
+            if (global.whatsappSocket) {
+                this.sock = global.whatsappSocket;
+            } else if (typeof global.getWhatsAppSocket === 'function') {
+                this.sock = global.getWhatsAppSocket();
+            }
+        }
     }
 
     setSocket(sock) {

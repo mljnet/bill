@@ -6,11 +6,52 @@ const logger = require('../config/logger');
 const { requireAgentAuth } = require('./agentAuth');
 const AgentWhatsAppManager = require('../config/agentWhatsApp');
 
+// Helper function to format phone number for WhatsApp
+function formatPhoneNumberForWhatsApp(phoneNumber) {
+    if (!phoneNumber) return null;
+    
+    // Remove all non-digit characters
+    let cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
+    
+    // Add country code if not present
+    if (cleanPhone.startsWith('0')) {
+        cleanPhone = '62' + cleanPhone.substring(1);
+    } else if (cleanPhone.startsWith('+')) {
+        cleanPhone = cleanPhone.substring(1);
+    } else if (!cleanPhone.startsWith('62')) {
+        cleanPhone = '62' + cleanPhone;
+    }
+    
+    return cleanPhone + '@s.whatsapp.net';
+}
+
 // Initialize AgentManager
 const agentManager = new AgentManager();
 
 // Initialize WhatsApp Manager
 const whatsappManager = new AgentWhatsAppManager();
+
+// Set WhatsApp socket when available
+if (global.whatsappStatus && global.whatsappStatus.connected) {
+    // Try to get socket from various sources
+    let sock = null;
+    
+    // Check if there's a global whatsapp socket
+    if (typeof global.getWhatsAppSocket === 'function') {
+        sock = global.getWhatsAppSocket();
+    } else if (global.whatsappSocket) {
+        sock = global.whatsappSocket;
+    } else if (global.whatsapp && typeof global.whatsapp.getSock === 'function') {
+        sock = global.whatsapp.getSock();
+    }
+    
+    if (sock) {
+        whatsappManager.setSocket(sock);
+        logger.info('WhatsApp socket set for AgentWhatsAppManager in agent route');
+    } else {
+        logger.warn('WhatsApp socket not available for AgentWhatsAppManager in agent route');
+    }
+}
 
 // ===== VOUCHER SALES =====
 

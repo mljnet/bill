@@ -6,6 +6,29 @@ class AgentWhatsAppCommands {
     constructor() {
         this.agentManager = new AgentManager();
         this.whatsappManager = new AgentWhatsAppManager();
+        
+        // Set WhatsApp socket when available
+        if (typeof global !== 'undefined' && global.whatsappStatus && global.whatsappStatus.connected) {
+            // Try to get socket from various sources
+            let sock = null;
+            
+            // Check if there's a global whatsapp socket
+            if (typeof global.getWhatsAppSocket === 'function') {
+                sock = global.getWhatsAppSocket();
+            } else if (global.whatsappSocket) {
+                sock = global.whatsappSocket;
+            } else if (global.whatsapp && typeof global.whatsapp.getSock === 'function') {
+                sock = global.whatsapp.getSock();
+            }
+            
+            if (sock) {
+                this.whatsappManager.setSocket(sock);
+                console.log('WhatsApp socket set for AgentWhatsAppManager in AgentWhatsAppCommands');
+            } else {
+                console.warn('WhatsApp socket not available for AgentWhatsAppManager in AgentWhatsAppCommands');
+            }
+        }
+        
         this.billingManager = billingManager; // Gunakan instance singleton
     }
 
