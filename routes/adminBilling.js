@@ -4331,6 +4331,42 @@ router.post('/service-suspension/grace-period', adminAuth, async (req, res) => {
     }
 });
 
+// Service Suspension: Isolir Profile Setting API
+router.get('/service-suspension/isolir-profile', adminAuth, async (req, res) => {
+    try {
+        const value = getSetting('isolir_profile', 'isolir');
+        res.json({ success: true, isolir_profile: value });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.post('/service-suspension/isolir-profile', adminAuth, async (req, res) => {
+    try {
+        const { isolir_profile } = req.body || {};
+        if (!isolir_profile || typeof isolir_profile !== 'string') {
+            return res.status(400).json({ success: false, message: 'isolir_profile tidak valid' });
+        }
+
+        const profile = isolir_profile.trim();
+        if (!profile) {
+            return res.status(400).json({ success: false, message: 'Profile tidak boleh kosong' });
+        }
+
+        const ok = setSetting('isolir_profile', profile);
+        if (!ok) {
+            return res.status(500).json({ success: false, message: 'Gagal menyimpan ke settings.json' });
+        }
+
+        // Clear cache agar pengaturan baru langsung berlaku
+        clearSettingsCache();
+
+        res.json({ success: true, isolir_profile: profile });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // Payment Monitor
 router.get('/payment-monitor', getAppSettings, async (req, res) => {
     try {
