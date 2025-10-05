@@ -1097,7 +1097,7 @@ class AgentManager {
             const sql = `
                 SELECT amp.*, c.name as customer_name, c.phone as customer_phone
                 FROM agent_monthly_payments amp
-                JOIN customers c ON amp.customer_id = c.id
+                LEFT JOIN customers c ON amp.customer_id = c.id
                 WHERE amp.agent_id = ? 
                 ORDER BY amp.paid_at DESC 
                 LIMIT ? OFFSET ?
@@ -1380,6 +1380,53 @@ class AgentManager {
         });
     }
 
+    // Delete agent and all related data
+    async deleteAgent(agentId) {
+        return new Promise((resolve, reject) => {
+            const db = this.db; // Store database reference
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION');
+                
+                // Delete in correct order to respect foreign key constraints
+                const deleteQueries = [
+                    'DELETE FROM agent_voucher_sales WHERE agent_id = ?',
+                    'DELETE FROM agent_balances WHERE agent_id = ?',
+                    'DELETE FROM agent_notifications WHERE agent_id = ?',
+                    'DELETE FROM agent_transactions WHERE agent_id = ?',
+                    'DELETE FROM agent_monthly_payments WHERE agent_id = ?',
+                    'DELETE FROM agent_balance_requests WHERE agent_id = ?',
+                    'DELETE FROM agents WHERE id = ?'
+                ];
+                
+                // Execute all delete queries
+                let completed = 0;
+                let hasError = false;
+                
+                deleteQueries.forEach((query, index) => {
+                    db.run(query, [agentId], function(err) {
+                        if (err) {
+                            console.error(`Error deleting from query ${index + 1}:`, err.message);
+                            hasError = true;
+                        }
+                        
+                        completed++;
+                        
+                        // Check if all queries are completed
+                        if (completed === deleteQueries.length) {
+                            if (hasError) {
+                                db.run('ROLLBACK');
+                                reject(new Error('Gagal menghapus data agent terkait'));
+                            } else {
+                                db.run('COMMIT');
+                                resolve({ success: true, message: 'Agent dan semua data terkait berhasil dihapus' });
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    }
+
     async getAgentStatistics(agentId) {
         return new Promise((resolve, reject) => {
             const sql = `
@@ -1391,7 +1438,7 @@ class AgentManager {
                     
                     -- Total monthly payments
                     (SELECT COUNT(*) FROM agent_monthly_payments WHERE agent_id = ?) as total_monthly_payments,
-                    (SELECT COALESCE(SUM(amount), 0) FROM agent_monthly_payments WHERE agent_id = ?) as total_payment_amount,
+                    (SELECT COALESCE(SUM(payment_amount), 0) FROM agent_monthly_payments WHERE agent_id = ?) as total_payment_amount,
                     
                     -- Balance requests
                     (SELECT COUNT(*) FROM agent_balance_requests WHERE agent_id = ?) as total_balance_requests,
@@ -1412,6 +1459,68 @@ class AgentManager {
                 agentId, agentId,          // recent activity
                 agentId                    // current balance
             ], (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row);
+            });
+        });
+    }
+
+    // Get balance request statistics
+    async getBalanceRequestStats() {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
+                FROM agent_balance_requests
+            `;
+            
+            this.db.get(sql, [], (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row);
+            });
+        });
+    }
+
+    // Get voucher sales statistics
+    async getVoucherSalesStats() {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT 
+                    COUNT(*) as total,
+                    COALESCE(SUM(price), 0) as total_value
+                FROM agent_voucher_sales
+            `;
+            
+            this.db.get(sql, [], (err, row) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(row);
+            });
+        });
+    }
+
+    // Get monthly payment statistics
+    async getMonthlyPaymentStats() {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT 
+                    COUNT(*) as total,
+                    COALESCE(SUM(payment_amount), 0) as total_value
+                FROM agent_monthly_payments
+            `;
+            
+            this.db.get(sql, [], (err, row) => {
                 if (err) {
                     reject(err);
                     return;
@@ -1511,7 +1620,7 @@ class AgentManager {
     async processPayment(agentId, customerName, customerPhone, amount) {
         return new Promise((resolve, reject) => {
             this.db.serialize(() => {
-                db.run('BEGIN TRANSACTION');
+                this.db.run('BEGIN TRANSACTION');
 
                 // Update agent balance (add)
                 const updateBalanceSql = `
@@ -1519,9 +1628,9 @@ class AgentManager {
                     SET balance = balance + ?, last_updated = CURRENT_TIMESTAMP 
                     WHERE agent_id = ?
                 `;
-                db.run(updateBalanceSql, [amount, agentId], (err) => {
+                this.db.run(updateBalanceSql, [amount, agentId], (err) => {
                     if (err) {
-                        db.run('ROLLBACK');
+                        this.db.run('ROLLBACK');
                         reject(err);
                         return;
                     }
@@ -1532,14 +1641,14 @@ class AgentManager {
                         (agent_id, transaction_type, amount, description)
                         VALUES (?, 'monthly_payment', ?, ?)
                     `;
-                    db.run(transactionSql, [agentId, amount, `Pembayaran dari ${customerName} (${customerPhone})`], (err) => {
+                    this.db.run(transactionSql, [agentId, amount, `Pembayaran dari ${customerName} (${customerPhone})`], (err) => {
                         if (err) {
-                            db.run('ROLLBACK');
+                            this.db.run('ROLLBACK');
                             reject(err);
                             return;
                         }
 
-                        db.run('COMMIT');
+                        this.db.run('COMMIT');
                         
                         // Get new balance
                         const checkBalanceSql = 'SELECT balance FROM agent_balances WHERE agent_id = ?';
