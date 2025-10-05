@@ -75,12 +75,14 @@ class AgentWhatsAppManager {
 
             // Kirim ke agent
             if (agent.phone) {
-                await this.sock.sendMessage(agent.phone + '@s.whatsapp.net', { text: agentMessage });
+                const formattedAgentPhone = this.formatPhoneNumber(agent.phone) + '@s.whatsapp.net';
+                await this.sock.sendMessage(formattedAgentPhone, { text: agentMessage });
             }
 
             // Kirim ke pelanggan jika ada nomor HP
             if (customer.phone) {
-                await this.sock.sendMessage(customer.phone + '@s.whatsapp.net', { text: customerMessage });
+                const formattedCustomerPhone = this.formatPhoneNumber(customer.phone) + '@s.whatsapp.net';
+                await this.sock.sendMessage(formattedCustomerPhone, { text: customerMessage });
             }
 
             return { success: true, message: 'Notifikasi berhasil dikirim' };
@@ -128,7 +130,8 @@ class AgentWhatsAppManager {
 📞 **Bantuan:** Hubungi ${settings.contact_phone || 'Admin'} jika ada masalah.${footerInfo}`;
 
             // Kirim ke customer
-            await this.sock.sendMessage(customerPhone + '@s.whatsapp.net', { text: customerMessage });
+            const formattedCustomerPhone = this.formatPhoneNumber(customerPhone) + '@s.whatsapp.net';
+            await this.sock.sendMessage(formattedCustomerPhone, { text: customerMessage });
             
             logger.info(`Voucher sent to customer: ${customerPhone}`);
             return { success: true, message: 'Voucher berhasil dikirim ke customer' };
@@ -180,12 +183,14 @@ class AgentWhatsAppManager {
 
             // Kirim ke agent
             if (agent.phone) {
-                await this.sock.sendMessage(agent.phone + '@s.whatsapp.net', { text: agentMessage });
+                const formattedAgentPhone = this.formatPhoneNumber(agent.phone) + '@s.whatsapp.net';
+                await this.sock.sendMessage(formattedAgentPhone, { text: agentMessage });
             }
 
             // Kirim ke pelanggan jika ada nomor HP
             if (customer.phone) {
-                await this.sock.sendMessage(customer.phone + '@s.whatsapp.net', { text: customerMessage });
+                const formattedCustomerPhone = this.formatPhoneNumber(customer.phone) + '@s.whatsapp.net';
+                await this.sock.sendMessage(formattedCustomerPhone, { text: customerMessage });
             }
 
             return { success: true, message: 'Notifikasi berhasil dikirim' };
@@ -221,7 +226,8 @@ class AgentWhatsAppManager {
 ✅ Saldo Anda telah berhasil diupdate.${footerInfo}`;
 
             if (agent.phone) {
-                await this.sock.sendMessage(agent.phone + '@s.whatsapp.net', { text: message });
+                const formattedAgentPhone = this.formatPhoneNumber(agent.phone) + '@s.whatsapp.net';
+                await this.sock.sendMessage(formattedAgentPhone, { text: message });
             }
 
             return { success: true, message: 'Notifikasi berhasil dikirim' };
@@ -261,7 +267,8 @@ class AgentWhatsAppManager {
 ✅ Request saldo Anda telah disetujui dan saldo telah ditambahkan.${footerInfo}`;
 
             if (agent.phone) {
-                await this.sock.sendMessage(agent.phone + '@s.whatsapp.net', { text: message });
+                const formattedAgentPhone = this.formatPhoneNumber(agent.phone) + '@s.whatsapp.net';
+                await this.sock.sendMessage(formattedAgentPhone, { text: message });
             }
 
             return { success: true, message: 'Notifikasi berhasil dikirim' };
@@ -300,7 +307,8 @@ ${requestData.rejectReason}
 📞 **Bantuan:** Hubungi ${settings.contact_phone || 'Admin'} untuk konsultasi.${footerInfo}`;
 
             if (agent.phone) {
-                await this.sock.sendMessage(agent.phone + '@s.whatsapp.net', { text: message });
+                const formattedAgentPhone = this.formatPhoneNumber(agent.phone) + '@s.whatsapp.net';
+                await this.sock.sendMessage(formattedAgentPhone, { text: message });
             }
 
             return { success: true, message: 'Notifikasi berhasil dikirim' };
@@ -325,7 +333,8 @@ ${requestData.rejectReason}
             for (const notification of notifications) {
                 try {
                     if (notification.phone) {
-                        await this.sock.sendMessage(notification.phone + '@s.whatsapp.net', { text: notification.message });
+                        const formattedPhone = this.formatPhoneNumber(notification.phone) + '@s.whatsapp.net';
+                        await this.sock.sendMessage(formattedPhone, { text: notification.message });
                         sent++;
                         
                         // Delay between messages to avoid rate limiting
