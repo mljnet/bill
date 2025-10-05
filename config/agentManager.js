@@ -709,7 +709,7 @@ class AgentManager {
     async processPartialPayment(agentId, customerId, paymentAmount, paymentMethod = 'cash') {
         return new Promise((resolve, reject) => {
             this.db.serialize(() => {
-                db.run('BEGIN TRANSACTION');
+                this.db.run('BEGIN TRANSACTION');
 
                 // Get agent commission rate and current balance
                 const getAgentSql = `
@@ -720,13 +720,13 @@ class AgentManager {
                 `;
                 this.db.get(getAgentSql, [agentId], (err, agent) => {
                     if (err) {
-                        db.run('ROLLBACK');
+                        this.db.run('ROLLBACK');
                         reject(err);
                         return;
                     }
 
                     if (!agent) {
-                        db.run('ROLLBACK');
+                        this.db.run('ROLLBACK');
                         reject(new Error('Agent tidak ditemukan'));
                         return;
                     }
@@ -736,7 +736,7 @@ class AgentManager {
 
                     // Cek apakah saldo cukup
                     if (currentBalance < paymentAmount) {
-                        db.run('ROLLBACK');
+                        this.db.run('ROLLBACK');
                         resolve({ 
                             success: false, 
                             message: `Saldo tidak cukup. Saldo tersedia: Rp ${currentBalance.toLocaleString()}, Dibutuhkan: Rp ${paymentAmount.toLocaleString()}` 
@@ -760,7 +760,7 @@ class AgentManager {
                         }
 
                         if (!invoices || invoices.length === 0) {
-                            db.run('ROLLBACK');
+                            this.db.run('ROLLBACK');
                             resolve({ 
                                 success: false, 
                                 message: 'Tidak ada tagihan unpaid untuk pelanggan ini' 
@@ -793,7 +793,7 @@ class AgentManager {
                         }
 
                         if (paidInvoices.length === 0) {
-                            db.run('ROLLBACK');
+                            this.db.run('ROLLBACK');
                             resolve({ 
                                 success: false, 
                                 message: 'Tidak ada tagihan yang bisa dibayar dengan jumlah ini' 
@@ -814,9 +814,9 @@ class AgentManager {
                                     WHERE agent_id = ?
                                 `;
                                 
-                                db.run(updateBalanceSql, [paymentAmount, totalCommission, agentId], (err) => {
+                                this.db.run(updateBalanceSql, [paymentAmount, totalCommission, agentId], (err) => {
                                     if (err) {
-                                        db.run('ROLLBACK');
+                                        this.db.run('ROLLBACK');
                                         reject(err);
                                         return;
                                     }
@@ -828,7 +828,7 @@ class AgentManager {
                                     `;
                                     
                                     // Record payment deduction
-                                    db.run(insertTransactionSql, [
+                                    this.db.run(insertTransactionSql, [
                                         agentId,
                                         'monthly_payment',
                                         -paymentAmount,
@@ -836,13 +836,13 @@ class AgentManager {
                                         paidInvoices.map(inv => inv.id).join(',')
                                     ], function(err) {
                                         if (err) {
-                                            db.run('ROLLBACK');
+                                            this.db.run('ROLLBACK');
                                             reject(err);
                                             return;
                                         }
 
                                         // Record commission
-                                        db.run(insertTransactionSql, [
+                                        this.db.run(insertTransactionSql, [
                                             agentId,
                                             'commission',
                                             totalCommission,
@@ -850,12 +850,12 @@ class AgentManager {
                                             paidInvoices.map(inv => inv.id).join(',')
                                         ], function(err) {
                                             if (err) {
-                                                db.run('ROLLBACK');
+                                                this.db.run('ROLLBACK');
                                                 reject(err);
                                                 return;
                                             }
 
-                                            db.run('COMMIT', (err) => {
+                                            this.db.run('COMMIT', (err) => {
                                                 if (err) {
                                                     reject(err);
                                                     return;
@@ -941,19 +941,19 @@ class AgentManager {
     async approveBalanceRequest(requestId, adminId, notes = null) {
         return new Promise((resolve, reject) => {
             this.db.serialize(() => {
-                db.run('BEGIN TRANSACTION');
+                this.db.run('BEGIN TRANSACTION');
 
                 // Get request details
                 const getRequestSql = 'SELECT * FROM agent_balance_requests WHERE id = ?';
                 this.db.get(getRequestSql, [requestId], (err, request) => {
                     if (err) {
-                        db.run('ROLLBACK');
+                        this.db.run('ROLLBACK');
                         reject(err);
                         return;
                     }
 
                     if (!request) {
-                        db.run('ROLLBACK');
+                        this.db.run('ROLLBACK');
                         reject(new Error('Request tidak ditemukan'));
                         return;
                     }
@@ -965,9 +965,9 @@ class AgentManager {
                         WHERE id = ?
                     `;
                     
-                    db.run(updateRequestSql, [adminId, notes, requestId], (err) => {
+                    this.db.run(updateRequestSql, [adminId, notes, requestId], (err) => {
                         if (err) {
-                            db.run('ROLLBACK');
+                            this.db.run('ROLLBACK');
                             reject(err);
                             return;
                         }
@@ -979,9 +979,9 @@ class AgentManager {
                             WHERE agent_id = ?
                         `;
                         
-                        db.run(updateBalanceSql, [request.amount, request.agent_id], (err) => {
+                        this.db.run(updateBalanceSql, [request.amount, request.agent_id], (err) => {
                             if (err) {
-                                db.run('ROLLBACK');
+                                this.db.run('ROLLBACK');
                                 reject(err);
                                 return;
                             }
@@ -992,19 +992,19 @@ class AgentManager {
                                 VALUES (?, 'deposit', ?, ?, ?)
                             `;
                             
-                            db.run(insertTransactionSql, [
+                            this.db.run(insertTransactionSql, [
                                 request.agent_id,
                                 request.amount,
                                 `Deposit saldo disetujui admin`,
                                 requestId.toString()
                             ], function(err) {
                                 if (err) {
-                                    db.run('ROLLBACK');
+                                    this.db.run('ROLLBACK');
                                     reject(err);
                                     return;
                                 }
 
-                                db.run('COMMIT', (err) => {
+                                this.db.run('COMMIT', (err) => {
                                     if (err) {
                                         reject(err);
                                         return;
@@ -1060,7 +1060,7 @@ class AgentManager {
     async markNotificationAsRead(notificationId) {
         return new Promise((resolve, reject) => {
             const sql = 'UPDATE agent_notifications SET is_read = 1 WHERE id = ?';
-            db.run(sql, [notificationId], (err) => {
+            this.db.run(sql, [notificationId], (err) => {
                 if (err) {
                     reject(err);
                     return;
@@ -1566,7 +1566,7 @@ class AgentManager {
                 INSERT INTO agent_balance_requests (agent_id, amount, admin_notes)
                 VALUES (?, ?, ?)
             `;
-            db.run(sql, [agentId, amount, notes], (err) => {
+            this.db.run(sql, [agentId, amount, notes], (err) => {
                 if (err) {
                     reject(err);
                     return;
