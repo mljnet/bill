@@ -79,9 +79,9 @@
     }
   },
   "auto_suspension_enabled": true,
-  "suspension_grace_period_days": "1",
+  "suspension_grace_period_days": "2",
   "default_pppoe_profile": "default",
-  "isolir_profile": "isolir",
+  "isolir_profile": "ISOLIR",
   "static_ip_suspension_method": "address_list",
   "suspension_bandwidth_limit": "1k/1k",
   "whatsapp_rate_limit": {
@@ -106,5 +106,6 @@
     "cleanup_interval_hours": "6",
     "delete_expired_invoices": true,
     "log_cleanup_actions": true
+  
   }
 }
