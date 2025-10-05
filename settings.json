@@ -11,9 +11,9 @@
   "mikrotik_password": "admin",
   "main_interface": "ether1-ISP",
   "pppoe_monitor_enable": true,
-  "technician_numbers.0": "62838076656",
-  "technician_numbers.1": "62822180947",
-  "technician_group_id": "120363031495796203@g.us",
+  "technician_numbers.0": "",
+  "technician_numbers.1": "",
+  "technician_group_id": "",
   "whatsapp_keep_alive": true,
   "whatsapp_restart_on_error": true,
   "rx_power_warning": "-35",
@@ -106,6 +106,6 @@
     "cleanup_interval_hours": "6",
     "delete_expired_invoices": true,
     "log_cleanup_actions": true
-  
-  }
+  },
+  "whatsapp_daily_count.2025-10-05": 7
 }
