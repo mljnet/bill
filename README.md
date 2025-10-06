@@ -207,8 +207,9 @@ Edit file `settings.json` dengan pengaturan yang sesuai:
 
 ### 4. Setup Database
 
-```bash
+
 # Jalankan script untuk setup database billing
+```bash
 node scripts/add-payment-gateway-tables.js
 ```
 
@@ -225,17 +226,22 @@ npm start
 ```
 
 **Dengan PM2:**
-```bash
-# Install PM2 jika belum ada
-npm install -g pm2
 
+# Install PM2 jika belum ada
+```bash
+npm install -g pm2
+```
 # Start aplikasi
+```bash
 pm2 start app.js --name gembok-bill
+```
 
 # Monitor aplikasi
+```bash
 pm2 monit
-
+```
 # View logs
+```bash
 pm2 logs gembok-bill
 ```
 
@@ -255,6 +261,9 @@ pm2 logs gembok-bill
 
 - **Portal Pelanggan**: `http://ipserver:3003`
 - **Admin Dashboard**: `http://ipserver:3003/admin/login`
+- **Admin Dashboard**: `http://ipserver:3003/teknisi/login`
+- **Admin Dashboard**: `http://ipserver:3003/agent/login`
+- **Admin Dashboard**: `http://ipserver:3003/collector/login`
 - **Login Admin**: Username dan password yang dikonfigurasi di `settings.json`
 
 ---
