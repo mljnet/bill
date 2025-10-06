@@ -77,19 +77,23 @@
 
 ### 1. Clone Repository
 
-```bash
 # Install git jika belum ada
+```bash
 apt install git curl -y
-
+```
 # Clone repository
+```
 git clone https://github.com/alijayanet/gembok-bill
+```
+```bash
 cd gembok-bill
 ```
 
 ### 2. Install Dependencies
 
-```bash
+
 # Install semua dependencies
+```bash
 npm install
 ```
 Jika masih ada masalah, coba manual rebuild:
