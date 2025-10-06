@@ -5,6 +5,14 @@ const AgentWhatsAppManager = require('../config/agentWhatsApp');
 const { getSettingsWithCache, getSetting } = require('../config/settingsManager');
 const logger = require('../config/logger');
 
+// Middleware to prevent caching of agent pages
+const noCache = (req, res, next) => {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.header('Expires', '-1');
+  res.header('Pragma', 'no-cache');
+  next();
+};
+
 // Helper function to format phone number for WhatsApp
 function formatPhoneNumberForWhatsApp(phoneNumber) {
     if (!phoneNumber) return null;
@@ -296,7 +304,7 @@ router.get('/logout', (req, res) => {
 });
 
 // GET: Dashboard
-router.get('/dashboard', requireAgentAuth, async (req, res) => {
+router.get('/dashboard', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         
@@ -325,7 +333,7 @@ router.get('/dashboard', requireAgentAuth, async (req, res) => {
 });
 
 // GET: Mobile Dashboard
-router.get('/mobile', requireAgentAuth, async (req, res) => {
+router.get('/mobile', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         
@@ -354,7 +362,7 @@ router.get('/mobile', requireAgentAuth, async (req, res) => {
 });
 
 // GET: Profile
-router.get('/profile', requireAgentAuth, async (req, res) => {
+router.get('/profile', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const agent = await agentManager.getAgentById(agentId);
@@ -402,7 +410,7 @@ router.post('/profile', requireAgentAuth, async (req, res) => {
 });
 
 // GET: Change password page
-router.get('/change-password', requireAgentAuth, (req, res) => {
+router.get('/change-password', requireAgentAuth, noCache, (req, res) => {
     res.render('agent/change-password', {
         appSettings: getSettingsWithCache()
     });

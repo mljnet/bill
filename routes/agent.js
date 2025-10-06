@@ -6,6 +6,14 @@ const logger = require('../config/logger');
 const { requireAgentAuth } = require('./agentAuth');
 const AgentWhatsAppManager = require('../config/agentWhatsApp');
 
+// Middleware to prevent caching of agent pages
+const noCache = (req, res, next) => {
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.header('Expires', '-1');
+  res.header('Pragma', 'no-cache');
+  next();
+};
+
 // Helper function to format phone number for WhatsApp
 function formatPhoneNumberForWhatsApp(phoneNumber) {
     if (!phoneNumber) return null;
@@ -56,7 +64,7 @@ if (global.whatsappStatus && global.whatsappStatus.connected) {
 // ===== VOUCHER SALES =====
 
 // GET: Voucher sales page
-router.get('/vouchers', requireAgentAuth, async (req, res) => {
+router.get('/vouchers', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const balance = await agentManager.getAgentBalance(agentId);
@@ -159,7 +167,7 @@ router.post('/sell-voucher', requireAgentAuth, async (req, res) => {
 });
 
 // GET: Voucher sales history
-router.get('/voucher-history', requireAgentAuth, async (req, res) => {
+router.get('/voucher-history', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const page = parseInt(req.query.page) || 1;
@@ -184,7 +192,7 @@ router.get('/voucher-history', requireAgentAuth, async (req, res) => {
 // ===== MONTHLY PAYMENTS =====
 
 // GET: Monthly payments page
-router.get('/payments', requireAgentAuth, async (req, res) => {
+router.get('/payments', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const balance = await agentManager.getAgentBalance(agentId);
@@ -335,7 +343,7 @@ router.post('/process-payment', requireAgentAuth, async (req, res) => {
 });
 
 // GET: Payment history
-router.get('/payment-history', requireAgentAuth, async (req, res) => {
+router.get('/payment-history', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const page = parseInt(req.query.page) || 1;
@@ -360,7 +368,7 @@ router.get('/payment-history', requireAgentAuth, async (req, res) => {
 // ===== BALANCE MANAGEMENT =====
 
 // GET: Balance page
-router.get('/balance', requireAgentAuth, async (req, res) => {
+router.get('/balance', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const balance = await agentManager.getAgentBalance(agentId);
@@ -446,7 +454,7 @@ Silakan login ke admin panel untuk memproses request ini.`;
 // ===== TRANSACTIONS =====
 
 // GET: All transactions
-router.get('/transactions', requireAgentAuth, async (req, res) => {
+router.get('/transactions', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const page = parseInt(req.query.page) || 1;
@@ -472,7 +480,7 @@ router.get('/transactions', requireAgentAuth, async (req, res) => {
 // ===== NOTIFICATIONS =====
 
 // GET: Notifications
-router.get('/notifications', requireAgentAuth, async (req, res) => {
+router.get('/notifications', requireAgentAuth, noCache, async (req, res) => {
     try {
         const agentId = req.session.agentId;
         const notifications = await agentManager.getAgentNotifications(agentId, 100);

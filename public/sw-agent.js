@@ -43,42 +43,77 @@ self.addEventListener('fetch', function(event) {
     return;
   }
   
-  event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        // Return cached version or fetch from network
-        if (response) {
-          console.log('Agent Service Worker: Serving from cache', event.request.url);
-          return response;
-        }
-        
-        console.log('Agent Service Worker: Fetching from network', event.request.url);
-        return fetch(event.request)
-          .then(function(response) {
-            // Check if valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            
-            // Clone the response
+  // Use network-first strategy for agent routes to prevent stale content
+  if (event.request.url.includes('/agent/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(function(response) {
+          // Cache the response for offline use
+          if (response && response.status === 200 && response.type === 'basic') {
             const responseToCache = response.clone();
-            
             caches.open(CACHE_NAME)
               .then(function(cache) {
                 cache.put(event.request, responseToCache);
               });
-            
+          }
+          return response;
+        })
+        .catch(function(error) {
+          // If network fails, try cache
+          console.log('Agent Service Worker: Network failed, trying cache', error);
+          return caches.match(event.request)
+            .then(function(response) {
+              if (response) {
+                console.log('Agent Service Worker: Serving from cache', event.request.url);
+                return response;
+              }
+              // Return offline page for navigation requests
+              if (event.request.mode === 'navigate') {
+                return caches.match('/agent/dashboard');
+              }
+              throw error;
+            });
+        })
+    );
+  } else {
+    // For non-agent routes, use cache-first strategy
+    event.respondWith(
+      caches.match(event.request)
+        .then(function(response) {
+          // Return cached version or fetch from network
+          if (response) {
+            console.log('Agent Service Worker: Serving from cache', event.request.url);
             return response;
-          })
-          .catch(function(error) {
-            console.log('Agent Service Worker: Fetch failed', error);
-            // Return offline page for navigation requests
-            if (event.request.mode === 'navigate') {
-              return caches.match('/agent/dashboard');
-            }
-          });
-      })
-  );
+          }
+          
+          console.log('Agent Service Worker: Fetching from network', event.request.url);
+          return fetch(event.request)
+            .then(function(response) {
+              // Check if valid response
+              if (!response || response.status !== 200 || response.type !== 'basic') {
+                return response;
+              }
+              
+              // Clone the response
+              const responseToCache = response.clone();
+              
+              caches.open(CACHE_NAME)
+                .then(function(cache) {
+                  cache.put(event.request, responseToCache);
+                });
+              
+              return response;
+            })
+            .catch(function(error) {
+              console.log('Agent Service Worker: Fetch failed', error);
+              // Return offline page for navigation requests
+              if (event.request.mode === 'navigate') {
+                return caches.match('/agent/dashboard');
+              }
+            });
+        })
+    );
+  }
 });
 
 // Activate event
