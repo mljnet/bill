@@ -389,22 +389,31 @@ router.get('/balance', requireAgentAuth, noCache, async (req, res) => {
 router.post('/request-balance', requireAgentAuth, async (req, res) => {
     try {
         const agentId = req.session.agentId;
-        const { amount } = req.body;
+        const { requestAmount, requestReason, requestNotes } = req.body;
         
-        const requestAmount = parseFloat(amount);
-        if (isNaN(requestAmount) || requestAmount <= 0) {
+        const amount = parseFloat(requestAmount);
+        if (isNaN(amount) || amount <= 0) {
             return res.json({ success: false, message: 'Jumlah saldo tidak valid' });
         }
         
-        if (requestAmount < 10000) {
+        if (amount < 10000) {
             return res.json({ success: false, message: 'Minimum request saldo adalah Rp 10.000' });
         }
         
-        if (requestAmount > 1000000) {
+        if (amount > 1000000) {
             return res.json({ success: false, message: 'Maximum request saldo adalah Rp 1.000.000' });
         }
         
-        const result = await agentManager.requestBalance(agentId, requestAmount);
+        // Format notes from reason and additional notes
+        let notes = '';
+        if (requestReason) {
+            notes += `Alasan: ${requestReason}`;
+        }
+        if (requestNotes) {
+            notes += notes ? ` - Catatan: ${requestNotes}` : `Catatan: ${requestNotes}`;
+        }
+        
+        const result = await agentManager.requestBalance(agentId, amount, notes);
         
         if (result.success) {
             // Create notification

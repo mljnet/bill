@@ -896,13 +896,16 @@ class AgentManager {
     // ===== BALANCE REQUEST METHODS =====
 
     async requestBalance(agentId, amount) {
+        // Handle optional notes parameter
+        const notes = arguments.length > 2 ? arguments[2] : null;
+        
         return new Promise((resolve, reject) => {
             const sql = `
-                INSERT INTO agent_balance_requests (agent_id, amount)
-                VALUES (?, ?)
+                INSERT INTO agent_balance_requests (agent_id, amount, admin_notes)
+                VALUES (?, ?, ?)
             `;
             
-            db.run(sql, [agentId, amount], (err) => {
+            this.db.run(sql, [agentId, amount, notes], (err) => {
                 if (err) {
                     reject(err);
                     return;
@@ -1669,21 +1672,7 @@ class AgentManager {
         });
     }
 
-    async requestBalance(agentId, amount, notes) {
-        return new Promise((resolve, reject) => {
-            const sql = `
-                INSERT INTO agent_balance_requests (agent_id, amount, admin_notes)
-                VALUES (?, ?, ?)
-            `;
-            this.db.run(sql, [agentId, amount, notes], (err) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve({ success: true, requestId: this.lastID });
-            });
-        });
-    }
+
 
     async getAgentTransactions(agentId, page = 1, limit = 20, filter = 'all') {
         return new Promise((resolve, reject) => {
