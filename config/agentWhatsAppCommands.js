@@ -441,10 +441,10 @@ class AgentWhatsAppCommands {
             );
 
             if (result.success) {
-                // Create notification in database
+                // Create notification in database with valid type
                 await this.agentManager.createNotification(
                     agent.id,
-                    'balance_request',
+                    'balance_updated',
                     'Request Saldo Dikirim',
                     `Request saldo sebesar Rp ${params.amount.toLocaleString()} telah dikirim ke admin`
                 );
