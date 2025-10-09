@@ -1678,22 +1678,33 @@ class AgentManager {
     async getAgentTransactions(agentId, page = 1, limit = 20, filter = 'all') {
         return new Promise((resolve, reject) => {
             const offset = (page - 1) * limit;
-            let whereClause = 'WHERE agent_id = ?';
+            let whereClause = 'WHERE t.agent_id = ?';
             let params = [agentId];
             
             // Add filter conditions
             if (filter === 'voucher') {
-                whereClause += ' AND transaction_type = "voucher_sale"';
+                whereClause += ' AND t.transaction_type = "voucher_sale"';
             } else if (filter === 'payment') {
-                whereClause += ' AND transaction_type = "monthly_payment"';
+                whereClause += ' AND t.transaction_type = "monthly_payment"';
             } else if (filter === 'balance') {
-                whereClause += ' AND (transaction_type = "deposit" OR transaction_type = "withdrawal" OR transaction_type = "balance_request")';
+                whereClause += ' AND (t.transaction_type = "deposit" OR t.transaction_type = "withdrawal" OR t.transaction_type = "balance_request")';
             }
             
             const sql = `
-                SELECT * FROM agent_transactions 
+                SELECT 
+                    t.*,
+                    avs.voucher_code,
+                    avs.package_name,
+                    avs.customer_phone,
+                    avs.customer_name,
+                    avs.price as voucher_price,
+                    avs.commission as voucher_commission,
+                    avs.agent_price,
+                    avs.commission_amount
+                FROM agent_transactions t
+                LEFT JOIN agent_voucher_sales avs ON t.reference_id = avs.voucher_code AND t.transaction_type = 'voucher_sale'
                 ${whereClause}
-                ORDER BY created_at DESC 
+                ORDER BY t.created_at DESC 
                 LIMIT ? OFFSET ?
             `;
             
@@ -1706,7 +1717,7 @@ class AgentManager {
                 }
                 
                 // Get total count for pagination
-                let countSql = `SELECT COUNT(*) as total FROM agent_transactions ${whereClause}`;
+                let countSql = `SELECT COUNT(*) as total FROM agent_transactions t ${whereClause.replace('t.', '')}`;
                 this.db.get(countSql, [agentId], (countErr, countRow) => {
                     if (countErr) {
                         reject(countErr);
