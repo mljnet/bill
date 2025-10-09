@@ -1,9 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const AgentManager = require('../config/agentManager');
-const { getSettingsWithCache } = require('../config/settingsManager');
+const { getSettingsWithCache, getSetting } = require('../config/settingsManager');
 const logger = require('../config/logger');
+
+// Import adminAuth middleware
 const { adminAuth } = require('./adminAuth');
+
+// Helper function to format phone number for WhatsApp
+function formatPhoneNumberForWhatsApp(phoneNumber) {
+    if (!phoneNumber) return null;
+    
+    // Remove all non-digit characters
+    let cleanPhone = phoneNumber.replace(/[^0-9+]/g, '');
+    
+    // Add country code if not present
+    if (cleanPhone.startsWith('0')) {
+        cleanPhone = '62' + cleanPhone.substring(1);
+    } else if (cleanPhone.startsWith('+')) {
+        cleanPhone = cleanPhone.substring(1);
+    } else if (!cleanPhone.startsWith('62')) {
+        cleanPhone = '62' + cleanPhone;
+    }
+    
+    return cleanPhone + '@s.whatsapp.net';
+}
 
 // Initialize AgentManager
 const agentManager = new AgentManager();
@@ -133,7 +154,8 @@ router.get('/agents/balance-requests', adminAuth, async (req, res) => {
     try {
         console.log('🔍 [DEBUG] Balance requests route called');
         console.log('🔍 [DEBUG] Session:', req.session?.isAdmin ? 'Authenticated' : 'Not authenticated');
-        const requests = await agentManager.getBalanceRequests();
+        // Only fetch pending requests by default
+        const requests = await agentManager.getBalanceRequests('pending');
         console.log('🔍 [DEBUG] Balance requests data:', requests?.length || 0, 'requests');
         res.json({ success: true, requests });
     } catch (error) {
@@ -245,9 +267,11 @@ router.post('/agents/add', adminAuth, async (req, res) => {
                 const AgentWhatsAppManager = require('../config/agentWhatsApp');
                 const whatsappManager = new AgentWhatsAppManager();
                 
+                // Import the helper function
+                const { getSetting } = require('../config/settingsManager');
+                
                 if (whatsappManager.sock) {
                     const adminNumbers = [];
-                    const { getSetting } = require('../config/settingsManager');
                     let i = 0;
                     while (true) {
                         const adminNum = getSetting(`admins.${i}`);
@@ -270,10 +294,43 @@ Agent dapat login menggunakan username dan password yang diberikan.`;
                     
                     for (const adminNum of adminNumbers) {
                         try {
-                            await whatsappManager.sock.sendMessage(adminNum + '@s.whatsapp.net', { text: adminMessage });
+                            // Format phone number properly for WhatsApp
+                            const formattedAdminNum = formatPhoneNumberForWhatsApp(adminNum);
+                            await whatsappManager.sock.sendMessage(formattedAdminNum, { text: adminMessage });
                         } catch (e) { 
                             logger.error('WA admin notif error:', e); 
                         }
+                    }
+                    
+                    // Send WhatsApp notification to agent
+                    try {
+                        const serverHost = getSetting('server_host', 'localhost');
+                        const serverPort = getSetting('server_port', '3001');
+                        const portalUrl = getSetting('portal_url', `http://${serverHost}:${serverPort}/agent/login`);
+                        const adminContact = getSetting('contact_whatsapp', getSetting('contact_phone', '-'));
+                        
+                        const agentMessage = `*PENDAFTARAN BERHASIL*
+
+Selamat datang di Portal Agent!
+
+Akun Anda sudah aktif dan siap digunakan.
+
+*Username:* ${username}
+*Password:* ${password}
+*Login Portal:* ${portalUrl}
+
+Untuk mulai transaksi, silakan lakukan deposit terlebih dahulu melalui menu "Deposit" di portal agent.
+
+Jika butuh bantuan, hubungi admin di WhatsApp: ${adminContact}
+
+Terima kasih telah bergabung!`;
+                        
+                        // Format phone number properly for WhatsApp
+                        const formattedAgentPhone = formatPhoneNumberForWhatsApp(phone);
+                        await whatsappManager.sock.sendMessage(formattedAgentPhone, { text: agentMessage });
+                        logger.info(`Agent welcome notification sent to ${formattedAgentPhone}`);
+                    } catch (e) { 
+                        logger.error(`WA agent welcome notif error for ${phone}:`, e); 
                     }
                 }
             } catch (whatsappError) {

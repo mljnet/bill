@@ -416,10 +416,10 @@ router.post('/request-balance', requireAgentAuth, async (req, res) => {
         const result = await agentManager.requestBalance(agentId, amount, notes);
         
         if (result.success) {
-            // Create notification
+            // Create notification with valid type
             await agentManager.createNotification(
                 agentId,
-                'balance_request',
+                'balance_updated',
                 'Request Saldo Dikirim',
                 `Request saldo sebesar Rp ${requestAmount.toLocaleString()} telah dikirim ke admin`
             );
