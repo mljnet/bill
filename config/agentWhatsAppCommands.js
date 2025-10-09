@@ -79,7 +79,9 @@ class AgentWhatsAppCommands {
                 case 'list_bayar':
                     return this.handleListBayar(from, agent);
                 case 'riwayat':
-                    return this.handleListBayar(from, agent);
+                    return this.handleTransactionHistory(from, agent);
+                case 'request':
+                    return this.handleRequestBalance(from, agent, command.params);
                 default:
                     // JANGAN kirim pesan untuk command yang tidak dikenali
                     // Ini akan mencegah respon otomatis terhadap setiap pesan
@@ -439,6 +441,37 @@ class AgentWhatsAppCommands {
             );
 
             if (result.success) {
+                // Create notification in database
+                await this.agentManager.createNotification(
+                    agent.id,
+                    'balance_request',
+                    'Request Saldo Dikirim',
+                    `Request saldo sebesar Rp ${params.amount.toLocaleString()} telah dikirim ke admin`
+                );
+                
+                // Send WhatsApp notification to admin
+                try {
+                    const settings = require('./settingsManager').getSettingsWithCache();
+                    const adminPhone = settings.admin_phone || settings.contact_phone;
+                    
+                    if (adminPhone && this.whatsappManager.sock) {
+                        const adminMessage = `🔔 **REQUEST SALDO AGENT**
+
+👤 **Agent:** ${agent.name}
+📱 **HP:** ${agent.phone}
+💰 **Jumlah:** Rp ${params.amount.toLocaleString()}
+📅 **Tanggal:** ${new Date().toLocaleString('id-ID')}
+
+Silakan login ke admin panel untuk memproses request ini.`;
+                        
+                        const formattedAdminPhone = this.whatsappManager.formatPhoneNumber(adminPhone) + '@s.whatsapp.net';
+                        await this.whatsappManager.sock.sendMessage(formattedAdminPhone, { text: adminMessage });
+                    }
+                } catch (whatsappError) {
+                    console.error('WhatsApp admin notification error:', whatsappError);
+                    // Don't fail the transaction if WhatsApp fails
+                }
+
                 const message = `📤 *REQUEST SALDO BERHASIL*
 
 💰 Jumlah: Rp ${params.amount.toLocaleString('id-ID')}
@@ -448,8 +481,6 @@ class AgentWhatsAppCommands {
 ⏳ Menunggu persetujuan admin...`;
 
                 // Notify admin
-                // Note: This would require a different approach since we don't have a direct method
-                // For now, we'll just inform the agent that the request is submitted
                 message += `\n\n📢 Request saldo telah diajukan dan akan diproses oleh admin.`;
 
                 return this.sendMessage(from, message);
