@@ -344,6 +344,11 @@
                                                     <%= sale.status === 'active' ? 'Aktif' : sale.status === 'used' ? 'Digunakan' : sale.status === 'expired' ? 'Kedaluwarsa' : 'Dibatalkan' %>
                                                 </span>
                                             </div>
+                                            <div class="mt-2">
+                                                <button class="btn btn-sm btn-outline-primary print-voucher-btn" data-voucher-code="<%= sale.voucher_code %>" data-package-name="<%= sale.package_name %>" data-price="<%= sale.price %>" data-sold-at="<%= sale.sold_at %>" data-customer-name="<%= sale.customer_name || '' %>" data-customer-phone="<%= sale.customer_phone || '' %>">
+                                                    <i class="fas fa-print me-1"></i>Cetak
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -533,7 +538,24 @@
 
         // Export to CSV
         function exportToCSV() {
-            const sales = <%= JSON.stringify(sales) %>;
+            // Get sales data from the DOM instead of EJS variable
+            const salesElements = document.querySelectorAll('.sale-row');
+            const sales = [];
+            
+            salesElements.forEach(element => {
+                const sale = {
+                    sold_at: element.querySelector('.sale-date').textContent,
+                    voucher_code: element.querySelector('.voucher-code').textContent,
+                    package_name: element.querySelector('.package-name').textContent,
+                    price: element.querySelector('.sale-price').dataset.value,
+                    commission: element.querySelector('.sale-commission').dataset.value,
+                    status: element.querySelector('.sale-status').textContent.trim(),
+                    customer_name: element.querySelector('.customer-name') ? element.querySelector('.customer-name').textContent : '',
+                    customer_phone: element.querySelector('.customer-phone') ? element.querySelector('.customer-phone').textContent : ''
+                };
+                sales.push(sale);
+            });
+            
             const csvContent = generateCSV(sales);
             downloadCSV(csvContent, 'voucher-sales.csv');
         }
@@ -545,7 +567,517 @@
 
         // Print vouchers
         function printVouchers() {
-            window.print();
+            // Get sales data from the DOM instead of EJS variable
+            const salesElements = document.querySelectorAll('.sale-row');
+            const sales = [];
+            
+            salesElements.forEach(element => {
+                const sale = {
+                    id: element.dataset.id,
+                    voucher_code: element.querySelector('.voucher-code').textContent,
+                    package_name: element.querySelector('.package-name').textContent,
+                    price: element.querySelector('.sale-price').textContent,
+                    sold_at: element.querySelector('.sale-date').textContent
+                };
+                sales.push(sale);
+            });
+            
+            const printWindow = window.open('', '_blank');
+            
+            let vouchersHTML = '';
+            sales.forEach((sale, index) => {
+                vouchersHTML += `
+                    <div class="voucher-container">
+                        <div class="voucher-header">
+                            <div class="company-name"><%= appSettings.company_header || 'VOUCHER HOTSPOT' %></div>
+                            <div class="voucher-title">Internet Access Voucher</div>
+                        </div>
+                        
+                        <div class="voucher-body">
+                            <div class="credential-section">
+                                <div class="credential-label">Username</div>
+                                <div class="credential-value">${sale.voucher_code}</div>
+                                
+                                <div class="credential-label">Password</div>
+                                <div class="credential-value password">${sale.voucher_code}</div>
+                            </div>
+                            
+                            <div class="package-info">
+                                <div class="package-name">${sale.package_name}</div>
+                                <div class="package-price">${sale.price}</div>
+                            </div>
+                            
+                            <div class="sale-info">
+                                <div class="sale-date">Date: ${sale.sold_at}</div>
+                                <div class="sale-id">ID: ${sale.id}</div>
+                            </div>
+                            
+                            <div class="validity">
+                                Valid until used • Single device
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="instructions">
+                                <strong>How to connect:</strong>
+                                <ol>
+                                    <li>Connect to WiFi network</li>
+                                    <li>Open browser/login page</li>
+                                    <li>Enter username & password</li>
+                                    <li>Click Login to browse</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="contact-info">
+                                Support: <%= appSettings.contact_phone || appSettings['admins.0'] || 'support@company.com' %>
+                            </div>
+                            
+                            <div class="footer-note">
+                                Thank you for choosing our service!
+                            </div>
+                        </div>
+                    </div>
+                    ${index < sales.length - 1 ? '<div class="page-break"></div>' : ''}
+                `;
+            });
+            
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Voucher History</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Roboto', sans-serif;
+                            background: white;
+                            padding: 0;
+                            margin: 0;
+                            width: 58mm;
+                            font-size: 8px;
+                        }
+                        
+                        .voucher-container {
+                            width: 58mm;
+                            padding: 2mm;
+                            background: white;
+                        }
+                        
+                        .voucher-header {
+                            text-align: center;
+                            border-bottom: 1px dashed #333;
+                            padding-bottom: 2mm;
+                            margin-bottom: 2mm;
+                        }
+                        
+                        .company-name {
+                            font-size: 12px;
+                            font-weight: 700;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .voucher-title {
+                            font-size: 9px;
+                            font-weight: 400;
+                        }
+                        
+                        .voucher-body {
+                            text-align: center;
+                            margin: 2mm 0;
+                        }
+                        
+                        .credential-section {
+                            margin: 2mm 0;
+                            padding: 1.5mm;
+                            border: 1px solid #ddd;
+                        }
+                        
+                        .credential-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .credential-value {
+                            font-size: 11px;
+                            font-weight: 700;
+                            letter-spacing: 1px;
+                            word-break: break-all;
+                            margin: 1mm 0;
+                        }
+                        
+                        .credential-value.password {
+                            color: #e74c3c;
+                        }
+                        
+                        .package-info {
+                            background: #f0f0f0;
+                            padding: 1.5mm;
+                            margin: 2mm 0;
+                        }
+                        
+                        .package-name {
+                            font-size: 9px;
+                            font-weight: 500;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .package-price {
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #27ae60;
+                        }
+                        
+                        .sale-info {
+                            font-size: 7px;
+                            margin: 2mm 0;
+                            padding: 1mm;
+                            background: #f8f8f8;
+                        }
+                        
+                        .sale-date, .sale-id {
+                            margin: 0.5mm 0;
+                        }
+                        
+                        .instructions {
+                            font-size: 7px;
+                            line-height: 1.3;
+                            margin: 2mm 0;
+                            text-align: left;
+                        }
+                        
+                        .instructions ol {
+                            padding-left: 3mm;
+                            margin: 1mm 0;
+                        }
+                        
+                        .instructions li {
+                            margin-bottom: 0.5mm;
+                        }
+                        
+                        .contact-info {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 2mm;
+                            padding-top: 1mm;
+                            border-top: 1px dashed #333;
+                        }
+                        
+                        .validity {
+                            font-size: 7px;
+                            text-align: center;
+                            margin: 1mm 0;
+                            font-weight: 500;
+                        }
+                        
+                        .divider {
+                            border-top: 1px dashed #333;
+                            margin: 2mm 0;
+                        }
+                        
+                        .footer-note {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 1mm;
+                        }
+                        
+                        .page-break {
+                            page-break-after: always;
+                        }
+                        
+                        @media print {
+                            body {
+                                width: 58mm;
+                                padding: 0;
+                                margin: 0;
+                            }
+                            
+                            .voucher-container {
+                                width: 58mm;
+                                padding: 2mm;
+                                box-shadow: none;
+                            }
+                            
+                            .page-break {
+                                page-break-after: always;
+                            }
+                            
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${vouchersHTML}
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Add event listeners for print buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.print-voucher-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const voucherCode = this.getAttribute('data-voucher-code');
+                    const packageName = this.getAttribute('data-package-name');
+                    const price = this.getAttribute('data-price');
+                    const soldAt = this.getAttribute('data-sold-at');
+                    const customerName = this.getAttribute('data-customer-name');
+                    const customerPhone = this.getAttribute('data-customer-phone');
+                    
+                    printVoucherReceipt(voucherCode, packageName, price, soldAt, customerName, customerPhone);
+                });
+            });
+        });
+
+        // Print individual voucher receipt
+        function printVoucherReceipt(voucherCode, packageName, price, soldAt, customerName, customerPhone) {
+            const printWindow = window.open('', '_blank');
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Voucher Receipt</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Roboto', sans-serif;
+                            background: white;
+                            padding: 0;
+                            margin: 0;
+                            width: 58mm;
+                            font-size: 8px;
+                        }
+                        
+                        .voucher-container {
+                            width: 58mm;
+                            padding: 2mm;
+                            background: white;
+                        }
+                        
+                        .voucher-header {
+                            text-align: center;
+                            border-bottom: 1px dashed #333;
+                            padding-bottom: 2mm;
+                            margin-bottom: 2mm;
+                        }
+                        
+                        .company-name {
+                            font-size: 12px;
+                            font-weight: 700;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .voucher-title {
+                            font-size: 9px;
+                            font-weight: 400;
+                        }
+                        
+                        .voucher-body {
+                            text-align: center;
+                            margin: 2mm 0;
+                        }
+                        
+                        .credential-section {
+                            margin: 2mm 0;
+                            padding: 1.5mm;
+                            border: 1px solid #ddd;
+                        }
+                        
+                        .credential-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .credential-value {
+                            font-size: 11px;
+                            font-weight: 700;
+                            letter-spacing: 1px;
+                            word-break: break-all;
+                            margin: 1mm 0;
+                        }
+                        
+                        .credential-value.password {
+                            color: #e74c3c;
+                        }
+                        
+                        .package-info {
+                            background: #f0f0f0;
+                            padding: 1.5mm;
+                            margin: 2mm 0;
+                        }
+                        
+                        .package-name {
+                            font-size: 9px;
+                            font-weight: 500;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .package-price {
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #27ae60;
+                        }
+                        
+                        .sale-info {
+                            font-size: 7px;
+                            margin: 2mm 0;
+                            padding: 1mm;
+                            background: #f8f8f8;
+                        }
+                        
+                        .sale-date, .sale-id {
+                            margin: 0.5mm 0;
+                        }
+                        
+                        .instructions {
+                            font-size: 7px;
+                            line-height: 1.3;
+                            margin: 2mm 0;
+                            text-align: left;
+                        }
+                        
+                        .instructions ol {
+                            padding-left: 3mm;
+                            margin: 1mm 0;
+                        }
+                        
+                        .instructions li {
+                            margin-bottom: 0.5mm;
+                        }
+                        
+                        .contact-info {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 2mm;
+                            padding-top: 1mm;
+                            border-top: 1px dashed #333;
+                        }
+                        
+                        .validity {
+                            font-size: 7px;
+                            text-align: center;
+                            margin: 1mm 0;
+                            font-weight: 500;
+                        }
+                        
+                        .divider {
+                            border-top: 1px dashed #333;
+                            margin: 2mm 0;
+                        }
+                        
+                        .footer-note {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 1mm;
+                        }
+                        
+                        @media print {
+                            body {
+                                width: 58mm;
+                                padding: 0;
+                                margin: 0;
+                            }
+                            
+                            .voucher-container {
+                                width: 58mm;
+                                padding: 2mm;
+                                box-shadow: none;
+                            }
+                            
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="voucher-container">
+                        <div class="voucher-header">
+                            <div class="company-name"><%= appSettings.company_header || 'VOUCHER HOTSPOT' %></div>
+                            <div class="voucher-title">Internet Access Voucher</div>
+                        </div>
+                        
+                        <div class="voucher-body">
+                            <div class="credential-section">
+                                <div class="credential-label">Username</div>
+                                <div class="credential-value">${voucherCode}</div>
+                                
+                                <div class="credential-label">Password</div>
+                                <div class="credential-value password">${voucherCode}</div>
+                            </div>
+                            
+                            <div class="package-info">
+                                <div class="package-name">${packageName}</div>
+                                <div class="package-price">Rp ${parseInt(price).toLocaleString('id-ID')}</div>
+                            </div>
+                            
+                            <div class="sale-info">
+                                <div class="sale-date">Date: ${new Date(soldAt).toLocaleDateString('id-ID')} ${new Date(soldAt).toLocaleTimeString('id-ID')}</div>
+                            </div>
+                            
+                            <div class="validity">
+                                Valid until used • Single device
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="instructions">
+                                <strong>How to connect:</strong>
+                                <ol>
+                                    <li>Connect to WiFi network</li>
+                                    <li>Open browser/login page</li>
+                                    <li>Enter username & password</li>
+                                    <li>Click Login to browse</li>
+                                </ol>
+                            </div>
+                            
+                            ${customerName ? `
+                            <div class="contact-info">
+                                Customer: ${customerName}${customerPhone ? ` (${customerPhone})` : ''}
+                            </div>
+                            ` : ''}
+                            
+                            <div class="contact-info">
+                                Support: <%= appSettings.contact_phone || appSettings['admins.0'] || 'support@company.com' %>
+                            </div>
+                            
+                            <div class="footer-note">
+                                Thank you for choosing our service!
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
         }
 
         // Generate CSV content

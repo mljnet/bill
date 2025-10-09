@@ -109,6 +109,7 @@
         
         .nav-item span {
             font-size: 0.75rem;
+        }
         .filter-card {
             background: #f8f9ff;
             border-radius: 10px;
@@ -278,7 +279,7 @@
                     <div class="card-body">
                         <% if ((transactions || []).length > 0) { %>
                             <% (transactions || []).forEach(transaction => { %>
-                                <div class="transaction-item <%= transaction.amount > 0 ? 'deposit' : 'debit' %> <%= transaction.transaction_type === 'commission' ? 'commission' : '' %> <%= transaction.transaction_type === 'voucher_sale' ? 'voucher' : '' %>">
+                                <div class="transaction-item <%= transaction.amount > 0 ? 'deposit' : 'debit' %> <%= transaction.transaction_type === 'commission' ? 'commission' : '' %> <%= transaction.transaction_type === 'voucher_sale' ? 'voucher' : '' %>" data-transaction-id="<%= transaction.id %>">
                                     <div class="row align-items-center">
                                         <div class="col-md-8">
                                             <div class="d-flex align-items-center">
@@ -286,37 +287,75 @@
                                                     <i class="fas fa-<%= transaction.transaction_type === 'deposit' ? 'plus-circle' : transaction.transaction_type === 'commission' ? 'coins' : transaction.transaction_type === 'voucher_sale' ? 'ticket-alt' : transaction.transaction_type === 'monthly_payment' ? 'credit-card' : 'minus-circle' %> fa-2x text-<%= transaction.amount > 0 ? 'success' : 'danger' %>"></i>
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-1">
+                                                    <h6 class="mb-1 transaction-description">
                                                         <%= transaction.description %>
                                                     </h6>
                                                     <small class="text-muted">
                                                         <i class="fas fa-clock me-1"></i>
-                                                        <%= new Date(transaction.created_at).toLocaleString('id-ID') %>
+                                                        <span class="transaction-date"><%= new Date(transaction.created_at).toISOString() %></span>
                                                     </small>
                                                     <% if (transaction.reference_id) { %>
                                                         <br>
                                                         <small class="text-muted">
                                                             <i class="fas fa-hashtag me-1"></i>
-                                                            Ref: <%= transaction.reference_id %>
+                                                            Ref: <span class="reference-id"><%= transaction.reference_id %></span>
                                                         </small>
+                                                    <% } %>
+                                                    <% if (transaction.transaction_type === 'voucher_sale' && transaction.voucher_code) { %>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-ticket-alt me-1"></i>
+                                                            Voucher: <span class="voucher-code"><%= transaction.voucher_code %></span>
+                                                        </small>
+                                                        <% if (transaction.package_name) { %>
+                                                            <br>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-box me-1"></i>
+                                                                Paket: <span class="package-name"><%= transaction.package_name %></span>
+                                                            </small>
+                                                        <% } %>
+                                                        <% if (transaction.customer_name) { %>
+                                                            <br>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-user me-1"></i>
+                                                                Pelanggan: <span class="customer-name"><%= transaction.customer_name %></span>
+                                                            </small>
+                                                        <% } %>
+                                                        <% if (transaction.customer_phone) { %>
+                                                            <br>
+                                                            <small class="text-muted">
+                                                                <i class="fas fa-phone me-1"></i>
+                                                                No. HP: <span class="customer-phone"><%= transaction.customer_phone %></span>
+                                                            </small>
+                                                        <% } %>
+                                                        <span class="voucher-price" data-value="<%= transaction.voucher_price || 0 %>" style="display:none;"></span>
+                                                        <span class="voucher-commission" data-value="<%= transaction.voucher_commission || 0 %>" style="display:none;"></span>
                                                     <% } %>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-4 text-md-end">
                                             <div class="mb-2">
-                                                <span class="fw-bold fs-5 <%= transaction.amount > 0 ? 'text-success' : 'text-danger' %>">
+                                                <span class="fw-bold fs-5 <%= transaction.amount > 0 ? 'text-success' : 'text-danger' %> transaction-amount" data-value="<%= transaction.amount %>">
                                                     <%= transaction.amount > 0 ? '+' : '' %>Rp <%= Math.abs(transaction.amount).toLocaleString() %>
                                                 </span>
                                             </div>
                                             <div>
-                                                <span class="badge bg-<%= transaction.transaction_type === 'deposit' ? 'success' : transaction.transaction_type === 'commission' ? 'warning' : transaction.transaction_type === 'voucher_sale' ? 'info' : transaction.transaction_type === 'monthly_payment' ? 'primary' : 'danger' %>">
+                                                <span class="badge bg-<%= transaction.transaction_type === 'deposit' ? 'success' : transaction.transaction_type === 'commission' ? 'warning' : transaction.transaction_type === 'voucher_sale' ? 'info' : transaction.transaction_type === 'monthly_payment' ? 'primary' : 'danger' %> transaction-type">
                                                     <%= transaction.transaction_type === 'deposit' ? 'Deposit' : transaction.transaction_type === 'commission' ? 'Komisi' : transaction.transaction_type === 'voucher_sale' ? 'Voucher' : transaction.transaction_type === 'monthly_payment' ? 'Pembayaran' : 'Debit' %>
                                                 </span>
-                                                <span class="badge bg-<%= transaction.status === 'completed' ? 'success' : transaction.status === 'pending' ? 'warning' : transaction.status === 'failed' ? 'danger' : 'secondary' %>">
+                                                <span class="badge bg-<%= transaction.status === 'completed' ? 'success' : transaction.status === 'pending' ? 'warning' : transaction.status === 'failed' ? 'danger' : 'secondary' %> transaction-status">
                                                     <%= transaction.status === 'completed' ? 'Selesai' : transaction.status === 'pending' ? 'Pending' : transaction.status === 'failed' ? 'Gagal' : 'Dibatalkan' %>
                                                 </span>
                                             </div>
+                                            <!-- Print button for voucher sales and monthly payments -->
+                                            <% if (transaction.transaction_type === 'voucher_sale' || transaction.transaction_type === 'monthly_payment') { %>
+                                                <div class="mt-2">
+                                                    <button class="btn btn-sm btn-outline-primary print-transaction-btn" data-transaction-id="<%= transaction.id %>">
+                                                        <i class="fas fa-print me-1"></i>Cetak
+                                                    </button>
+                                                </div>
+                                            <% } %>
                                         </div>
                                     </div>
                                 </div>
@@ -479,7 +518,22 @@
 
         // Export to CSV
         function exportToCSV() {
-            const transactions = <%= JSON.stringify(transactions) %>;
+            // Get transactions data from the DOM instead of EJS variable
+            const transactionElements = document.querySelectorAll('.transaction-item');
+            const transactions = [];
+            
+            transactionElements.forEach(element => {
+                const transaction = {
+                    created_at: element.querySelector('.transaction-date').textContent,
+                    transaction_type: element.querySelector('.transaction-type').textContent,
+                    description: element.querySelector('h6').textContent.trim(),
+                    amount: parseFloat(element.querySelector('.transaction-amount').dataset.value),
+                    status: element.querySelector('.transaction-status').textContent.trim(),
+                    reference_id: element.querySelector('.reference-id') ? element.querySelector('.reference-id').textContent : ''
+                };
+                transactions.push(transaction);
+            });
+            
             const csvContent = generateCSV(transactions);
             downloadCSV(csvContent, 'transactions.csv');
         }
@@ -492,6 +546,289 @@
         // Print transactions
         function printTransactions() {
             window.print();
+        }
+
+        // Print individual transaction receipt
+        function printTransactionReceipt(transactionId) {
+            // Find the transaction element in the DOM
+            const transactionElement = document.querySelector(`[data-transaction-id="${transactionId}"]`);
+            if (!transactionElement) {
+                alert('Transaction data not found');
+                return;
+            }
+            
+            // Extract transaction data from the DOM
+            const transaction = {
+                id: transactionId,
+                description: transactionElement.querySelector('.transaction-description')?.textContent || 'N/A',
+                amount: transactionElement.querySelector('.transaction-amount')?.dataset.value || '0',
+                transaction_type: transactionElement.querySelector('.transaction-type')?.textContent || 'N/A',
+                status: transactionElement.querySelector('.transaction-status')?.textContent || 'N/A',
+                created_at: transactionElement.querySelector('.transaction-date')?.textContent || new Date().toISOString(),
+                reference_id: transactionElement.querySelector('.reference-id')?.textContent || 'N/A'
+            };
+            
+            // Extract voucher data if this is a voucher sale transaction
+            const voucherData = {
+                voucher_code: transactionElement.querySelector('.voucher-code')?.textContent || null,
+                package_name: transactionElement.querySelector('.package-name')?.textContent || null,
+                customer_name: transactionElement.querySelector('.customer-name')?.textContent || null,
+                customer_phone: transactionElement.querySelector('.customer-phone')?.textContent || null,
+                voucher_price: transactionElement.querySelector('.voucher-price')?.dataset.value || null,
+                voucher_commission: transactionElement.querySelector('.voucher-commission')?.dataset.value || null
+            };
+            
+            const printWindow = window.open('', '_blank');
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Transaction Receipt</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Roboto', sans-serif;
+                            background: white;
+                            padding: 0;
+                            margin: 0;
+                            width: 58mm;
+                            font-size: 8px;
+                        }
+                        
+                        .receipt-container {
+                            width: 58mm;
+                            padding: 2mm;
+                            background: white;
+                        }
+                        
+                        .receipt-header {
+                            text-align: center;
+                            border-bottom: 1px dashed #333;
+                            padding-bottom: 2mm;
+                            margin-bottom: 2mm;
+                        }
+                        
+                        .company-name {
+                            font-size: 12px;
+                            font-weight: 700;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .receipt-title {
+                            font-size: 10px;
+                            font-weight: 500;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .receipt-body {
+                            margin: 2mm 0;
+                        }
+                        
+                        .info-section {
+                            margin: 2mm 0;
+                            padding: 1.5mm;
+                            border: 1px solid #ddd;
+                        }
+                        
+                        .info-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .info-value {
+                            font-size: 9px;
+                            font-weight: 700;
+                            word-break: break-all;
+                            margin: 1mm 0;
+                        }
+                        
+                        .amount-info {
+                            background: #f0f0f0;
+                            padding: 1.5mm;
+                            margin: 2mm 0;
+                        }
+                        
+                        .amount-label {
+                            font-size: 8px;
+                            font-weight: 500;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .amount-value {
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #27ae60;
+                        }
+                        
+                        .transaction-type {
+                            background: #e3f2fd;
+                            padding: 1.5mm;
+                            margin: 2mm 0;
+                            text-align: center;
+                        }
+                        
+                        .type-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                        }
+                        
+                        .type-value {
+                            font-size: 9px;
+                            font-weight: 700;
+                            text-transform: capitalize;
+                        }
+                        
+                        .transaction-info {
+                            font-size: 7px;
+                            margin: 2mm 0;
+                            padding: 1mm;
+                            background: #f8f8f8;
+                        }
+                        
+                        .transaction-date, .transaction-id {
+                            margin: 0.5mm 0;
+                        }
+                        
+                        .voucher-details {
+                            margin: 2mm 0;
+                            padding: 1.5mm;
+                            background: #e8f4f8;
+                            border: 1px dashed #17a2b8;
+                        }
+                        
+                        .voucher-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                            color: #17a2b8;
+                            margin-bottom: 0.5mm;
+                        }
+                        
+                        .voucher-value {
+                            font-size: 9px;
+                            font-weight: 700;
+                            word-break: break-all;
+                        }
+                        
+                        .divider {
+                            border-top: 1px dashed #333;
+                            margin: 2mm 0;
+                        }
+                        
+                        .contact-info {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 2mm;
+                            padding-top: 1mm;
+                            border-top: 1px dashed #333;
+                        }
+                        
+                        .footer-note {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 1mm;
+                        }
+                        
+                        @media print {
+                            body {
+                                width: 58mm;
+                                padding: 0;
+                                margin: 0;
+                            }
+                            
+                            .receipt-container {
+                                width: 58mm;
+                                padding: 2mm;
+                                box-shadow: none;
+                            }
+                            
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt-container">
+                        <div class="receipt-header">
+                            <div class="company-name">TRANSACTION RECEIPT</div>
+                            <div class="receipt-title">Bukti Transaksi</div>
+                        </div>
+                        
+                        <div class="receipt-body">
+                            <div class="info-section">
+                                <div class="info-label">Deskripsi</div>
+                                <div class="info-value">${transaction.description}</div>
+                            </div>
+                            
+                            ${voucherData.voucher_code ? '' : `
+                            <div class="amount-info">
+                                <div class="amount-label">Jumlah</div>
+                                <div class="amount-value">Rp ${Math.abs(parseFloat(transaction.amount)).toLocaleString('id-ID')}</div>
+                            </div>
+                            `}
+                            
+                            <div class="transaction-type">
+                                <div class="type-label">Tipe Transaksi</div>
+                                <div class="type-value">${transaction.transaction_type}</div>
+                            </div>
+                            
+                            ${voucherData.voucher_code ? `
+                            <div class="voucher-details">
+                                <div class="voucher-label">Voucher Code</div>
+                                <div class="voucher-value">${voucherData.voucher_code}</div>
+                                ${voucherData.package_name ? `
+                                <div class="voucher-label">Paket</div>
+                                <div class="voucher-value">${voucherData.package_name}</div>
+                                ` : ''}
+                                ${voucherData.customer_name ? `
+                                <div class="voucher-label">Pelanggan</div>
+                                <div class="voucher-value">${voucherData.customer_name}</div>
+                                ` : ''}
+                                ${voucherData.customer_phone ? `
+                                <div class="voucher-label">No. HP</div>
+                                <div class="voucher-value">${voucherData.customer_phone}</div>
+                                ` : ''}
+                                ${voucherData.voucher_price ? `
+                                <div class="voucher-label">Harga</div>
+                                <div class="voucher-value">Rp ${parseFloat(voucherData.voucher_price).toLocaleString('id-ID')}</div>
+                                ` : ''}
+                            </div>
+                            ` : ''}
+                            
+                            <div class="transaction-info">
+                                <div class="transaction-date">Tanggal: ${new Date(transaction.created_at).toLocaleDateString('id-ID')} ${new Date(transaction.created_at).toLocaleTimeString('id-ID')}</div>
+                                <div class="transaction-id">ID Transaksi: ${transaction.id}</div>
+                                ${transaction.reference_id && transaction.reference_id !== 'N/A' ? `<div class="transaction-id">Ref: ${transaction.reference_id}</div>` : ''}
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="contact-info">
+                                Support: support@company.com
+                            </div>
+                            
+                            <div class="footer-note">
+                                Terima kasih atas transaksi Anda!
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
         }
 
         // Generate CSV content
@@ -529,6 +866,16 @@
                 location.reload();
             }
         }, 30000);
+        
+        // Add event listeners for print buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.print-transaction-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const transactionId = this.getAttribute('data-transaction-id');
+                    printTransactionReceipt(transactionId);
+                });
+            });
+        });
     </script>
 
     <!-- Bottom Navigation -->

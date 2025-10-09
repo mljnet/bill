@@ -266,7 +266,7 @@
                     <div class="card-body">
                         <% if (payments.length > 0) { %>
                             <% payments.forEach(payment => { %>
-                                <div class="payment-item <%= payment.status %>">
+                                <div class="payment-item <%= payment.status %>" data-payment-id="<%= payment.id %>">
                                     <div class="row align-items-center">
                                         <div class="col-md-8">
                                             <div class="d-flex align-items-center">
@@ -279,17 +279,17 @@
                                                     </h6>
                                                     <small class="text-muted">
                                                         <i class="fas fa-user me-1"></i>
-                                                        Pelanggan: <%= payment.customer_name %>
+                                                        Pelanggan: <span class="customer-name"><%= payment.customer_name %></span>
                                                     </small>
                                                     <br>
                                                     <small class="text-muted">
                                                         <i class="fas fa-phone me-1"></i>
-                                                        HP: <%= payment.customer_phone %>
+                                                        HP: <span class="customer-phone"><%= payment.customer_phone %></span>
                                                     </small>
                                                     <br>
                                                     <small class="text-muted">
                                                         <i class="fas fa-clock me-1"></i>
-                                                        Dibayar: <%= new Date(payment.paid_at).toLocaleString('id-ID') %>
+                                                        Dibayar: <span class="payment-date"><%= new Date(payment.paid_at).toISOString() %></span>
                                                     </small>
                                                     <% if (payment.notes) { %>
                                                         <br>
@@ -303,22 +303,28 @@
                                         </div>
                                         <div class="col-md-4 text-md-end">
                                             <div class="mb-2">
-                                                <span class="fw-bold fs-5 text-primary">
+                                                <span class="fw-bold fs-5 text-primary payment-amount" data-value="<%= payment.payment_amount %>">
                                                     Rp <%= payment.payment_amount.toLocaleString() %>
                                                 </span>
                                             </div>
                                             <div class="mb-2">
-                                                <small class="text-success">
+                                                <small class="text-success commission-amount" data-value="<%= payment.commission_amount %>">
                                                     Komisi: Rp <%= payment.commission_amount.toLocaleString() %>
                                                 </small>
                                             </div>
                                             <div>
-                                                <span class="badge bg-<%= payment.payment_method === 'cash' ? 'success' : payment.payment_method === 'transfer' ? 'primary' : payment.payment_method === 'qris' ? 'info' : 'warning' %>">
+                                                <span class="badge bg-<%= payment.payment_method === 'cash' ? 'success' : payment.payment_method === 'transfer' ? 'primary' : payment.payment_method === 'qris' ? 'info' : 'warning' %> payment-method">
                                                     <%= payment.payment_method === 'cash' ? 'Tunai' : payment.payment_method === 'transfer' ? 'Transfer' : payment.payment_method === 'qris' ? 'QRIS' : 'E-Wallet' %>
                                                 </span>
-                                                <span class="badge bg-<%= payment.status === 'completed' ? 'success' : 'secondary' %>">
+                                                <span class="badge bg-<%= payment.status === 'completed' ? 'success' : 'secondary' %> payment-status">
                                                     <%= payment.status === 'completed' ? 'Selesai' : 'Dibatalkan' %>
                                                 </span>
+                                                <span class="d-none invoice-id"><%= payment.invoice_id %></span>
+                                            </div>
+                                            <div class="mt-2">
+                                                <button class="btn btn-sm btn-outline-primary print-receipt-btn" data-payment-id="<%= payment.id %>">
+                                                    <i class="fas fa-print me-1"></i>Cetak
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -517,7 +523,24 @@
 
         // Export to CSV
         function exportToCSV() {
-            const payments = <%= JSON.stringify(payments) %>;
+            // Get payments data from the DOM instead of EJS variable
+            const paymentElements = document.querySelectorAll('.payment-item');
+            const payments = [];
+            
+            paymentElements.forEach(element => {
+                const payment = {
+                    paid_at: element.querySelector('.payment-date').textContent,
+                    customer_name: element.querySelector('.customer-name').textContent,
+                    customer_phone: element.querySelector('.customer-phone').textContent,
+                    payment_amount: element.querySelector('.payment-amount').dataset.value,
+                    commission_amount: element.querySelector('.commission-amount').dataset.value,
+                    payment_method: element.querySelector('.payment-method').textContent.trim(),
+                    status: element.querySelector('.payment-status').textContent.trim(),
+                    notes: element.querySelector('.payment-notes') ? element.querySelector('.payment-notes').textContent : ''
+                };
+                payments.push(payment);
+            });
+            
             const csvContent = generateCSV(payments);
             downloadCSV(csvContent, 'payment-history.csv');
         }
@@ -530,6 +553,256 @@
         // Print payments
         function printPayments() {
             window.print();
+        }
+
+        // Print individual payment receipt
+        function printPaymentReceipt(paymentId) {
+            // Find the payment element in the DOM
+            const paymentElement = document.querySelector(`[data-payment-id="${paymentId}"]`);
+            if (!paymentElement) {
+                alert('Payment data not found');
+                return;
+            }
+            
+            // Extract payment data from the DOM
+            const payment = {
+                id: paymentId,
+                customer_name: paymentElement.querySelector('.customer-name')?.textContent || 'N/A',
+                customer_phone: paymentElement.querySelector('.customer-phone')?.textContent || 'N/A',
+                payment_amount: paymentElement.querySelector('.payment-amount')?.dataset.value || '0',
+                commission_amount: paymentElement.querySelector('.commission-amount')?.dataset.value || '0',
+                payment_method: paymentElement.querySelector('.payment-method')?.textContent || 'N/A',
+                paid_at: paymentElement.querySelector('.payment-date')?.textContent || new Date().toISOString(),
+                invoice_id: paymentElement.querySelector('.invoice-id')?.textContent || 'N/A'
+            };
+            
+            const printWindow = window.open('', '_blank');
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Payment Receipt</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Roboto', sans-serif;
+                            background: white;
+                            padding: 0;
+                            margin: 0;
+                            width: 58mm;
+                            font-size: 8px;
+                        }
+                        
+                        .receipt-container {
+                            width: 58mm;
+                            padding: 2mm;
+                            background: white;
+                        }
+                        
+                        .receipt-header {
+                            text-align: center;
+                            border-bottom: 1px dashed #333;
+                            padding-bottom: 2mm;
+                            margin-bottom: 2mm;
+                        }
+                        
+                        .company-name {
+                            font-size: 12px;
+                            font-weight: 700;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .receipt-title {
+                            font-size: 10px;
+                            font-weight: 500;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .receipt-body {
+                            margin: 2mm 0;
+                        }
+                        
+                        .info-section {
+                            margin: 2mm 0;
+                            padding: 1.5mm;
+                            border: 1px solid #ddd;
+                        }
+                        
+                        .info-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .info-value {
+                            font-size: 9px;
+                            font-weight: 700;
+                            word-break: break-all;
+                            margin: 1mm 0;
+                        }
+                        
+                        .amount-info {
+                            background: #f0f0f0;
+                            padding: 1.5mm;
+                            margin: 2mm 0;
+                        }
+                        
+                        .amount-label {
+                            font-size: 8px;
+                            font-weight: 500;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .amount-value {
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #27ae60;
+                        }
+                        
+                        .commission-value {
+                            color: #3498db;
+                        }
+                        
+                        .net-value {
+                            color: #e74c3c;
+                        }
+                        
+                        .payment-method {
+                            background: #e3f2fd;
+                            padding: 1.5mm;
+                            margin: 2mm 0;
+                            text-align: center;
+                        }
+                        
+                        .method-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                        }
+                        
+                        .method-value {
+                            font-size: 9px;
+                            font-weight: 700;
+                            text-transform: capitalize;
+                        }
+                        
+                        .transaction-info {
+                            font-size: 7px;
+                            margin: 2mm 0;
+                            padding: 1mm;
+                            background: #f8f8f8;
+                        }
+                        
+                        .transaction-date, .transaction-id {
+                            margin: 0.5mm 0;
+                        }
+                        
+                        .divider {
+                            border-top: 1px dashed #333;
+                            margin: 2mm 0;
+                        }
+                        
+                        .contact-info {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 2mm;
+                            padding-top: 1mm;
+                            border-top: 1px dashed #333;
+                        }
+                        
+                        .footer-note {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 1mm;
+                        }
+                        
+                        @media print {
+                            body {
+                                width: 58mm;
+                                padding: 0;
+                                margin: 0;
+                            }
+                            
+                            .receipt-container {
+                                width: 58mm;
+                                padding: 2mm;
+                                box-shadow: none;
+                            }
+                            
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt-container">
+                        <div class="receipt-header">
+                            <div class="company-name"><%= appSettings.company_header || 'PAYMENT RECEIPT' %></div>
+                            <div class="receipt-title">Bukti Pembayaran Bulanan</div>
+                        </div>
+                        
+                        <div class="receipt-body">
+                            <div class="info-section">
+                                <div class="info-label">Pelanggan</div>
+                                <div class="info-value">${payment.customer_name}</div>
+                                
+                                <div class="info-label">Nomor HP</div>
+                                <div class="info-value">${payment.customer_phone}</div>
+                            </div>
+                            
+                            <div class="amount-info">
+                                <div class="amount-label">Jumlah Pembayaran</div>
+                                <div class="amount-value">Rp ${parseInt(payment.payment_amount).toLocaleString('id-ID')}</div>
+                                
+                                <div class="amount-label">Komisi Agent</div>
+                                <div class="amount-value commission-value">Rp ${parseInt(payment.commission_amount).toLocaleString('id-ID')}</div>
+                                
+                                <div class="amount-label">Potongan Saldo</div>
+                                <div class="amount-value net-value">Rp ${parseInt(payment.payment_amount).toLocaleString('id-ID')}</div>
+                            </div>
+                            
+                            <div class="payment-method">
+                                <div class="method-label">Metode Pembayaran</div>
+                                <div class="method-value">${payment.payment_method === 'cash' ? 'Tunai' : 
+                                    payment.payment_method === 'transfer' ? 'Transfer Bank' : 
+                                    payment.payment_method === 'qris' ? 'QRIS' : 
+                                    payment.payment_method === 'ewallet' ? 'E-Wallet' : 
+                                    payment.payment_method}</div>
+                            </div>
+                            
+                            <div class="transaction-info">
+                                <div class="transaction-date">Tanggal: ${new Date(payment.paid_at).toLocaleDateString('id-ID')} ${new Date(payment.paid_at).toLocaleTimeString('id-ID')}</div>
+                                <div class="transaction-id">ID Transaksi: ${payment.id}</div>
+                                <div class="transaction-id">ID Invoice: ${payment.invoice_id}</div>
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="contact-info">
+                                Support: <%= appSettings.contact_phone || appSettings['admins.0'] || 'support@company.com' %>
+                            </div>
+                            
+                            <div class="footer-note">
+                                Terima kasih atas pembayaran Anda!
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
         }
 
         // Generate CSV content
@@ -569,6 +842,16 @@
                 location.reload();
             }
         }, 30000);
+        
+        // Add event listeners for print buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.print-receipt-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const paymentId = this.getAttribute('data-payment-id');
+                    printPaymentReceipt(paymentId);
+                });
+            });
+        });
     </script>
 
     <!-- Bottom Navigation -->

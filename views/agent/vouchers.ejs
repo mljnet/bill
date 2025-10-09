@@ -817,6 +817,12 @@
             const voucherPassword = document.getElementById('voucherPasswordResult') ? document.getElementById('voucherPasswordResult').textContent : '';
             const packageName = document.getElementById('resultPackage') ? document.getElementById('resultPackage').textContent : '';
             const price = document.getElementById('resultPrice') ? document.getElementById('resultPrice').textContent : '';
+            const mikrotikUsername = document.getElementById('mikrotikUsernameResult') ? document.getElementById('mikrotikUsernameResult').textContent : '';
+            const mikrotikPassword = document.getElementById('mikrotikPasswordResult') ? document.getElementById('mikrotikPasswordResult').textContent : '';
+            
+            // Use mikrotik credentials if available, otherwise use voucher code
+            const username = mikrotikUsername || voucherCode;
+            const password = mikrotikPassword || voucherPassword;
             
             const printWindow = window.open('', '_blank');
             const printContent = `
@@ -825,28 +831,201 @@
                 <head>
                     <title>Voucher Hotspot</title>
                     <style>
-                        body { font-family: Arial, sans-serif; text-align: center; }
-                        .voucher-print { border: 2px solid #000; padding: 20px; margin: 20px; }
-                        .voucher-code { font-size: 24px; font-weight: bold; margin: 20px 0; }
-                        .company-name { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-                        .instructions { font-size: 14px; margin-top: 20px; }
-                        .voucher-details { font-size: 14px; margin: 10px 0; }
+                        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: 'Roboto', sans-serif;
+                            background: white;
+                            padding: 0;
+                            margin: 0;
+                            width: 58mm;
+                            font-size: 8px;
+                        }
+                        
+                        .voucher-container {
+                            width: 58mm;
+                            padding: 2mm;
+                            background: white;
+                        }
+                        
+                        .voucher-header {
+                            text-align: center;
+                            border-bottom: 1px dashed #333;
+                            padding-bottom: 2mm;
+                            margin-bottom: 2mm;
+                        }
+                        
+                        .company-name {
+                            font-size: 12px;
+                            font-weight: 700;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .voucher-title {
+                            font-size: 9px;
+                            font-weight: 400;
+                        }
+                        
+                        .voucher-body {
+                            text-align: center;
+                            margin: 2mm 0;
+                        }
+                        
+                        .credential-section {
+                            margin: 2mm 0;
+                            padding: 1.5mm;
+                            border: 1px solid #ddd;
+                        }
+                        
+                        .credential-label {
+                            font-size: 7px;
+                            font-weight: 500;
+                            text-transform: uppercase;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .credential-value {
+                            font-size: 11px;
+                            font-weight: 700;
+                            letter-spacing: 1px;
+                            word-break: break-all;
+                            margin: 1mm 0;
+                        }
+                        
+                        .credential-value.password {
+                            color: #e74c3c;
+                        }
+                        
+                        .package-info {
+                            background: #f0f0f0;
+                            padding: 1.5mm;
+                            margin: 2mm 0;
+                        }
+                        
+                        .package-name {
+                            font-size: 9px;
+                            font-weight: 500;
+                            margin-bottom: 1mm;
+                        }
+                        
+                        .package-price {
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #27ae60;
+                        }
+                        
+                        .instructions {
+                            font-size: 7px;
+                            line-height: 1.3;
+                            margin: 2mm 0;
+                            text-align: left;
+                        }
+                        
+                        .instructions ol {
+                            padding-left: 3mm;
+                            margin: 1mm 0;
+                        }
+                        
+                        .instructions li {
+                            margin-bottom: 0.5mm;
+                        }
+                        
+                        .contact-info {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 2mm;
+                            padding-top: 1mm;
+                            border-top: 1px dashed #333;
+                        }
+                        
+                        .validity {
+                            font-size: 7px;
+                            text-align: center;
+                            margin: 1mm 0;
+                            font-weight: 500;
+                        }
+                        
+                        .divider {
+                            border-top: 1px dashed #333;
+                            margin: 2mm 0;
+                        }
+                        
+                        .footer-note {
+                            font-size: 6px;
+                            text-align: center;
+                            margin-top: 1mm;
+                        }
+                        
+                        @media print {
+                            body {
+                                width: 58mm;
+                                padding: 0;
+                                margin: 0;
+                            }
+                            
+                            .voucher-container {
+                                width: 58mm;
+                                padding: 2mm;
+                                box-shadow: none;
+                            }
+                            
+                            * {
+                                -webkit-print-color-adjust: exact !important;
+                                color-adjust: exact !important;
+                            }
+                        }
                     </style>
                 </head>
                 <body>
-                    <div class="voucher-print">
-                        <div class="company-name">VOUCHER HOTSPOT</div>
-                        <div class="voucher-code">${voucherCode}</div>
-                        <div class="voucher-details">
-                            <p><strong>Username:</strong> ${voucherCode}</p>
-                            <p><strong>Password:</strong> ${voucherPassword}</p>
-                            <p><strong>Paket:</strong> ${packageName}</p>
-                            <p><strong>Harga:</strong> ${price}</p>
-                            <p><strong>Tanggal:</strong> ${new Date().toLocaleDateString()}</p>
+                    <div class="voucher-container">
+                        <div class="voucher-header">
+                            <div class="company-name"><%= appSettings.company_header || 'VOUCHER HOTSPOT' %></div>
+                            <div class="voucher-title">Internet Access Voucher</div>
                         </div>
-                        <div class="instructions">
-                            <p>Gunakan username dan password di atas untuk mengakses WiFi hotspot</p>
-                            <p>Voucher berlaku sesuai paket yang dipilih</p>
+                        
+                        <div class="voucher-body">
+                            <div class="credential-section">
+                                <div class="credential-label">Username</div>
+                                <div class="credential-value">${username}</div>
+                                
+                                <div class="credential-label">Password</div>
+                                <div class="credential-value password">${password}</div>
+                            </div>
+                            
+                            <div class="package-info">
+                                <div class="package-name">${packageName}</div>
+                                <div class="package-price">${price}</div>
+                            </div>
+                            
+                            <div class="validity">
+                                Valid until used • Single device
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <div class="instructions">
+                                <strong>How to connect:</strong>
+                                <ol>
+                                    <li>Connect to WiFi network</li>
+                                    <li>Open browser/login page</li>
+                                    <li>Enter username & password</li>
+                                    <li>Click Login to browse</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="contact-info">
+                                Support: <%= appSettings.contact_phone || appSettings['admins.0'] || 'support@company.com' %>
+                            </div>
+                            
+                            <div class="footer-note">
+                                Thank you for choosing our service!
+                            </div>
                         </div>
                     </div>
                 </body>
