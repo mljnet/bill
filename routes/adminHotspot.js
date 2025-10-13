@@ -218,7 +218,9 @@ router.get('/', async (req, res) => {
             error: req.query.error,
             company_header,
             adminKontak,
-            settings
+            settings,
+            versionInfo: getVersionInfo(),
+            versionBadge: getVersionBadge()
         });
     } catch (error) {
         res.render('adminHotspot', { users: [], profiles: [], allUsers: [], success: null, error: 'Gagal mengambil data user hotspot: ' + error.message });
