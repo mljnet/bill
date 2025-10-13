@@ -250,7 +250,7 @@
                                         <small class="text-muted">Profile Mikrotik:</small>
                                         <select class="form-select form-select-sm" id="profile_3k">
                                             <% profiles.forEach(function(profile) { %>
-                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['3k']?.profile || profiles[0]?.name || '3k') ? 'selected' : '' %>><%= profile.name %></option>
+                                                <option value="<%= profile.name %>" <%= (voucherOnlineSettings['3k'] && voucherOnlineSettings['3k'].profile === profile.name) ? 'selected' : '' %>><%= profile.name %></option>
                                             <% }); %>
                                         </select>
                                     </div>
@@ -297,7 +297,7 @@
                                         <small class="text-muted">Profile Mikrotik:</small>
                                         <select class="form-select form-select-sm" id="profile_5k">
                                             <% profiles.forEach(function(profile) { %>
-                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['5k']?.profile || profiles[0]?.name || '5k') ? 'selected' : '' %>><%= profile.name %></option>
+                                                <option value="<%= profile.name %>" <%= (voucherOnlineSettings['5k'] && voucherOnlineSettings['5k'].profile === profile.name) ? 'selected' : '' %>><%= profile.name %></option>
                                             <% }); %>
                                         </select>
                                     </div>
@@ -344,7 +344,7 @@
                                         <small class="text-muted">Profile Mikrotik:</small>
                                         <select class="form-select form-select-sm" id="profile_10k">
                                             <% profiles.forEach(function(profile) { %>
-                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['10k']?.profile || profiles[0]?.name || '10k') ? 'selected' : '' %>><%= profile.name %></option>
+                                                <option value="<%= profile.name %>" <%= (voucherOnlineSettings['10k'] && voucherOnlineSettings['10k'].profile === profile.name) ? 'selected' : '' %>><%= profile.name %></option>
                                             <% }); %>
                                         </select>
                                     </div>
@@ -391,7 +391,7 @@
                                         <small class="text-muted">Profile Mikrotik:</small>
                                         <select class="form-select form-select-sm" id="profile_15k">
                                             <% profiles.forEach(function(profile) { %>
-                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['15k']?.profile || profiles[0]?.name || '15k') ? 'selected' : '' %>><%= profile.name %></option>
+                                                <option value="<%= profile.name %>" <%= (voucherOnlineSettings['15k'] && voucherOnlineSettings['15k'].profile === profile.name) ? 'selected' : '' %>><%= profile.name %></option>
                                             <% }); %>
                                         </select>
                                     </div>
@@ -438,7 +438,7 @@
                                         <small class="text-muted">Profile Mikrotik:</small>
                                         <select class="form-select form-select-sm" id="profile_25k">
                                             <% profiles.forEach(function(profile) { %>
-                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['25k']?.profile || profiles[0]?.name || '25k') ? 'selected' : '' %>><%= profile.name %></option>
+                                                <option value="<%= profile.name %>" <%= (voucherOnlineSettings['25k'] && voucherOnlineSettings['25k'].profile === profile.name) ? 'selected' : '' %>><%= profile.name %></option>
                                             <% }); %>
                                         </select>
                                     </div>
@@ -485,7 +485,7 @@
                                         <small class="text-muted">Profile Mikrotik:</small>
                                         <select class="form-select form-select-sm" id="profile_50k">
                                             <% profiles.forEach(function(profile) { %>
-                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['50k']?.profile || profiles[0]?.name || '50k') ? 'selected' : '' %>><%= profile.name %></option>
+                                                <option value="<%= profile.name %>" <%= (voucherOnlineSettings['50k'] && voucherOnlineSettings['50k'].profile === profile.name) ? 'selected' : '' %>><%= profile.name %></option>
                                             <% }); %>
                                         </select>
                                     </div>
@@ -511,6 +511,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <hr>
