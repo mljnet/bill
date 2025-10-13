@@ -64,7 +64,9 @@ async function getVoucherOnlineSettings() {
                     const settings = {};
                     rows.forEach(row => {
                         settings[row.package_id] = {
+                            name: row.name || `${row.package_id} - Paket`,
                             profile: row.profile,
+                            digits: row.digits || 5,
                             enabled: row.enabled === 1
                         };
                     });
