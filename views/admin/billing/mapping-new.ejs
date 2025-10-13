@@ -2146,7 +2146,43 @@
         // View details functions
         function viewODPDetails(odpId) {
             console.log('Viewing ODP details for ID:', odpId);
-            showODPDetailsModal(odpId);
+            
+            // Temukan data ODP dari networkData terlebih dahulu
+            let odp = networkData.odps?.find(o => o.id == odpId);
+            
+            if (odp) {
+                // Jika ditemukan di networkData, tampilkan langsung
+                showODPDetailsModalWithData(odp);
+            } else {
+                // Jika tidak ditemukan, coba fetch dari server
+                fetch(`/admin/odp/${odpId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            // Simpan data ke networkData untuk penggunaan berikutnya
+                            if (!networkData.odps) {
+                                networkData.odps = [];
+                            }
+                            
+                            // Perbarui atau tambahkan data ODP
+                            const existingIndex = networkData.odps.findIndex(o => o.id == odpId);
+                            if (existingIndex >= 0) {
+                                networkData.odps[existingIndex] = data.data;
+                            } else {
+                                networkData.odps.push(data.data);
+                            }
+                            
+                            // Tampilkan modal
+                            showODPDetailsModalWithData(data.data);
+                        } else {
+                            alert('ODP data not found');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching ODP details:', error);
+                        alert('Error fetching ODP details: ' + error.message);
+                    });
+            }
         }
         
         function viewCustomerDetails(customerId) {
@@ -2159,15 +2195,8 @@
             showONUDetailsModal(deviceId);
         }
         
-        // Show ODP Details Modal
-        function showODPDetailsModal(odpId) {
-            // Find ODP data from networkData
-            const odp = networkData.odps?.find(o => o.id === odpId);
-            if (!odp) {
-                alert('ODP data not found');
-                return;
-            }
-            
+        // Show ODP Details Modal dengan data
+        function showODPDetailsModalWithData(odp) {
             // Update modal content
             document.getElementById('odp-name').textContent = odp.name || 'N/A';
             document.getElementById('odp-code').textContent = odp.code || 'N/A';
@@ -2180,8 +2209,8 @@
             document.getElementById('odp-installation-date').textContent = odp.installation_date || 'N/A';
             
             // Update progress bar
-            const usedPorts = odp.used_ports || 0;
-            const capacity = odp.capacity || 1;
+            const usedPorts = parseInt(odp.used_ports) || 0;
+            const capacity = parseInt(odp.capacity) || 1;
             const percentage = Math.round((usedPorts / capacity) * 100);
             const progressBar = document.getElementById('odp-progress-bar');
             progressBar.style.width = percentage + '%';
@@ -2189,11 +2218,23 @@
             document.getElementById('odp-capacity-text').textContent = `${percentage}% capacity used`;
             
             // Set data attributes for buttons
-            document.getElementById('edit-odp-btn').setAttribute('data-odp-id', odpId);
+            document.getElementById('edit-odp-btn').setAttribute('data-odp-id', odp.id);
             
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('odpDetailsModal'));
             modal.show();
+        }
+        
+        // Show ODP Details Modal (versi lama yang menggunakan networkData)
+        function showODPDetailsModal(odpId) {
+            // Find ODP data from networkData
+            const odp = networkData.odps?.find(o => o.id == odpId);
+            if (!odp) {
+                alert('ODP data not found');
+                return;
+            }
+            
+            showODPDetailsModalWithData(odp);
         }
         
         // Show Customer Details Modal
@@ -2281,13 +2322,46 @@
         function editODP(odpId) {
             console.log('Edit ODP:', odpId);
             
-            // Find the ODP data
-            const odp = networkData.odps.find(odp => odp.id === odpId);
-            if (!odp) {
-                alert('ODP not found');
-                return;
-            }
+            // Temukan data ODP dari networkData terlebih dahulu
+            let odp = networkData.odps?.find(o => o.id == odpId);
             
+            if (!odp) {
+                // Jika tidak ditemukan di networkData, fetch dari server
+                fetch(`/admin/odp/${odpId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            // Simpan data ke networkData untuk penggunaan berikutnya
+                            if (!networkData.odps) {
+                                networkData.odps = [];
+                            }
+                            
+                            // Perbarui atau tambahkan data ODP
+                            const existingIndex = networkData.odps.findIndex(o => o.id == odpId);
+                            if (existingIndex >= 0) {
+                                networkData.odps[existingIndex] = data.data;
+                            } else {
+                                networkData.odps.push(data.data);
+                            }
+                            
+                            // Lanjutkan dengan populate form
+                            populateODPForm(data.data);
+                        } else {
+                            alert('ODP not found');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching ODP details:', error);
+                        alert('Error fetching ODP details: ' + error.message);
+                    });
+            } else {
+                // Jika ditemukan di networkData, langsung populate form
+                populateODPForm(odp);
+            }
+        }
+        
+        // Populate ODP form dengan data
+        function populateODPForm(odp) {
             // Populate edit form
             document.getElementById('editOdpId').value = odp.id;
             document.getElementById('editOdpName').value = odp.name || '';
@@ -2319,10 +2393,15 @@
             
             // Convert FormData to object
             for (let [key, value] of formData.entries()) {
-                odpData[key] = value;
+                // Konversi nilai numerik
+                if (key === 'capacity' || key === 'used_ports' || key === 'latitude' || key === 'longitude') {
+                    odpData[key] = value ? parseFloat(value) : (key === 'used_ports' ? 0 : null);
+                } else {
+                    odpData[key] = value;
+                }
             }
             
-            // Validate required fields
+            // Validasi required fields
             if (!odpData.name || !odpData.code || !odpData.capacity) {
                 alert('Please fill in all required fields');
                 return;
@@ -2335,12 +2414,19 @@
             saveBtn.disabled = true;
             
             // Send data to server
-            fetch('/admin/billing/update-odp', {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            // Add CSRF token if available
+            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfTokenMeta) {
+                headers['X-CSRF-TOKEN'] = csrfTokenMeta.getAttribute('content');
+            }
+            
+            fetch('/admin/update-odp', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
+                headers: headers,
                 body: JSON.stringify(odpData)
             })
             .then(response => response.json())
@@ -2349,9 +2435,16 @@
                     console.log('ODP data saved to database:', data);
                     
                     // Update the ODP in networkData
-                    const odpIndex = networkData.odps.findIndex(odp => odp.id === odpData.id);
-                    if (odpIndex !== -1) {
-                        networkData.odps[odpIndex] = { ...networkData.odps[odpIndex], ...odpData };
+                    if (networkData.odps) {
+                        const odpIndex = networkData.odps.findIndex(odp => parseInt(odp.id) === parseInt(odpData.id));
+                        if (odpIndex !== -1) {
+                            networkData.odps[odpIndex] = { ...networkData.odps[odpIndex], ...odpData };
+                        } else {
+                            // Jika tidak ditemukan, tambahkan sebagai ODP baru
+                            networkData.odps.push(odpData);
+                        }
+                    } else {
+                        networkData.odps = [odpData];
                     }
                     
                     // Update the marker on the map
@@ -2385,7 +2478,7 @@
         function updateODPMarkerOnMap(odpData) {
             // Find and update the marker
             odpLayer.eachLayer(function(layer) {
-                if (layer.options.odpId === odpData.id) {
+                if (parseInt(layer.options.odpId) === parseInt(odpData.id)) {
                     // Update marker position if coordinates changed
                     if (odpData.latitude && odpData.longitude) {
                         layer.setLatLng([parseFloat(odpData.latitude), parseFloat(odpData.longitude)]);
@@ -2499,12 +2592,19 @@
             saveBtn.disabled = true;
             
             // Send data to server
-            fetch('/admin/billing/update-customer', {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            // Add CSRF token if available
+            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfTokenMeta) {
+                headers['X-CSRF-TOKEN'] = csrfTokenMeta.getAttribute('content');
+            }
+            
+            fetch('/admin/update-customer', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
+                headers: headers,
                 body: JSON.stringify(customerData)
             })
             .then(response => response.json())
@@ -2680,12 +2780,19 @@
                 
                 // Update SSID if provided
                 if (ssid) {
+                    const ssidHeaders = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    // Add CSRF token if available
+                    const ssidCsrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                    if (ssidCsrfTokenMeta) {
+                        ssidHeaders['X-CSRF-TOKEN'] = ssidCsrfTokenMeta.getAttribute('content');
+                    }
+                    
                     fetch('/admin/genieacs/edit', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
+                        headers: ssidHeaders,
                         body: JSON.stringify({
                             id: deviceId,
                             ssid: ssid
@@ -2706,12 +2813,19 @@
                 
                 // Update password if provided
                 if (password) {
+                    const pwdHeaders = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    // Add CSRF token if available
+                    const pwdCsrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                    if (pwdCsrfTokenMeta) {
+                        pwdHeaders['X-CSRF-TOKEN'] = pwdCsrfTokenMeta.getAttribute('content');
+                    }
+                    
                     fetch('/admin/genieacs/edit', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
+                        headers: pwdHeaders,
                         body: JSON.stringify({
                             id: deviceId,
                             password: password
@@ -2737,12 +2851,19 @@
             delete basicOnuData.password;
             
             // Send data to server
-            fetch('/admin/billing/update-onu', {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            // Add CSRF token if available
+            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfTokenMeta) {
+                headers['X-CSRF-TOKEN'] = csrfTokenMeta.getAttribute('content');
+            }
+            
+            fetch('/admin/update-onu', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
+                headers: headers,
                 body: JSON.stringify(basicOnuData)
             })
             .then(response => response.json())
@@ -2811,7 +2932,11 @@
             }
             
             // Show confirmation dialog with device info
-            const confirmMessage = `Are you sure you want to restart this ONU device?\n\nDevice: ${onuDevice.name || 'Unknown'}\nSerial: ${onuDevice.serialNumber || 'Unknown'}\nCustomer: ${onuDevice.customerName || 'Unknown'}`;
+            const confirmMessage = `Are you sure you want to restart this ONU device?
+
+Device: ${onuDevice.name || 'Unknown'}
+Serial: ${onuDevice.serialNumber || 'Unknown'}
+Customer: ${onuDevice.customerName || 'Unknown'}`;
             
             if (confirm(confirmMessage)) {
                 // Show loading state
@@ -2822,12 +2947,19 @@
                     restartBtn.disabled = true;
                     
                     // Call restart API
-                    fetch('/admin/billing/restart-onu', {
+                    const restartHeaders = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    // Add CSRF token if available
+                    const restartCsrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                    if (restartCsrfTokenMeta) {
+                        restartHeaders['X-CSRF-TOKEN'] = restartCsrfTokenMeta.getAttribute('content');
+                    }
+                    
+                    fetch('/admin/restart-onu', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
+                        headers: restartHeaders,
                         body: JSON.stringify({
                             deviceId: deviceId,
                             deviceName: onuDevice.name,
@@ -2839,7 +2971,12 @@
                     .then(data => {
                         if (data.success) {
                             console.log('ONU restart successful:', data);
-                            alert(`ONU device restarted successfully!\n\nDevice: ${onuDevice.name}\nCustomer: ${onuDevice.customerName}\n\nPlease wait a few minutes for the device to come back online.`);
+                            alert(`ONU device restarted successfully!
+
+Device: ${onuDevice.name}
+Customer: ${onuDevice.customerName}
+
+Please wait a few minutes for the device to come back online.`);
                             
                             // Update device status to show it's restarting
                             updateONUStatusOnMap(deviceId, 'restarting');
@@ -2995,16 +3132,32 @@
             document.addEventListener('click', function(e) {
                 if (e.target.id === 'edit-odp-btn') {
                     const odpId = e.target.getAttribute('data-odp-id');
-                    editODP(odpId);
+                    if (odpId) {
+                        editODP(odpId);
+                    } else {
+                        alert('ODP ID not found');
+                    }
                 } else if (e.target.id === 'edit-customer-btn') {
                     const customerId = e.target.getAttribute('data-customer-id');
-                    editCustomer(customerId);
+                    if (customerId) {
+                        editCustomer(customerId);
+                    } else {
+                        alert('Customer ID not found');
+                    }
                 } else if (e.target.id === 'edit-onu-btn') {
                     const deviceId = e.target.getAttribute('data-onu-id');
-                    editONU(deviceId);
+                    if (deviceId) {
+                        editONU(deviceId);
+                    } else {
+                        alert('ONU Device ID not found');
+                    }
                 } else if (e.target.id === 'restart-onu-btn') {
                     const deviceId = e.target.getAttribute('data-onu-id');
-                    restartONU(deviceId);
+                    if (deviceId) {
+                        restartONU(deviceId);
+                    } else {
+                        alert('ONU Device ID not found');
+                    }
                 } else if (e.target.id === 'saveOnuBtn') {
                     saveONU();
                 } else if (e.target.id === 'saveSsidBtn') {
@@ -3018,11 +3171,19 @@
                     e.target.disabled = true;
                     const original = e.target.innerHTML;
                     e.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                    const ssidHeaders = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    // Add CSRF token if available
+                    const ssidCsrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                    if (ssidCsrfTokenMeta) {
+                        ssidHeaders['X-CSRF-TOKEN'] = ssidCsrfTokenMeta.getAttribute('content');
+                    }
+                    
                     fetch('/admin/genieacs/edit', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: ssidHeaders,
                         body: JSON.stringify({ id: deviceId, ssid: ssidVal })
                     }).then(r => r.json()).then(data => {
                         if (!data.success) throw new Error(data.message || 'Gagal update SSID');
@@ -3048,11 +3209,19 @@
                     e.target.disabled = true;
                     const original = e.target.innerHTML;
                     e.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                    const pwdHeaders = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    // Add CSRF token if available
+                    const pwdCsrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                    if (pwdCsrfTokenMeta) {
+                        pwdHeaders['X-CSRF-TOKEN'] = pwdCsrfTokenMeta.getAttribute('content');
+                    }
+                    
                     fetch('/admin/genieacs/edit', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: pwdHeaders,
                         body: JSON.stringify({ id: deviceId, password: pwdVal })
                     }).then(r => r.json()).then(data => {
                         if (!data.success) throw new Error(data.message || 'Gagal update Password');
@@ -3090,11 +3259,19 @@
             const original = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
+            const ssidHeaders = {
+                'Content-Type': 'application/json'
+            };
+            
+            // Add CSRF token if available
+            const ssidCsrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (ssidCsrfTokenMeta) {
+                ssidHeaders['X-CSRF-TOKEN'] = ssidCsrfTokenMeta.getAttribute('content');
+            }
+            
             fetch('/admin/genieacs/edit', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: ssidHeaders,
                 body: JSON.stringify({ id: deviceId, ssid: ssidVal })
             }).then(r => r.json()).then(data => {
                 if (!data.success) throw new Error(data.message || 'Gagal update SSID');
@@ -3122,11 +3299,19 @@
             const original = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
+            const pwdHeaders = {
+                'Content-Type': 'application/json'
+            };
+            
+            // Add CSRF token if available
+            const pwdCsrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (pwdCsrfTokenMeta) {
+                pwdHeaders['X-CSRF-TOKEN'] = pwdCsrfTokenMeta.getAttribute('content');
+            }
+            
             fetch('/admin/genieacs/edit', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: pwdHeaders,
                 body: JSON.stringify({ id: deviceId, password: pwdVal })
             }).then(r => r.json()).then(data => {
                 if (!data.success) throw new Error(data.message || 'Gagal update Password');
