@@ -1,5 +1,5 @@
 const { Boom } = require('@hapi/boom');
-const { default: makeWASocket, DisconnectReason, useMultiFileAuthState } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestWaWebVersion } = require('@whiskeysockets/baileys');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const fs = require('fs');
@@ -48,12 +48,27 @@ async function connectToWhatsApp() {
         const logLevel = getSetting('whatsapp_log_level', 'silent');
         const pinoLogger = pino({ level: logLevel });
         
-        // Buat socket WhatsApp
+        // Fetch the latest WhatsApp Web version dynamically
+        let version;
+        const botName = 'ALIJAYA WhatsApp Bot';
+        
+        try {
+            const versionInfo = await fetchLatestWaWebVersion();
+            version = versionInfo.version;
+            console.log(`📱 [${botName}] Using WA Web v${version.join(".")}, isLatest: ${versionInfo.isLatest}`);
+        } catch (error) {
+            console.warn(`⚠️ [${botName}] Failed to fetch latest version, using fallback:`, error.message);
+            // Fallback to a known working version
+            version = [2, 3000, 1025190524];
+        }
+        
+        // Buat socket WhatsApp dengan versi yang ditentukan
         const sock = makeWASocket({
             auth: state,
             printQRInTerminal: true,
             logger: pinoLogger,
-            browser: ['ALIJAYA WhatsApp Bot', 'Chrome', '1.0.0']
+            browser: ['ALIJAYA WhatsApp Bot', 'Chrome', '1.0.0'],
+            version // Tambahkan versi yang diambil secara dinamis
         });
         
         // Set socket ke semua modul
