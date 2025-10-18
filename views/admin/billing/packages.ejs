@@ -177,6 +177,14 @@
                             </div>
                             <small class="form-text text-muted">Pilih profile PPPoE dari Mikrotik. Klik Reload bila daftar belum muncul.</small>
                         </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Gambar Paket (JPG)</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/jpeg,image/jpg">
+                            <small class="form-text text-muted">Unggah gambar JPG untuk paket ini. Maksimal 2MB.</small>
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -245,6 +253,18 @@
                             </div>
                             <small class="form-text text-muted">Pilih profile PPPoE dari Mikrotik. Klik Reload bila daftar belum muncul.</small>
                         </div>
+                        <div class="mb-3">
+                            <label for="edit_image" class="form-label">Gambar Paket (JPG)</label>
+                            <input type="file" class="form-control" id="edit_image" name="image" accept="image/jpeg,image/jpg">
+                            <small class="form-text text-muted">Unggah gambar JPG untuk paket ini. Maksimal 2MB.</small>
+                            <div id="editImagePreview" class="mt-2" style="display: none;">
+                                <img src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                            </div>
+                            <div id="currentImageContainer" class="mt-2" style="display: none;">
+                                <small class="form-text text-muted">Gambar saat ini:</small>
+                                <img id="currentImage" src="" alt="Current Image" style="max-width: 200px; max-height: 200px; border-radius: 8px; display: block; margin-top: 5px;">
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -301,6 +321,9 @@
                 pageLength: 25,
                 lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
             });
+
+            // Setup image preview functionality
+            setupImagePreview();
 
             // Load profiles into Add form on open
             $('#addPackageModal').on('shown.bs.modal', function(){
@@ -421,6 +444,67 @@
             console.log('Tax rate set to 0% by default (no PPN)');
         }
 
+        // Image preview functionality
+        function setupImagePreview() {
+            // Add package image preview
+            $('#image').on('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    if (file.type !== 'image/jpeg' && file.type !== 'image/jpg') {
+                        showAlert('danger', 'Hanya file JPG yang diperbolehkan');
+                        $(this).val('');
+                        $('#imagePreview').hide();
+                        return;
+                    }
+                    
+                    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                        showAlert('danger', 'Ukuran file maksimal 2MB');
+                        $(this).val('');
+                        $('#imagePreview').hide();
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreview img').attr('src', e.target.result);
+                        $('#imagePreview').show();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#imagePreview').hide();
+                }
+            });
+            
+            // Edit package image preview
+            $('#edit_image').on('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    if (file.type !== 'image/jpeg' && file.type !== 'image/jpg') {
+                        showAlert('danger', 'Hanya file JPG yang diperbolehkan');
+                        $(this).val('');
+                        $('#editImagePreview').hide();
+                        return;
+                    }
+                    
+                    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                        showAlert('danger', 'Ukuran file maksimal 2MB');
+                        $(this).val('');
+                        $('#editImagePreview').hide();
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#editImagePreview img').attr('src', e.target.result);
+                        $('#editImagePreview').show();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#editImagePreview').hide();
+                }
+            });
+        }
+
         // Fetch and populate PPPoE Profiles from Mikrotik
         function loadPPPoEProfiles(selectSelector, selectedValue = 'default') {
             const sel = document.querySelector(selectSelector);
@@ -473,41 +557,29 @@
             console.log('   - Tax rate input value:', $('#tax_rate').val());
             console.log('   - Tax rate input disabled:', $('#tax_rate').prop('disabled'));
             
-            // Get form data
-            const formData = {
-                name: $('#name').val().trim(),
-                speed: $('#speed').val().trim(),
-                price: parseFloat($('#price').val()),
-                tax_rate: $('#enable_tax').is(':checked') ? parseFloat($('#tax_rate').val()) : 0,
-                description: $('#description').val().trim(),
-                pppoe_profile: $('#pppoe_profile').val().trim() || 'default'
-            };
-            
-            console.log('   - Calculated tax_rate:', formData.tax_rate);
-            
-            // Validate required fields
-            if (!formData.name || !formData.speed || !formData.price || formData.price <= 0) {
-                showAlert('danger', 'Nama, kecepatan, dan harga harus diisi dengan benar');
-                return;
-            }
-            
-            // Validate tax rate if enabled
-            if ($('#enable_tax').is(':checked') && (formData.tax_rate < 0 || formData.tax_rate > 100)) {
-                showAlert('danger', 'PPN harus antara 0% dan 100%');
-                return;
-            }
-            
             // Show loading state
             const submitBtn = $(this).find('button[type="submit"]');
             const originalText = submitBtn.text();
             submitBtn.prop('disabled', true).text('Memproses...');
             
+            // Handle file upload with FormData
+            const formData = new FormData();
+            formData.append('name', $('#name').val().trim());
+            formData.append('speed', $('#speed').val().trim());
+            formData.append('price', parseFloat($('#price').val()));
+            formData.append('tax_rate', $('#enable_tax').is(':checked') ? parseFloat($('#tax_rate').val()) : 0);
+            formData.append('description', $('#description').val().trim());
+            formData.append('pppoe_profile', $('#pppoe_profile').val().trim() || 'default');
+            
+            // Add image file if selected
+            const imageFile = $('#image')[0].files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+            
             fetch('/admin/billing/packages', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
@@ -560,6 +632,14 @@
                         
                         $('#edit_description').val(package.description || '');
                         
+                        // Handle image preview
+                        if (package.image) {
+                            $('#currentImage').attr('src', '/img/' + package.image);
+                            $('#currentImageContainer').show();
+                        } else {
+                            $('#currentImageContainer').hide();
+                        }
+                        
                         // Calculate and display price with tax
                         calculatePriceWithTax('edit_price', 'edit_tax_rate', 'edit_price_with_tax');
                         
@@ -583,25 +663,18 @@
             
             // Get form data
             const packageId = $('#edit_package_id').val();
-            const formData = {
-                name: $('#edit_name').val().trim(),
-                speed: $('#edit_speed').val().trim(),
-                price: parseFloat($('#edit_price').val()),
-                tax_rate: $('#edit_enable_tax').is(':checked') ? parseFloat($('#edit_tax_rate').val()) : 0,
-                description: $('#edit_description').val().trim(),
-                pppoe_profile: $('#edit_pppoe_profile').val().trim() || 'default'
-            };
+            const formData = new FormData();
+            formData.append('name', $('#edit_name').val().trim());
+            formData.append('speed', $('#edit_speed').val().trim());
+            formData.append('price', parseFloat($('#edit_price').val()));
+            formData.append('tax_rate', $('#edit_enable_tax').is(':checked') ? parseFloat($('#edit_tax_rate').val()) : 0);
+            formData.append('description', $('#edit_description').val().trim());
+            formData.append('pppoe_profile', $('#edit_pppoe_profile').val().trim() || 'default');
             
-            // Validate required fields
-            if (!formData.name || !formData.speed || !formData.price || formData.price <= 0) {
-                showAlert('danger', 'Nama, kecepatan, dan harga harus diisi dengan benar');
-                return;
-            }
-            
-            // Validate tax rate if enabled
-            if ($('#edit_enable_tax').is(':checked') && (formData.tax_rate < 0 || formData.tax_rate > 100)) {
-                showAlert('danger', 'PPN harus antara 0% dan 100%');
-                return;
+            // Add image file if selected
+            const imageFile = $('#edit_image')[0].files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
             }
             
             // Show loading state
@@ -611,10 +684,7 @@
             
             fetch(`/admin/billing/packages/${packageId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
