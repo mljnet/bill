@@ -779,6 +779,61 @@ router.post('/update-onu', adminAuth, async (req, res) => {
     }
 });
 
+// API endpoint untuk mendapatkan detail ODP
+router.get('/odp/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'ODP ID is required'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Get ODP details
+        const odp = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT id, name, code, capacity, used_ports, status, 
+                       address, latitude, longitude, installation_date,
+                       created_at, updated_at
+                FROM odps 
+                WHERE id = ?
+            `, [id], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        });
+        
+        db.close();
+        
+        if (!odp) {
+            return res.status(404).json({
+                success: false,
+                message: 'ODP not found'
+            });
+        }
+        
+        res.json({
+            success: true,
+            data: odp
+        });
+        
+    } catch (error) {
+        console.error('❌ Error getting ODP details:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting ODP details: ' + error.message
+        });
+    }
+});
+
 // API endpoint untuk update ODP
 router.post('/update-odp', adminAuth, async (req, res) => {
     try {
@@ -787,11 +842,11 @@ router.post('/update-odp', adminAuth, async (req, res) => {
         
         const { id, name, code, capacity, used_ports, status, address, latitude, longitude, installation_date } = req.body;
         
-        // Validate required fields
-        if (!id || !name || !code || !capacity) {
+        // Validate required fields - hanya validasi id karena update bisa sebagian
+        if (!id) {
             return res.status(400).json({
                 success: false,
-                message: 'Missing required fields: id, name, code, capacity'
+                message: 'Missing required field: id'
             });
         }
         
@@ -812,31 +867,76 @@ router.post('/update-odp', adminAuth, async (req, res) => {
         });
         
         if (existingODP) {
-            // Update existing ODP
-            await new Promise((resolve, reject) => {
-                db.run(`
-                    UPDATE odps SET 
-                        name = ?, 
-                        code = ?, 
-                        capacity = ?, 
-                        used_ports = ?, 
-                        status = ?, 
-                        address = ?, 
-                        latitude = ?, 
-                        longitude = ?, 
-                        installation_date = ?,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                `, [name, code, capacity, used_ports, status, address, latitude, longitude, installation_date, id], function(err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        console.log(`✅ Updated ODP: ${id}`);
-                        resolve();
-                    }
+            // Bangun query dinamis berdasarkan field yang ada
+            const fields = [];
+            const values = [];
+            
+            if (name !== undefined) {
+                fields.push('name = ?');
+                values.push(name);
+            }
+            if (code !== undefined) {
+                fields.push('code = ?');
+                values.push(code);
+            }
+            if (capacity !== undefined) {
+                fields.push('capacity = ?');
+                values.push(capacity);
+            }
+            if (used_ports !== undefined) {
+                fields.push('used_ports = ?');
+                values.push(used_ports);
+            }
+            if (status !== undefined) {
+                fields.push('status = ?');
+                values.push(status);
+            }
+            if (address !== undefined) {
+                fields.push('address = ?');
+                values.push(address);
+            }
+            if (latitude !== undefined) {
+                fields.push('latitude = ?');
+                values.push(latitude);
+            }
+            if (longitude !== undefined) {
+                fields.push('longitude = ?');
+                values.push(longitude);
+            }
+            if (installation_date !== undefined) {
+                fields.push('installation_date = ?');
+                values.push(installation_date);
+            }
+            
+            // Tambahkan updated_at
+            fields.push('updated_at = CURRENT_TIMESTAMP');
+            
+            if (fields.length > 1) { // Lebih dari 1 karena sudah ada updated_at
+                // Update existing ODP
+                await new Promise((resolve, reject) => {
+                    const query = `UPDATE odps SET ${fields.join(', ')} WHERE id = ?`;
+                    values.push(id);
+                    
+                    db.run(query, values, function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            console.log(`✅ Updated ODP: ${id}`);
+                            resolve();
+                        }
+                    });
                 });
-            });
+            }
         } else {
+            // Validasi field yang diperlukan untuk insert
+            if (!name || !code || !capacity) {
+                db.close();
+                return res.status(400).json({
+                    success: false,
+                    message: 'Missing required fields for new ODP: name, code, capacity'
+                });
+            }
+            
             // Insert new ODP
             await new Promise((resolve, reject) => {
                 db.run(`
@@ -845,7 +945,7 @@ router.post('/update-odp', adminAuth, async (req, res) => {
                         address, latitude, longitude, installation_date, 
                         created_at, updated_at
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                `, [id, name, code, capacity, used_ports, status, address, latitude, longitude, installation_date], function(err) {
+                `, [id, name, code, capacity, used_ports || 0, status || 'active', address || '', latitude || 0, longitude || 0, installation_date || null], function(err) {
                     if (err) {
                         reject(err);
                     } else {

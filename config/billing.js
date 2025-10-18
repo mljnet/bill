@@ -596,6 +596,15 @@ class BillingManager {
             }
         });
 
+        // Tambahkan kolom image ke packages jika belum ada
+        this.db.run("ALTER TABLE packages ADD COLUMN image TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding image column to packages:', err);
+            } else if (!err) {
+                console.log('Added image column to packages table');
+            }
+        });
+
         // Buat index untuk tabel ODP dan Cable Network
         this.createODPIndexes();
         
@@ -697,10 +706,10 @@ class BillingManager {
     // Paket Management
     async createPackage(packageData) {
         return new Promise((resolve, reject) => {
-            const { name, speed, price, tax_rate, description, pppoe_profile } = packageData;
-            const sql = `INSERT INTO packages (name, speed, price, tax_rate, description, pppoe_profile) VALUES (?, ?, ?, ?, ?, ?)`;
+            const { name, speed, price, tax_rate, description, pppoe_profile, image } = packageData;
+            const sql = `INSERT INTO packages (name, speed, price, tax_rate, description, pppoe_profile, image) VALUES (?, ?, ?, ?, ?, ?, ?)`;
             
-            this.db.run(sql, [name, speed, price, tax_rate !== undefined ? tax_rate : 11.00, description, pppoe_profile || 'default'], function(err) {
+            this.db.run(sql, [name, speed, price, tax_rate !== undefined ? tax_rate : 11.00, description, pppoe_profile || 'default', image || null], function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -740,10 +749,10 @@ class BillingManager {
 
     async updatePackage(id, packageData) {
         return new Promise((resolve, reject) => {
-            const { name, speed, price, tax_rate, description, pppoe_profile } = packageData;
-            const sql = `UPDATE packages SET name = ?, speed = ?, price = ?, tax_rate = ?, description = ?, pppoe_profile = ? WHERE id = ?`;
+            const { name, speed, price, tax_rate, description, pppoe_profile, image } = packageData;
+            const sql = `UPDATE packages SET name = ?, speed = ?, price = ?, tax_rate = ?, description = ?, pppoe_profile = ?, image = ? WHERE id = ?`;
             
-            this.db.run(sql, [name, speed, price, tax_rate || 0, description, pppoe_profile || 'default', id], function(err) {
+            this.db.run(sql, [name, speed, price, tax_rate || 0, description, pppoe_profile || 'default', image || null, id], function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -904,7 +913,7 @@ class BillingManager {
     async getCustomers() {
         return new Promise((resolve, reject) => {
             const sql = `
-                SELECT c.*, p.name as package_name, p.price as package_price,
+                SELECT c.*, p.name as package_name, p.price as package_price, p.image as package_image,
                        c.latitude, c.longitude,
                        CASE 
                            WHEN EXISTS (
@@ -943,7 +952,7 @@ class BillingManager {
     async getCustomerByUsername(username) {
         return new Promise((resolve, reject) => {
             const sql = `
-                SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed
+                SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed, p.image as package_image
                 FROM customers c 
                 LEFT JOIN packages p ON c.package_id = p.id 
                 WHERE c.username = ?
@@ -987,7 +996,7 @@ class BillingManager {
     async getCustomerById(id) {
         return new Promise((resolve, reject) => {
             const sql = `
-                SELECT c.*, p.name as package_name, p.speed, p.price
+                SELECT c.*, p.name as package_name, p.speed, p.price, p.image as package_image
                 FROM customers c
                 LEFT JOIN packages p ON c.package_id = p.id
                 WHERE c.id = ?
@@ -1016,7 +1025,7 @@ class BillingManager {
                     : (digitsOnly.startsWith('0') ? digitsOnly : ('0' + digitsOnly));
 
                 const sql = `
-                SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed,
+                SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed, p.image as package_image,
                        CASE 
                            WHEN EXISTS (
                                SELECT 1 FROM invoices i 
