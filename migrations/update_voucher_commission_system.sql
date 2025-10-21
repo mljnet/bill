@@ -15,21 +15,18 @@ WHERE agent_price IS NULL;
 -- Create table for voucher pricing management
 CREATE TABLE IF NOT EXISTS voucher_pricing (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    package_id INTEGER NOT NULL,
     package_name TEXT NOT NULL,
     customer_price DECIMAL(10,2) NOT NULL,
     agent_price DECIMAL(10,2) NOT NULL,
     commission_amount DECIMAL(10,2) NOT NULL,
     is_active BOOLEAN DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (package_id) REFERENCES voucher_online_settings(id)
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Insert default pricing data
-INSERT INTO voucher_pricing (package_id, package_name, customer_price, agent_price, commission_amount, is_active)
+-- Insert default pricing data (only if table is empty or for new records)
+INSERT OR IGNORE INTO voucher_pricing (package_name, customer_price, agent_price, commission_amount, is_active)
 SELECT 
-    id,
     package_name,
     price as customer_price,
     price * 0.8 as agent_price,

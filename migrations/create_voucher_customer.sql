@@ -2,10 +2,13 @@
 -- Date: 2025-01-27
 -- Description: Create a dedicated customer for voucher purchases to separate from regular billing
 
+-- First check if the column exists
+-- Note: Some columns may not exist in older database versions
+
 INSERT OR IGNORE INTO customers (
     id, username, name, phone, email, address, package_id, status, join_date, 
     pppoe_username, pppoe_profile, auto_suspension, billing_day, 
-    latitude, longitude, created_by_technician_id, static_ip, mac_address, assigned_ip
+    latitude, longitude
 ) VALUES (
     1021, -- ID yang aman, jauh dari range billing (1000+)
     'voucher_public',
@@ -21,9 +24,5 @@ INSERT OR IGNORE INTO customers (
     0,
     1,
     0,
-    0,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    0
 );
