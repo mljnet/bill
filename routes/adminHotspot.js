@@ -21,6 +21,7 @@ async function getVoucherOnlineSettings() {
                 name TEXT NOT NULL DEFAULT '',
                 profile TEXT NOT NULL,
                 digits INTEGER NOT NULL DEFAULT 5,
+                price INTEGER DEFAULT 0,
                 enabled INTEGER NOT NULL DEFAULT 1,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -77,6 +78,7 @@ async function getVoucherOnlineSettings() {
                                             name: row.name || `${row.package_id} - Paket`,
                                             profile: row.profile,
                                             digits: row.digits || 5,
+                                            price: row.price || 0,
                                             enabled: row.enabled === 1
                                         };
                                     });
@@ -126,6 +128,7 @@ async function getVoucherOnlineSettings() {
                                             name: row.name || `${row.package_id} - Paket`,
                                             profile: row.profile,
                                             digits: row.digits || 5,
+                                            price: row.price || 0,
                                             enabled: row.enabled === 1
                                         };
                                     });
@@ -152,6 +155,7 @@ async function getVoucherOnlineSettings() {
                                     name: row.name || `${row.package_id} - Paket`,
                                     profile: row.profile,
                                     digits: row.digits || 5,
+                                    price: row.price || 0,
                                     enabled: row.enabled === 1
                                 };
                             });
@@ -445,10 +449,14 @@ router.get('/voucher', async (req, res) => {
         const company_header = settings.company_header || 'Voucher Hotspot';
         const adminKontak = settings['footer_info'] || '-';
         
+        // Ambil setting voucher online
+        const voucherOnlineSettings = await getVoucherOnlineSettings();
+        
         res.render('adminVoucher', {
             profiles,
             servers,
             voucherHistory,
+            voucherOnlineSettings,
             success: req.query.success,
             error: req.query.error,
             company_header,
@@ -461,6 +469,7 @@ router.get('/voucher', async (req, res) => {
             profiles: [],
             servers: [],
             voucherHistory: [],
+            voucherOnlineSettings: {},
             success: null,
             error: 'Gagal memuat halaman voucher: ' + error.message
         });
@@ -764,10 +773,10 @@ router.post('/save-voucher-online-settings', async (req, res) => {
             return new Promise((resolve, reject) => {
                 const sql = `
                     INSERT OR REPLACE INTO voucher_online_settings
-                    (package_id, name, profile, digits, enabled, updated_at)
-                    VALUES (?, ?, ?, ?, ?, datetime('now'))
+                    (package_id, name, profile, digits, price, enabled, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
                 `;
-                db.run(sql, [packageId, setting.name || `${packageId} - Paket`, setting.profile, setting.digits || 5, setting.enabled ? 1 : 0], function(err) {
+                db.run(sql, [packageId, setting.name || `${packageId} - Paket`, setting.profile, setting.digits || 5, setting.price || 0, setting.enabled ? 1 : 0], function(err) {
                     if (err) reject(err);
                     else resolve();
                 });
@@ -890,6 +899,55 @@ router.post('/test-voucher-generation', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Gagal test generate voucher: ' + error.message
+        });
+    }
+});
+
+// POST: Save voucher online settings from /admin/hotspot/voucher page
+router.post('/save-voucher-online-settings-from-voucher', async (req, res) => {
+    try {
+        const settings = req.body.settings;
+
+        if (!settings || typeof settings !== 'object') {
+            return res.status(400).json({
+                success: false,
+                message: 'Settings data tidak valid'
+            });
+        }
+
+        const sqlite3 = require('sqlite3').verbose();
+        const db = new sqlite3.Database('./data/billing.db');
+
+        // Update settings for each package
+        const promises = Object.keys(settings).map(packageId => {
+            const setting = settings[packageId];
+            return new Promise((resolve, reject) => {
+                const sql = `
+                    INSERT OR REPLACE INTO voucher_online_settings
+                    (package_id, name, profile, digits, price, enabled, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+                `;
+                db.run(sql, [packageId, setting.name || `${packageId} - Paket`, setting.profile, setting.digits || 5, setting.price || 0, setting.enabled ? 1 : 0], function(err) {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        });
+
+        await Promise.all(promises);
+
+        db.close();
+
+        res.json({
+            success: true,
+            message: 'Setting voucher online berhasil disimpan'
+        });
+
+    } catch (error) {
+        console.error('Error saving voucher online settings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal menyimpan setting voucher online: ' + error.message
         });
     }
 });

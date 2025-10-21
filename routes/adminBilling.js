@@ -12,33 +12,6 @@ const upload = multer();
 const ExcelJS = require('exceljs');
 const { adminAuth } = require('./adminAuth');
 
-// Configure multer for image uploads
-const imageStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/img/'));
-    },
-    filename: function (req, file, cb) {
-        // Generate unique filename with timestamp
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'package-' + uniqueSuffix + '.jpg');
-    }
-});
-
-const imageUpload = multer({ 
-    storage: imageStorage,
-    limits: {
-        fileSize: 2 * 1024 * 1024 // 2MB limit
-    },
-    fileFilter: function (req, file, cb) {
-        // Accept only JPG files
-        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
-            cb(null, true);
-        } else {
-            cb(new Error('Only JPG files are allowed'));
-        }
-    }
-});
-
 // Ensure JSON body parsing for this router
 router.use(express.json());
 // Enable form submissions (application/x-www-form-urlencoded)
@@ -2623,7 +2596,7 @@ router.get('/packages', getAppSettings, async (req, res) => {
     }
 });
 
-router.post('/packages', imageUpload.single('image'), async (req, res) => {
+router.post('/packages', async (req, res) => {
     try {
         const { name, speed, price, tax_rate, description, pppoe_profile } = req.body;
         const packageData = {
@@ -2634,11 +2607,6 @@ router.post('/packages', imageUpload.single('image'), async (req, res) => {
             description: description.trim(),
             pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
         };
-
-        // Add image filename if uploaded
-        if (req.file) {
-            packageData.image = req.file.filename;
-        }
 
         if (!packageData.name || !packageData.speed || !packageData.price) {
             return res.status(400).json({
@@ -2665,7 +2633,7 @@ router.post('/packages', imageUpload.single('image'), async (req, res) => {
     }
 });
 
-router.put('/packages/:id', imageUpload.single('image'), async (req, res) => {
+router.put('/packages/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { name, speed, price, tax_rate, description, pppoe_profile } = req.body;
@@ -2677,11 +2645,6 @@ router.put('/packages/:id', imageUpload.single('image'), async (req, res) => {
             description: description.trim(),
             pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
         };
-
-        // Add image filename if uploaded
-        if (req.file) {
-            packageData.image = req.file.filename;
-        }
 
         if (!packageData.name || !packageData.speed || !packageData.price) {
             return res.status(400).json({
