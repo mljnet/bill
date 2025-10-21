@@ -1,5 +1,5 @@
 const { Boom } = require('@hapi/boom');
-const { default: makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestWaWebVersion } = require('@whiskeysockets/baileys');
+const { makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const qrcode = require('qrcode-terminal');
 const path = require('path');
 const axios = require('axios');
@@ -364,20 +364,25 @@ async function connectToWhatsApp() {
         
         const { state, saveCreds } = authState;
         
-                // Fetch the latest WhatsApp Web version dynamically
+        // Penanganan versi dengan error handling yang lebih baik
         let version;
-        const botName = 'ALIJAYA Genieacs Bot Mikrotik';
-        
         try {
-            const versionInfo = await fetchLatestWaWebVersion();
-            version = versionInfo.version;
-            console.log(`📱 [${botName}] Using WA Web v${version.join(".")}, isLatest: ${versionInfo.isLatest}`);
+            const versionResult = await fetchLatestBaileysVersion();
+            // Tangani berbagai tipe return value
+            if (Array.isArray(versionResult)) {
+                version = versionResult;
+            } else if (versionResult && Array.isArray(versionResult.version)) {
+                version = versionResult.version;
+            } else {
+                // Fallback ke versi default jika fetching gagal
+                version = [2, 3000, 1023223821];
+            }
+            console.log(`📱 Using WhatsApp Web version: ${version.join('.')}`);
         } catch (error) {
-            console.warn(`⚠️ [${botName}] Failed to fetch latest version, using fallback:`, error.message);
-            // Fallback to a known working version
-            version = [2, 3000, 1025190524];
+            console.warn(`⚠️ Failed to fetch latest WhatsApp version, using fallback:`, error.message);
+            version = [2, 3000, 1023223821];
         }
-        
+
         sock = makeWASocket({
             auth: state,
             logger,
@@ -386,8 +391,9 @@ async function connectToWhatsApp() {
             qrTimeout: 40000,
             defaultQueryTimeoutMs: 30000, // Timeout untuk query
             retryRequestDelayMs: 1000,
-            version // Tambahkan versi yang diambil secara dinamis
+            version: version
         });
+
         
 
 
@@ -2475,13 +2481,7 @@ async function handleAdminEditPassword(remoteJid, customerNumber, newPassword) {
         // Validasi parameter
         if (!customerNumber || !newPassword) {
             await sock.sendMessage(remoteJid, { 
-                text: `âŒ *FORMAT Salah!*
-
-Format yang benar:
-editpassword [nomor_pelanggan] [password_baru]
-
-Contoh:
-editpassword 123456 password123`
+                text: `âŒ *FORMAT Salah!*\n\nFormat yang benar:\neditpassword [nomor_pelanggan] [password_baru]\n\nContoh:\neditpassword 123456 password123`
             });
             return;
         }
@@ -3799,21 +3799,12 @@ async function handleResourceInfo(remoteJid) {
             if (data.version !== 'N/A') systemInfo += `• Version: ${data.version}\n`;
             if (data.boardName !== 'N/A') systemInfo += `• Board: ${data.boardName}\n`;
 
-            const message = `📊 *INFO RESOURCE ROUTER*
-
-${cpuInfo}
-${memoryInfo}
-${diskInfo}
-${systemInfo}`;
+            const message = `📊 *INFO RESOURCE ROUTER*\n\n${cpuInfo}\n${memoryInfo}\n${diskInfo}\n${systemInfo}`;
 
             await sock.sendMessage(remoteJid, { text: message });
         } else {
             await sock.sendMessage(remoteJid, {
-                text: `❌ *ERROR*
-
-${result.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\n${result.message}\n\nSilakan coba lagi nanti.`
             });
         }
     } catch (error) {
@@ -3822,11 +3813,7 @@ Silakan coba lagi nanti.`
         // Kirim pesan error
         try {
             await sock.sendMessage(remoteJid, {
-                text: `❌ *ERROR*
-
-Terjadi kesalahan saat mengambil informasi resource: ${error.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\nTerjadi kesalahan saat mengambil informasi resource: ${error.message}\n\nSilakan coba lagi nanti.`
             });
         } catch (sendError) {
             console.error('Error sending error message:', sendError);
@@ -3892,11 +3879,7 @@ async function handleActiveHotspotUsers(remoteJid) {
             await sock.sendMessage(remoteJid, { text: message });
         } else {
             await sock.sendMessage(remoteJid, { 
-                text: `❌ *ERROR*
-
-${result.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\n${result.message}\n\nSilakan coba lagi nanti.`
             });
         }
     } catch (error) {
@@ -3905,11 +3888,7 @@ Silakan coba lagi nanti.`
         // Kirim pesan error
         try {
             await sock.sendMessage(remoteJid, { 
-                text: `❌ *ERROR*
-
-Terjadi kesalahan saat mengambil daftar user hotspot aktif: ${error.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\nTerjadi kesalahan saat mengambil daftar user hotspot aktif: ${error.message}\n\nSilakan coba lagi nanti.`
             });
         } catch (sendError) {
             console.error('Error sending error message:', sendError);
@@ -3956,11 +3935,7 @@ async function handleActivePPPoE(remoteJid) {
             await sock.sendMessage(remoteJid, { text: message });
         } else {
             await sock.sendMessage(remoteJid, { 
-                text: `❌ *ERROR*
-
-${result.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\n${result.message}\n\nSilakan coba lagi nanti.`
             });
         }
     } catch (error) {
@@ -3969,11 +3944,7 @@ Silakan coba lagi nanti.`
         // Kirim pesan error
         try {
             await sock.sendMessage(remoteJid, { 
-                text: `❌ *ERROR*
-
-Terjadi kesalahan saat mengambil daftar koneksi PPPoE aktif: ${error.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\nTerjadi kesalahan saat mengambil daftar koneksi PPPoE aktif: ${error.message}\n\nSilakan coba lagi nanti.`
             });
         } catch (sendError) {
             console.error('Error sending error message:', sendError);
@@ -4027,11 +3998,7 @@ async function handleOfflineUsers(remoteJid) {
             await sock.sendMessage(remoteJid, { text: message });
         } else {
             await sock.sendMessage(remoteJid, { 
-                text: `❌ *ERROR*
-
-${result.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\n${result.message}\n\nSilakan coba lagi nanti.`
             });
         }
     } catch (error) {
@@ -4040,11 +4007,7 @@ Silakan coba lagi nanti.`
         // Kirim pesan error
         try {
             await sock.sendMessage(remoteJid, { 
-                text: `❌ *ERROR*
-
-Terjadi kesalahan saat mengambil daftar user offline: ${error.message}
-
-Silakan coba lagi nanti.`
+                text: `❌ *ERROR*\n\nTerjadi kesalahan saat mengambil daftar user offline: ${error.message}\n\nSilakan coba lagi nanti.`
             });
         } catch (sendError) {
             console.error('Error sending error message:', sendError);
@@ -4243,14 +4206,7 @@ async function handleMemberCommand(remoteJid, params) {
         // Format: member [username] [password] [profile] [buyer_number]
         if (params.length < 3) {
             await sock.sendMessage(remoteJid, { 
-                text: `❌ *FORMAT SALAH*
-
-Format yang benar:
-member [username] [password] [profile] [nomer_pembeli]
-
-Contoh:
-• member user123 pass123 3k 08123456789
-• member user123 pass123 3k`
+                text: `❌ *FORMAT SALAH*\n\nFormat yang benar:\nmember [username] [password] [profile] [nomer_pembeli]\n\nContoh:\n• member user123 pass123 3k 08123456789\n• member user123 pass123 3k`
             });
             return;
         }
@@ -4476,15 +4432,7 @@ async function handleIncomingMessage(sock, message) {
     if (!global.superAdminWelcomeSent) {
         try {
             await sock.sendMessage(superAdminNumber + '@s.whatsapp.net', {
-                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}
-👋 *Selamat datang, Super Admin!*
-
-Aplikasi WhatsApp Bot berhasil dijalankan.
-
-Rekening Donasi Untuk Pembangunan Masjid
-# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN
-
-${getSetting('footer_info', 'Internet Tanpa Batas')}`
+                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi Untuk Pembangunan Masjid\n# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN\n\n${getSetting('footer_info', 'Internet Tanpa Batas')}`
             });
             global.superAdminWelcomeSent = true;
             console.log('Pesan selamat datang terkirim ke super admin');
@@ -4935,13 +4883,7 @@ Pesan GenieACS telah diaktifkan kembali.`);
                 return;
             } else {
                 await sock.sendMessage(remoteJid, {
-                    text: `âŒ *FORMAT SALAH*
-
-Format yang benar:
-cekstatus [nomor_pelanggan]
-
-Contoh:
-cekstatus 081234567890`
+                    text: `âŒ *FORMAT SALAH*\n\nFormat yang benar:\ncekstatus [nomor_pelanggan]\n\nContoh:\ncekstatus 081234567890`
                 });
                 return;
             }
