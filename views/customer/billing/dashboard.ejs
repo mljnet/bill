@@ -588,11 +588,7 @@
                                 <% 
                                   // Tentukan file QR berdasarkan paket customer
                                   let qrFile = 'ewallet.jpg'; // default
-                                  
-                                  // Gunakan gambar paket jika tersedia
-                                  if (customer && customer.package_image) {
-                                    qrFile = customer.package_image;
-                                  } else if (customer && customer.package_name) {
+                                  if (customer && customer.package_name) {
                                     const packageName = customer.package_name.toLowerCase();
                                     if (packageName.includes('sosial')) {
                                       qrFile = 'sosial.jpg';
