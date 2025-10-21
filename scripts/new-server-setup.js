@@ -7,6 +7,62 @@
 
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
+
+async function runSqlMigrations(db) {
+    console.log('\n🔧 Step 0: Running SQL migrations...');
+    
+    // Get all SQL migration files
+    const migrationsDir = path.join(__dirname, '../migrations');
+    const migrationFiles = fs.readdirSync(migrationsDir)
+        .filter(file => file.endsWith('.sql'))
+        .sort(); // Sort to ensure proper order
+    
+    console.log(`   📋 Found ${migrationFiles.length} migration files`);
+    
+    // Run each migration
+    for (const file of migrationFiles) {
+        const filePath = path.join(migrationsDir, file);
+        console.log(`   🚀 Running ${file}...`);
+        
+        try {
+            const sql = fs.readFileSync(filePath, 'utf8');
+            
+            // Split SQL by semicolon to handle multiple statements
+            const statements = sql.split(';').filter(stmt => stmt.trim() !== '');
+            
+            for (const statement of statements) {
+                const trimmedStatement = statement.trim();
+                if (trimmedStatement) {
+                    await new Promise((resolve, reject) => {
+                        db.run(trimmedStatement, function(err) {
+                            if (err) {
+                                // Ignore errors for already existing columns/tables
+                                if (err.message.includes('duplicate') || 
+                                    err.message.includes('already exists') ||
+                                    err.message.includes('no such table')) {
+                                    console.log(`      ℹ️  ${err.message} (continuing...)`);
+                                    resolve();
+                                } else {
+                                    reject(err);
+                                }
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                }
+            }
+            
+            console.log(`   ✅ ${file} completed successfully`);
+        } catch (error) {
+            console.log(`   ❌ ${file} failed: ${error.message}`);
+            // Continue with other migrations even if one fails
+        }
+    }
+    
+    console.log('   🎉 SQL migrations completed!\n');
+}
 
 async function newServerSetup() {
     const dbPath = path.join(__dirname, '../data/billing.db');
@@ -14,6 +70,9 @@ async function newServerSetup() {
     
     try {
         console.log('🚀 NEW SERVER SETUP - Setup Awal Server Baru...\n');
+        
+        // Step 0: Run SQL migrations first
+        await runSqlMigrations(db);
         
         // Step 1: Set database optimizations
         console.log('⚙️  Step 1: Setting database optimizations...');

@@ -1,4 +1,4 @@
-const { makeWASocket, DisconnectReason, useMultiFileAuthState } = require('@whiskeysockets/baileys');
+const { makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const qrcode = require('qrcode-terminal');
 const pino = require('pino');
 const fs = require('fs');
@@ -22,12 +22,32 @@ async function getWhatsAppGroupId() {
 
         // Load auth state
         const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
+        
+        // Penanganan versi dengan error handling yang lebih baik
+        let version;
+        try {
+            const versionResult = await fetchLatestBaileysVersion();
+            // Tangani berbagai tipe return value
+            if (Array.isArray(versionResult)) {
+                version = versionResult;
+            } else if (versionResult && Array.isArray(versionResult.version)) {
+                version = versionResult.version;
+            } else {
+                // Fallback ke versi default jika fetching gagal
+                version = [2, 3000, 1023223821];
+            }
+            console.log(`📱 Using WhatsApp Web version: ${version.join('.')}`);
+        } catch (error) {
+            console.warn(`⚠️ Failed to fetch latest WhatsApp version, using fallback:`, error.message);
+            version = [2, 3000, 1023223821];
+        }
 
         const sock = makeWASocket({
             auth: state,
             printQRInTerminal: true,
             logger: pino({ level: 'silent' }),
-            browser: ['Group ID Finder', 'Chrome', '1.0.0']
+            browser: ['Group ID Finder', 'Chrome', '1.0.0'],
+            version: version
         });
 
         sock.ev.on('creds.update', saveCreds);
@@ -36,99 +56,53 @@ async function getWhatsAppGroupId() {
             const { connection, lastDisconnect } = update;
 
             if (connection === 'close') {
-                const shouldReconnect = (lastDisconnect?.error instanceof Error) &&
+                const shouldReconnect = (lastDisconnect?.error instanceof Boom) && 
                                       (lastDisconnect.error.output?.statusCode !== DisconnectReason.loggedOut);
-
+                
                 if (shouldReconnect) {
-                    console.log('🔄 Mencoba koneksi ulang...');
-                    setTimeout(getWhatsAppGroupId, 5000);
+                    console.log('🔁 Mencoba koneksi ulang...');
+                    setTimeout(getWhatsAppGroupId, 3000);
                 } else {
-                    console.log('❌ Koneksi ditutup');
+                    console.log('❌ Koneksi ditutup secara permanen');
+                    process.exit(1);
                 }
             }
-
+            
             if (connection === 'open') {
-                console.log('✅ WhatsApp terhubung!');
-                console.log('');
-                console.log('📋 Cara mendapatkan Group ID:');
-                console.log('');
-                console.log('1️⃣  BUKA WHATSAPP WEB ATAU MOBILE');
-                console.log('   - Buka grup WhatsApp yang ingin Anda dapatkan ID-nya');
-                console.log('');
-                console.log('2️⃣  COPY LINK GRUP (Hanya untuk Admin)');
-                console.log('   - Klik nama grup > Group info > Invite via link');
-                console.log('   - Copy link yang muncul');
-                console.log('   - Link format: https://chat.whatsapp.com/XXXXXXXXXXXXXXXXXX');
-                console.log('');
-                console.log('3️⃣  EKSTRAK GROUP ID');
-                console.log('   - Ambil bagian setelah "chat.whatsapp.com/"');
-                console.log('   - Tambahkan "@g.us" di akhir');
-                console.log('');
-                console.log('   Contoh:');
-                console.log('   Link: https://chat.whatsapp.com/D1234567890ABCDEF');
-                console.log('   Group ID: D1234567890ABCDEF@g.us');
-                console.log('');
-                console.log('   ATAU lengkap: 120363D1234567890ABCDEF@g.us');
-                console.log('');
-
-                console.log('🚀 METODE OTOMATIS:');
-                console.log('Script ini akan menampilkan semua grup yang Anda ikuti...');
-
-                // Dapatkan semua grup
-                const groups = await sock.groupFetchAllParticipating();
-                const groupList = Object.values(groups);
-
-                if (groupList.length > 0) {
-                    console.log('');
-                    console.log('📱 GRUP WHATSAPP YANG ANDA IKUTI:');
-                    console.log('='.repeat(60));
-
-                    groupList.forEach((group, index) => {
-                        console.log(`${index + 1}. NAMA: ${group.subject || 'Tidak ada nama'}`);
-                        console.log(`   ID: ${group.id}`);
-                        console.log(`   Owner: ${group.owner || 'Tidak diketahui'}`);
-                        console.log(`   Participants: ${group.participants ? group.participants.length : 0} orang`);
-                        console.log(`   Description: ${group.desc || 'Tidak ada deskripsi'}`);
-                        console.log('');
-                    });
-
-                    console.log('💡 UNTUK COPY GROUP ID:');
-                    console.log('   Copy nilai "ID" dari grup yang diinginkan');
-                    console.log('   Contoh: 120363123456789012@g.us');
-                    console.log('');
-                    console.log('📝 FORMAT YANG BENAR:');
-                    console.log('   ✅ 120363123456789012@g.us');
-                    console.log('   ✅ 120363D1234567890ABCDEF@g.us');
-                    console.log('   ❌ 120363123456789012 (tanpa @g.us)');
-                    console.log('   ❌ https://chat.whatsapp.com/XXXXXX');
-
-                } else {
-                    console.log('❌ Tidak ada grup ditemukan');
+                console.log('✅ WhatsApp berhasil terhubung!');
+                console.log('🔍 Mengambil daftar grup...');
+                
+                try {
+                    const groups = await sock.groupFetchAllParticipating();
+                    console.log(`\n📋 Ditemukan ${Object.keys(groups).length} grup:`);
+                    console.log('═'.repeat(50));
+                    
+                    for (const groupId in groups) {
+                        const group = groups[groupId];
+                        console.log(`📝 Nama Grup: ${group.subject}`);
+                        console.log(`🆔 Group ID: ${groupId}`);
+                        console.log(`👥 Anggota: ${group.participants.length}`);
+                        console.log('─'.repeat(30));
+                    }
+                    
+                    console.log('\n✅ Proses selesai. Anda dapat menyalin Group ID yang dibutuhkan.');
+                } catch (error) {
+                    console.error('❌ Error mengambil grup:', error.message);
                 }
-
-                // Tutup koneksi setelah mendapatkan info
+                
+                // Tutup koneksi setelah selesai
                 setTimeout(() => {
-                    console.log('');
-                    console.log('🔚 Menutup koneksi...');
-                    sock.logout();
+                    sock.end();
+                    console.log('🔚 Koneksi ditutup');
                     process.exit(0);
                 }, 5000);
             }
         });
-
-        sock.ev.on('messages.upsert', async (m) => {
-            // Handle pesan jika diperlukan
-        });
-
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('❌ Error koneksi WhatsApp:', error.message);
         process.exit(1);
     }
 }
 
-// Jalankan script
-console.log('📱 Memulai WhatsApp Group ID Finder...');
-console.log('📸 Jika diminta QR Code, silakan scan dengan WhatsApp');
-console.log('');
-
+// Jalankan fungsi
 getWhatsAppGroupId();
