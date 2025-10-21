@@ -547,6 +547,26 @@
             }, 1000);
         }
         
+        function loadMoreDevices() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            showNotification('Memuat device tambahan...', 'info');
+            
+            // Simulate loading more devices
+            setTimeout(() => {
+                isLoading = false;
+                showNotification('Semua device telah dimuat', 'success');
+            }, 1000);
+        }
+        
+        // Auto refresh every 30 seconds
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                refreshDevices();
+            }
+        }, 30000);
+        
         // Force navbar visibility with multiple checks
         function forceShowNavbar() {
             const navbar = document.querySelector('.tech-bottom-nav');

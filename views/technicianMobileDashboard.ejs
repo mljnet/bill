@@ -222,151 +222,41 @@
     <script src="/js/technician-mobile.js"></script>
     
     <script>
-        // Load system status
-        function loadSystemStatus() {
-            fetch('/technician/api/mobile-dashboard-data')
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        const data = result.data;
-                        updateSystemStatus(data.systemStatus);
-                    } else {
-                        throw new Error(result.error || 'Failed to load system status');
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Error loading system status:', error);
-                    // Keep default status jika API gagal
-                });
-        }
-
-        function updateSystemStatus(systemStatus) {
-            // Update GenieACS status
-            const genieacsStatus = document.querySelector('.col-6:first-child .small.text-muted');
-            if (genieacsStatus) {
-                genieacsStatus.textContent = systemStatus.genieacs || 'Online';
-            }
-
-            // Update Mikrotik status
-            const mikrotikStatus = document.querySelector('.col-6:last-child .small.text-muted');
-            if (mikrotikStatus) {
-                mikrotikStatus.textContent = systemStatus.mikrotik || 'Online';
-            }
-        }
+        // Load recent activities
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRecentActivities();
+        });
         
         function loadRecentActivities() {
-            // Load real activities from API instead of hardcoded
-            fetch('/technician/api/mobile-dashboard-data')
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        const data = result.data;
-                        const activitiesContainer = document.getElementById('recent-activities');
-
-                        if (data.recentActivities && data.recentActivities.length > 0) {
-                            const activitiesHtml = data.recentActivities.map(activity => {
-                                let icon = 'bi-wifi';
-                                let color = 'text-success';
-
-                                switch(activity.type) {
-                                    case 'device_monitoring':
-                                        icon = 'bi-wifi';
-                                        color = 'text-success';
-                                        break;
-                                    case 'customer_update':
-                                        icon = 'bi-people';
-                                        color = 'text-primary';
-                                        break;
-                                    case 'trouble_ticket':
-                                        icon = 'bi-exclamation-triangle';
-                                        color = 'text-warning';
-                                        break;
-                                }
-
-                                return `
-                                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                        <div>
-                                            <div class="small fw-bold">${getActivityTitle(activity.type)}</div>
-                                            <div class="small text-muted">${formatTime(activity.latest_time)}</div>
-                                        </div>
-                                        <i class="bi ${icon} ${color}"></i>
-                                    </div>
-                                `;
-                            }).join('');
-
-                            activitiesContainer.innerHTML = `<div class="list-group list-group-flush">${activitiesHtml}</div>`;
-                        } else {
-                            activitiesContainer.innerHTML = `
-                                <div class="text-center text-muted py-3">
-                                    <i class="bi bi-hourglass-split me-2"></i>
-                                    Belum ada aktivitas terbaru
-                                </div>
-                            `;
-                        }
-                    } else {
-                        throw new Error(result.error || 'Failed to load activities');
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Error loading activities:', error);
-                    showFallbackActivities();
-                });
-        }
-
-        function getActivityTitle(type) {
-            switch(type) {
-                case 'device_monitoring': return 'Device Monitoring';
-                case 'customer_update': return 'Customer Update';
-                case 'trouble_ticket': return 'Trouble Ticket';
-                default: return 'Activity';
-            }
-        }
-
-        function formatTime(timeString) {
-            if (!timeString) return 'Baru saja';
-
-            const time = new Date(timeString);
-            const now = new Date();
-            const diffMinutes = Math.floor((now - time) / (1000 * 60));
-
-            if (diffMinutes < 1) return 'Baru saja';
-            if (diffMinutes < 60) return `${diffMinutes} menit yang lalu`;
-
-            const diffHours = Math.floor(diffMinutes / 60);
-            if (diffHours < 24) return `${diffHours} jam yang lalu`;
-
-            const diffDays = Math.floor(diffHours / 24);
-            return `${diffDays} hari yang lalu`;
-        }
-
-        function showFallbackActivities() {
-            // Fallback jika API gagal
-            const activitiesContainer = document.getElementById('recent-activities');
-            activitiesContainer.innerHTML = `
-                <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                        <div>
-                            <div class="small fw-bold">Device Monitoring</div>
-                            <div class="small text-muted">2 menit yang lalu</div>
+            // Simulate loading recent activities
+            setTimeout(() => {
+                const activitiesContainer = document.getElementById('recent-activities');
+                activitiesContainer.innerHTML = `
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <div class="small fw-bold">Device Monitoring</div>
+                                <div class="small text-muted">2 menit yang lalu</div>
+                            </div>
+                            <i class="bi bi-wifi text-success"></i>
                         </div>
-                        <i class="bi bi-wifi text-success"></i>
-                    </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                        <div>
-                            <div class="small fw-bold">Customer Update</div>
-                            <div class="small text-muted">15 menit yang lalu</div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <div class="small fw-bold">Customer Update</div>
+                                <div class="small text-muted">15 menit yang lalu</div>
+                            </div>
+                            <i class="bi bi-people text-primary"></i>
                         </div>
-                        <i class="bi bi-people text-primary"></i>
-                    </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                        <div>
-                            <div class="small fw-bold">Trouble Ticket</div>
-                            <div class="small text-muted">1 jam yang lalu</div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <div class="small fw-bold">Trouble Ticket</div>
+                                <div class="small text-muted">1 jam yang lalu</div>
+                            </div>
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
                         </div>
-                        <i class="bi bi-exclamation-triangle text-warning"></i>
                     </div>
-                </div>
-            `;
+                `;
+            }, 1000);
         }
     </script>
 </body>

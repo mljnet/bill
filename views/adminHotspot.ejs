@@ -256,7 +256,7 @@
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
-                                        <input type="number" class="form-control form-control-sm" id="price_3k" value="3000" readonly>
+                                        <input type="number" class="form-control form-control-sm" id="price_3k" value="<%= voucherOnlineSettings['3k']?.price || 3000 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -303,7 +303,7 @@
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
-                                        <input type="number" class="form-control form-control-sm" id="price_5k" value="5000" readonly>
+                                        <input type="number" class="form-control form-control-sm" id="price_5k" value="<%= voucherOnlineSettings['5k']?.price || 5000 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -350,7 +350,7 @@
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
-                                        <input type="number" class="form-control form-control-sm" id="price_10k" value="10000" readonly>
+                                        <input type="number" class="form-control form-control-sm" id="price_10k" value="<%= voucherOnlineSettings['10k']?.price || 10000 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -397,7 +397,7 @@
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
-                                        <input type="number" class="form-control form-control-sm" id="price_15k" value="15000" readonly>
+                                        <input type="number" class="form-control form-control-sm" id="price_15k" value="<%= voucherOnlineSettings['15k']?.price || 15000 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -444,7 +444,7 @@
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
-                                        <input type="number" class="form-control form-control-sm" id="price_25k" value="25000" readonly>
+                                        <input type="number" class="form-control form-control-sm" id="price_25k" value="<%= voucherOnlineSettings['25k']?.price || 25000 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -491,7 +491,7 @@
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
-                                        <input type="number" class="form-control form-control-sm" id="price_50k" value="50000" readonly>
+                                        <input type="number" class="form-control form-control-sm" id="price_50k" value="<%= voucherOnlineSettings['50k']?.price || 50000 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -2014,6 +2014,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const nameInput = document.getElementById(`name_${pkg}`);
             const profileSelect = document.getElementById(`profile_${pkg}`);
             const digitsSelect = document.getElementById(`digits_${pkg}`);
+            const priceInput = document.getElementById(`price_${pkg}`);
             const enabledCheckbox = document.getElementById(`online_${pkg}`);
 
             if (profileSelect && enabledCheckbox) {
@@ -2021,6 +2022,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     name: nameInput ? nameInput.value : `${pkg} - Paket`,
                     profile: profileSelect.value,
                     digits: digitsSelect ? parseInt(digitsSelect.value) : 5,
+                    price: priceInput ? parseInt(priceInput.value) : 0,
                     enabled: enabledCheckbox.checked
                 };
             }
