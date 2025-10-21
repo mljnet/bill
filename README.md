@@ -39,7 +39,7 @@
 
 ## 📋 Prasyarat Sistem
 
-- **Node.js** >= 14.0.0
+- **Node.js** >= 20.0.0
 - **npm** >= 6.0.0
 - **Database** SQLite (untuk development) atau MySQL (untuk production)
 - **Akses WhatsApp Business** (untuk fitur WhatsApp Gateway)
@@ -49,6 +49,8 @@
 ### 1. Clone Repository
 ```bash
 git clone https://github.com/alijayanet/gembok-bill.git
+```
+```bash
 cd gembok-bill
 ```
 
@@ -57,13 +59,7 @@ cd gembok-bill
 npm install
 ```
 
-### 3. Konfigurasi Environment
-```bash
-cp .env.example .env
-# Edit file .env dengan konfigurasi Anda
-```
-
-### 4. Inisialisasi Database
+### 3. Inisialisasi Database
 ```bash
 npm run setup
 ```
@@ -72,8 +68,9 @@ npm run setup
 ```bash
 # Untuk production
 npm start
-
+```
 # Untuk development
+```bash
 npm run dev
 ```
 
@@ -146,4 +143,5 @@ Project ini dilisensikan di bawah lisensi ISC - lihat file [LICENSE](LICENSE) un
   
   [Laporkan Bug](https://github.com/alijayanet/gembok-bill/issues) · [Minta Fitur](https://github.com/alijayanet/gembok-bill/issues) · [Dokumentasi](DEPLOYMENT_GUIDE.md)
   
+
 </div>
