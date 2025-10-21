@@ -8,11 +8,15 @@
     "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "echo \"No build process required\"",
-    "setup": "npm install && node scripts/setup-database.js"
+    "setup": "npm install && node scripts/setup-database.js",
+    "check-whatsapp-version": "node scripts/check-whatsapp-version.js",
+    "test-whatsapp-connection": "node scripts/test-whatsapp-connection.js",
+    "prepare-for-github": "node scripts/prepare-for-github.js",
+    "run-sql-migrations": "node scripts/run-sql-migrations.js"
   },
   "dependencies": {
     "@hapi/boom": "^10.0.1",
-    "@whiskeysockets/baileys": "^6.7.17",
+    "@whiskeysockets/baileys": "^6.7.35",
     "axios": "^1.6.7",
     "bcrypt": "^6.0.0",
     "body-parser": "^1.20.2",
