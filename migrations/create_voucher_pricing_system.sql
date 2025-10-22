@@ -31,3 +31,7 @@ UPDATE agent_voucher_sales
 SET agent_price = price * 0.8,
     commission_amount = price * 0.2
 WHERE agent_price = 0.00;
+
+-- Add duration columns to voucher_online_settings table
+ALTER TABLE voucher_online_settings ADD COLUMN duration INTEGER DEFAULT 24;
+ALTER TABLE voucher_online_settings ADD COLUMN duration_type TEXT DEFAULT 'hours';

@@ -1,11 +1,11 @@
 -- Migration: Add name column to voucher_online_settings table
--- Date: 2025-10-13
--- Description: Add name column to store package names in voucher_online_settings table
+-- Date: 2025-10-21
+-- Description: Add name column to store voucher package names in voucher_online_settings table
 
 -- Add name column to voucher_online_settings table
-ALTER TABLE voucher_online_settings ADD COLUMN name TEXT NOT NULL DEFAULT '';
+ALTER TABLE voucher_online_settings ADD COLUMN name TEXT;
 
--- Update existing records with default names
+-- Update existing records with default names based on package_id
 UPDATE voucher_online_settings 
 SET name = CASE package_id
     WHEN '3k' THEN '3rb - 1 Hari'
@@ -15,7 +15,5 @@ SET name = CASE package_id
     WHEN '25k' THEN '25rb - 15 Hari'
     WHEN '50k' THEN '50rb - 30 Hari'
     ELSE package_id || ' - Paket'
-END;
-
--- Create index for faster queries on name column
-CREATE INDEX IF NOT EXISTS idx_voucher_online_settings_name ON voucher_online_settings(name);
+END
+WHERE name IS NULL;
