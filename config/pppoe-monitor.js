@@ -1,10 +1,244 @@
 // pppoe-monitor.js - Enhanced PPPoE monitoring with notification control
 const logger = require('./logger');
 const pppoeNotifications = require('./pppoe-notifications');
+const { getActivePPPoEConnections } = require('./mikrotik');
 
 let monitorInterval = null;
 let lastActivePPPoE = [];
 let isMonitoring = false;
+let previousPPPoEData = [];
+
+// Tambahkan konfigurasi untuk pemeriksaan PPPoE
+const PPPoE_CONFIG = {
+    checkInterval: 30000, // 30 detik
+    maxRetries: 3,
+    retryDelay: 5000 // 5 detik
+};
+
+// Tambahkan fungsi utilitas untuk menangani timeout
+function withTimeout(promise, timeoutMs, timeoutMessage = 'Operation timed out') {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => 
+            setTimeout(() => reject(new Error(`${timeoutMessage} after ${timeoutMs}ms`)), timeoutMs)
+        )
+    ]);
+}
+
+// Fungsi untuk mendapatkan data PPPoE saat ini dari Mikrotik
+async function getCurrentPPPoEData() {
+    try {
+        console.log('[PPPoE-MONITOR] Mengambil data PPPoE aktif dari Mikrotik...');
+        
+        // Gunakan fungsi yang sudah ada untuk mendapatkan koneksi PPPoE aktif
+        const result = await withTimeout(getActivePPPoEConnections(), 10000, 'Timeout saat mengambil data PPPoE dari Mikrotik');
+        
+        if (result && result.success && Array.isArray(result.data)) {
+            console.log(`[PPPoE-MONITOR] Ditemukan ${result.data.length} koneksi PPPoE aktif`);
+            return result.data;
+        } else {
+            console.warn('[PPPoE-MONITOR] Gagal mendapatkan data PPPoE aktif dari Mikrotik');
+            return [];
+        }
+    } catch (error) {
+        console.error('[PPPoE-MONITOR] Error saat mengambil data PPPoE dari Mikrotik:', error.message);
+        return [];
+    }
+}
+
+// Fungsi untuk membandingkan data PPPoE
+async function comparePPPoEData(previousData, currentData) {
+    try {
+        console.log('[PPPoE-MONITOR] Membandingkan data PPPoE...');
+        
+        // Jika tidak ada data sebelumnya, semua data saat ini adalah "baru"
+        if (!previousData || previousData.length === 0) {
+            console.log('[PPPoE-MONITOR] Tidak ada data sebelumnya, semua koneksi dianggap baru');
+            return currentData.map(conn => ({
+                type: 'new',
+                connection: conn
+            }));
+        }
+        
+        // Buat map dari data sebelumnya untuk pencarian cepat
+        const previousMap = new Map();
+        previousData.forEach(conn => {
+            if (conn.name) {
+                previousMap.set(conn.name, conn);
+            }
+        });
+        
+        // Buat map dari data saat ini
+        const currentMap = new Map();
+        currentData.forEach(conn => {
+            if (conn.name) {
+                currentMap.set(conn.name, conn);
+            }
+        });
+        
+        const changes = [];
+        
+        // Cari koneksi baru (ada di current tapi tidak di previous)
+        currentData.forEach(conn => {
+            if (conn.name && !previousMap.has(conn.name)) {
+                changes.push({
+                    type: 'login',
+                    connection: conn
+                });
+            }
+        });
+        
+        // Cari koneksi yang logout (ada di previous tapi tidak di current)
+        previousData.forEach(conn => {
+            if (conn.name && !currentMap.has(conn.name)) {
+                changes.push({
+                    type: 'logout',
+                    connection: conn
+                });
+            }
+        });
+        
+        console.log(`[PPPoE-MONITOR] Ditemukan ${changes.length} perubahan PPPoE`);
+        return changes;
+    } catch (error) {
+        console.error('[PPPoE-MONITOR] Error saat membandingkan data PPPoE:', error.message);
+        return [];
+    }
+}
+
+// Fungsi untuk memproses perubahan PPPoE
+async function processPPPoEChange(change) {
+    try {
+        console.log('[PPPoE-MONITOR] Memproses perubahan PPPoE:', JSON.stringify(change, null, 2));
+        
+        // Dapatkan pengaturan notifikasi
+        const settings = pppoeNotifications.getSettings();
+        
+        // Proses berdasarkan tipe perubahan
+        switch (change.type) {
+            case 'login':
+                if (settings.loginNotifications) {
+                    console.log('[PPPoE-MONITOR] Mengirim notifikasi login untuk:', change.connection.name);
+                    await pppoeNotifications.sendLoginNotification(change.connection);
+                } else {
+                    console.log('[PPPoE-MONITOR] Notifikasi login dinonaktifkan untuk:', change.connection.name);
+                }
+                break;
+                
+            case 'logout':
+                if (settings.logoutNotifications) {
+                    console.log('[PPPoE-MONITOR] Mengirim notifikasi logout untuk:', change.connection.name);
+                    await pppoeNotifications.sendLogoutNotification(change.connection);
+                } else {
+                    console.log('[PPPoE-MONITOR] Notifikasi logout dinonaktifkan untuk:', change.connection.name);
+                }
+                break;
+                
+            case 'new':
+                if (settings.loginNotifications) {
+                    console.log('[PPPoE-MONITOR] Mengirim notifikasi koneksi baru untuk:', change.connection.name);
+                    await pppoeNotifications.sendLoginNotification(change.connection);
+                } else {
+                    console.log('[PPPoE-MONITOR] Notifikasi koneksi baru dinonaktifkan untuk:', change.connection.name);
+                }
+                break;
+                
+            default:
+                console.warn('[PPPoE-MONITOR] Tipe perubahan tidak dikenali:', change.type);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('[PPPoE-MONITOR] Error saat memproses perubahan PPPoE:', error.message);
+        return false;
+    }
+}
+
+// Perbaiki fungsi checkPPPoEChanges dengan penanganan error yang lebih baik
+async function checkPPPoEChanges() {
+    try {
+        console.log('[PPPoE-MONITOR] Memeriksa perubahan PPPoE...');
+        
+        // Cek koneksi WhatsApp dengan penanganan error yang lebih baik
+        if (!global.whatsappStatus || !global.whatsappStatus.connected) {
+            console.warn('[PPPoE-MONITOR] WhatsApp tidak terhubung, melewatkan notifikasi');
+            return;
+        }
+
+        // Dapatkan data pelanggan PPPoE terbaru dari Mikrotik
+        let currentPPPoEData;
+        try {
+            console.log('[PPPoE-MONITOR] Mengambil data PPPoE terbaru dari Mikrotik...');
+            currentPPPoEData = await withTimeout(getCurrentPPPoEData(), 10000, 'Timeout saat mengambil data PPPoE');
+        } catch (getDataError) {
+            console.error('[PPPoE-MONITOR] Error saat mendapatkan data PPPoE:', getDataError.message);
+            return;
+        }
+        
+        if (!currentPPPoEData) {
+            console.warn('[PPPoE-MONITOR] Gagal mendapatkan data PPPoE');
+            return;
+        }
+
+        // Bandingkan dengan data sebelumnya
+        let changes;
+        try {
+            console.log('[PPPoE-MONITOR] Membandingkan data PPPoE...');
+            changes = await withTimeout(comparePPPoEData(previousPPPoEData, currentPPPoEData), 5000, 'Timeout saat membandingkan data PPPoE');
+        } catch (compareError) {
+            console.error('[PPPoE-MONITOR] Error saat membandingkan data PPPoE:', compareError.message);
+            return;
+        }
+        
+        // Proses perubahan dengan penanganan error per item
+        if (changes && changes.length > 0) {
+            console.log(`[PPPoE-MONITOR] Ditemukan ${changes.length} perubahan PPPoE`);
+            
+            // Kirim notifikasi untuk setiap perubahan dengan penanganan error individual
+            for (const change of changes) {
+                try {
+                    console.log('[PPPoE-MONITOR] Memproses perubahan:', JSON.stringify(change, null, 2));
+                    await withTimeout(processPPPoEChange(change), 15000, 'Timeout saat memproses perubahan PPPoE');
+                } catch (processError) {
+                    console.error('[PPPoE-MONITOR] Error saat memproses perubahan:', processError.message);
+                    // Lanjutkan ke perubahan berikutnya meskipun ada error
+                    continue;
+                }
+            }
+        } else {
+            console.log('[PPPoE-MONITOR] Tidak ada perubahan PPPoE');
+        }
+
+        // Update data sebelumnya
+        previousPPPoEData = currentPPPoEData;
+        console.log('[PPPoE-MONITOR] Pemeriksaan selesai');
+        
+    } catch (error) {
+        console.error('[PPPoE-MONITOR] Error tidak terduga saat memeriksa perubahan PPPoE:', error.message);
+        // Jangan biarkan error menghentikan monitor
+        // Proses akan dilanjutkan pada interval berikutnya
+    }
+}
+
+// Perbaiki timeout function dengan penanganan error yang lebih baik
+function scheduleNextCheck() {
+    console.log(`[PPPoE-MONITOR] Menjadwalkan pemeriksaan berikutnya dalam ${PPPoE_CONFIG.checkInterval/1000} detik`);
+    
+    setTimeout(async function _onTimeout() {
+        try {
+            await checkPPPoEChanges();
+        } catch (error) {
+            console.error('[PPPoE-MONITOR] Error pada timeout function:', error.message);
+        } finally {
+            // Pastikan penjadwalan berikutnya selalu dijalankan
+            scheduleNextCheck();
+        }
+    }, PPPoE_CONFIG.checkInterval);
+}
+
+// Mulai penjadwalan pemeriksaan
+console.log('[PPPoE-MONITOR] Memulai monitor PPPoE...');
+scheduleNextCheck();
 
 // Start PPPoE monitoring
 async function startPPPoEMonitoring() {
@@ -79,67 +313,6 @@ async function restartPPPoEMonitoring() {
             success: false, 
             message: `Gagal restart monitoring: ${error.message}` 
         };
-    }
-}
-
-// Check for PPPoE login/logout changes
-async function checkPPPoEChanges() {
-    try {
-        const settings = pppoeNotifications.getSettings();
-        
-        // Skip if notifications are disabled
-        if (!settings.enabled) {
-            return;
-        }
-
-        // Get current active connections
-        const connectionsResult = await pppoeNotifications.getActivePPPoEConnections();
-        if (!connectionsResult.success) {
-            logger.warn(`Failed to get PPPoE connections: ${connectionsResult.message || 'Unknown error'}`);
-            return;
-        }
-
-        const connections = connectionsResult.data;
-        const activeNow = connections.map(conn => conn.name);
-
-        // Detect login/logout events
-        const loginUsers = activeNow.filter(user => !lastActivePPPoE.includes(user));
-        const logoutUsers = lastActivePPPoE.filter(user => !activeNow.includes(user));
-
-        // Handle login notifications
-        if (loginUsers.length > 0 && settings.loginNotifications) {
-            logger.info(`PPPoE LOGIN detected: ${loginUsers.join(', ')}`);
-            
-            // Get offline users for the notification
-            const offlineUsers = await pppoeNotifications.getOfflinePPPoEUsers(activeNow);
-            
-            // Format and send login notification
-            const message = pppoeNotifications.formatLoginMessage(loginUsers, connections, offlineUsers);
-            await pppoeNotifications.sendNotification(message);
-        }
-
-        // Handle logout notifications
-        if (logoutUsers.length > 0 && settings.logoutNotifications) {
-            logger.info(`PPPoE LOGOUT detected: ${logoutUsers.join(', ')}`);
-            
-            // Get offline users for the notification
-            const offlineUsers = await pppoeNotifications.getOfflinePPPoEUsers(activeNow);
-            
-            // Format and send logout notification
-            const message = pppoeNotifications.formatLogoutMessage(logoutUsers, offlineUsers);
-            await pppoeNotifications.sendNotification(message);
-        }
-
-        // Update last active users
-        lastActivePPPoE = activeNow;
-
-        // Log monitoring status
-        if (loginUsers.length > 0 || logoutUsers.length > 0) {
-            logger.info(`PPPoE monitoring: ${connections.length} active connections, ${loginUsers.length} login, ${logoutUsers.length} logout`);
-        }
-
-    } catch (error) {
-        logger.error(`Error in PPPoE monitoring check: ${error.message}`);
     }
 }
 

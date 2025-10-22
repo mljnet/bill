@@ -276,119 +276,118 @@ function formatWhatsAppNumber(number) {
     return cleanNumber + '@s.whatsapp.net';
 }
 
-// Helper function untuk validasi nomor WhatsApp
-async function validateWhatsAppNumber(number) {
-    try {
-        const jid = formatWhatsAppNumber(number);
-        const cleanNumber = jid.replace('@s.whatsapp.net', '');
+// Tambahkan konfigurasi timeout untuk fungsi validasi
+const VALIDATION_CONFIG = {
+    timeout: 5000, // 5 detik
+    maxRetries: 2
+};
 
-        // Check if number exists on WhatsApp
-        const [result] = await sock.onWhatsApp(cleanNumber);
+// Tambahkan fungsi utilitas untuk menangani timeout
+function withTimeout(promise, timeoutMs, timeoutMessage = 'Operation timed out') {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => 
+            setTimeout(() => reject(new Error(`${timeoutMessage} after ${timeoutMs}ms`)), timeoutMs)
+        )
+    ]);
+}
+
+// Perbaiki fungsi validateWhatsAppNumber dengan penanganan timeout yang lebih baik
+async function validateWhatsAppNumber(phoneNumber) {
+    try {
+        console.log(`[PPPoE-NOTIFICATION] Memulai validasi nomor WhatsApp: ${phoneNumber}`);
         
-        if (!result) {
-            logger.warn(`WhatsApp validation failed for ${number}: No result`);
-            return false;
+        // Cek apakah WhatsApp socket tersedia dan terhubung
+        if (!global.whatsappSocket || !global.whatsappStatus || !global.whatsappStatus.connected) {
+            console.warn('[PPPoE-NOTIFICATION] WhatsApp socket tidak tersedia atau tidak terhubung');
+            return { isValid: false, error: 'WhatsApp tidak terhubung' };
         }
-        
-        if (!result.exists) {
-            logger.warn(`WhatsApp number ${number} does not exist`);
-            return false;
+
+        // Cek apakah fungsi onWhatsApp tersedia
+        if (typeof global.whatsappSocket.onWhatsApp !== 'function') {
+            console.warn('[PPPoE-NOTIFICATION] Fungsi onWhatsApp tidak tersedia');
+            return { isValid: false, error: 'Fungsi onWhatsApp tidak tersedia' };
         }
-        
-        return true;
+
+        // Coba beberapa kali jika terjadi timeout
+        for (let attempt = 1; attempt <= VALIDATION_CONFIG.maxRetries; attempt++) {
+            try {
+                console.log(`[PPPoE-NOTIFICATION] Mencoba validasi nomor WhatsApp (attempt ${attempt}): ${phoneNumber}`);
+                
+                // Buat promise dengan timeout
+                const validationPromise = global.whatsappSocket.onWhatsApp(phoneNumber);
+                
+                // Tambahkan timeout
+                const result = await withTimeout(validationPromise, VALIDATION_CONFIG.timeout, `Validasi nomor WhatsApp timeout pada attempt ${attempt}`);
+                
+                console.log(`[PPPoE-NOTIFICATION] Validasi berhasil (attempt ${attempt})`);
+                return { isValid: result && result.length > 0, result };
+                
+            } catch (error) {
+                console.warn(`[PPPoE-NOTIFICATION] Attempt ${attempt} gagal:`, error.message);
+                
+                // Jika ini adalah attempt terakhir, kembalikan error
+                if (attempt === VALIDATION_CONFIG.maxRetries) {
+                    console.error('[PPPoE-NOTIFICATION] Semua attempt validasi gagal:', error.message);
+                    return { isValid: false, error: error.message };
+                }
+                
+                // Tunggu sebentar sebelum retry
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            }
+        }
     } catch (error) {
-        logger.warn(`Error validating WhatsApp number ${number}: ${error.message}`);
-        // Return true untuk kasus di mana validasi gagal tapi nomor mungkin valid
-        // Ini untuk menghindari blocking pengiriman karena error validasi
-        return true;
+        console.error('[PPPoE-NOTIFICATION] Error tidak terduga saat validasi nomor WhatsApp:', error.message);
+        return { isValid: false, error: error.message };
     }
 }
 
-// Send notification to admin and technician numbers
-async function sendNotification(message) {
-    if (!sock) {
-        logger.error('WhatsApp socket not available for PPPoE notifications');
-        return false;
-    }
-
-    const settings = getPPPoENotificationSettings();
-    if (!settings.enabled) {
-        logger.info('PPPoE notifications are disabled');
-        return false;
-    }
-
-    // Check connection before sending
-    const isConnected = await checkWhatsAppConnection();
-    if (!isConnected) {
-        logger.error('WhatsApp connection not available for PPPoE notifications');
-        return false;
-    }
-
-            const adminNumbers = getAdminNumbers();
-        const technicianNumbers = await getTechnicianNumbers();
-        const recipients = [...adminNumbers, ...technicianNumbers];
-    const uniqueRecipients = [...new Set(recipients)]; // Remove duplicates
-
-    if (uniqueRecipients.length === 0) {
-        logger.warn('No recipients configured for PPPoE notifications');
-        return false;
-    }
-
-    let successCount = 0;
-    let validRecipients = 0;
-
-    for (const number of uniqueRecipients) {
-        try {
-            // Validate number first
-            const isValid = await validateWhatsAppNumber(number);
-            if (!isValid) {
-                logger.warn(`Skipping invalid WhatsApp number: ${number}`);
-                continue;
-            }
-
-            validRecipients++;
-            const jid = formatWhatsAppNumber(number);
-
-            // Retry mechanism for each recipient with longer timeout
-            let sent = false;
-            for (let retry = 0; retry < 2; retry++) { // Reduced to 2 retries
-                try {
-                    // Add timeout to prevent hanging
-                    const sendPromise = sock.sendMessage(jid, { text: message });
-                    const timeoutPromise = new Promise((_, reject) =>
-                        setTimeout(() => reject(new Error('Send timeout')), 10000) // 10 second timeout
-                    );
-
-                    await Promise.race([sendPromise, timeoutPromise]);
-                    sent = true;
-                    break;
-                } catch (retryError) {
-                    logger.warn(`Retry ${retry + 1}/2 failed for ${number}: ${retryError.message}`);
-                    if (retry < 1) {
-                        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
-                    }
-                }
-            }
-
-            if (sent) {
-                successCount++;
-                logger.info(`PPPoE notification sent to ${number}`);
-            } else {
-                logger.error(`Failed to send PPPoE notification to ${number} after 2 retries`);
-            }
-
-            // Add delay between recipients to avoid rate limiting
-            if (uniqueRecipients.indexOf(number) < uniqueRecipients.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
-            }
-
-        } catch (error) {
-            logger.error(`Failed to send PPPoE notification to ${number}: ${error.message}`);
+// Perbaiki fungsi sendNotification untuk menangani timeout dengan lebih baik
+async function sendNotification(customer, notificationData) {
+    try {
+        console.log(`[PPPoE-NOTIFICATION] Mengirim notifikasi ke: ${customer.phone}`);
+        
+        // Cek apakah WhatsApp socket tersedia
+        if (!global.whatsappSocket || !global.whatsappStatus || !global.whatsappStatus.connected) {
+            console.warn('[PPPoE-NOTIFICATION] Tidak dapat mengirim notifikasi: WhatsApp tidak terhubung');
+            return { success: false, message: 'WhatsApp tidak terhubung' };
         }
-    }
 
-    logger.info(`PPPoE notification sent to ${successCount}/${validRecipients} valid recipients (${uniqueRecipients.length} total)`);
-    return successCount > 0;
+        // Format nomor telepon
+        const formattedPhone = formatPhoneNumberForWhatsApp(customer.phone);
+        if (!formattedPhone) {
+            console.warn('[PPPoE-NOTIFICATION] Format nomor telepon tidak valid:', customer.phone);
+            return { success: false, message: 'Format nomor telepon tidak valid' };
+        }
+
+        // Validasi nomor WhatsApp dengan timeout handling
+        const validation = await validateWhatsAppNumber(formattedPhone);
+        if (!validation.isValid) {
+            console.warn('[PPPoE-NOTIFICATION] Nomor WhatsApp tidak valid atau tidak dapat divalidasi:', customer.phone);
+            return { success: false, message: 'Nomor WhatsApp tidak valid' };
+        }
+
+        // Buat pesan notifikasi
+        const message = createNotificationMessage(customer, notificationData);
+        
+        // Cek apakah fungsi sendMessage tersedia
+        if (typeof global.whatsappSocket.sendMessage !== 'function') {
+            console.warn('[PPPoE-NOTIFICATION] Fungsi sendMessage tidak tersedia');
+            return { success: false, message: 'Fungsi sendMessage tidak tersedia' };
+        }
+        
+        // Tambahkan timeout untuk pengiriman pesan
+        const sendPromise = global.whatsappSocket.sendMessage(formattedPhone, { text: message });
+        const result = await withTimeout(sendPromise, 10000, 'Pengiriman pesan WhatsApp timeout');
+        
+        console.log('[PPPoE-NOTIFICATION] Notifikasi berhasil dikirim ke:', customer.phone);
+        return { success: true, result };
+    } catch (error) {
+        console.error('[PPPoE-NOTIFICATION] Gagal mengirim notifikasi WhatsApp ke:', customer.phone, error.message);
+        
+        // Jangan biarkan error menghentikan aplikasi
+        return { success: false, message: error.message };
+    }
 }
 
 // Get active PPPoE connections
@@ -490,6 +489,155 @@ function formatLogoutMessage(logoutUsers, offlineUsers) {
     return message;
 }
 
+// Fungsi untuk mengirim notifikasi login PPPoE
+async function sendLoginNotification(connection) {
+    try {
+        console.log('[PPPoE-NOTIFICATION] Mengirim notifikasi login untuk:', connection.name);
+        
+        // Dapatkan pengaturan notifikasi
+        const settings = getPPPoENotificationSettings();
+        
+        // Jika notifikasi dinonaktifkan, hentikan proses
+        if (!settings.enabled) {
+            console.log('[PPPoE-NOTIFICATION] Notifikasi dinonaktifkan, melewatkan pengiriman');
+            return { success: false, message: 'Notifikasi dinonaktifkan' };
+        }
+        
+        // Jika notifikasi login dinonaktifkan, hentikan proses
+        if (!settings.loginNotifications) {
+            console.log('[PPPoE-NOTIFICATION] Notifikasi login dinonaktifkan, melewatkan pengiriman');
+            return { success: false, message: 'Notifikasi login dinonaktifkan' };
+        }
+        
+        // Dapatkan daftar nomor admin dan teknisi
+        const adminNumbers = getAdminNumbers();
+        const technicianNumbers = getTechnicianNumbers();
+        const allRecipients = [...new Set([...adminNumbers, ...technicianNumbers])];
+        
+        // Jika tidak ada penerima, hentikan proses
+        if (allRecipients.length === 0) {
+            console.log('[PPPoE-NOTIFICATION] Tidak ada penerima notifikasi, melewatkan pengiriman');
+            return { success: false, message: 'Tidak ada penerima notifikasi' };
+        }
+        
+        // Buat pesan notifikasi
+        let message = `🔔 *PPPoE LOGIN NOTIFICATION*\n\n`;
+        message += `👤 *User:* ${connection.name}\n`;
+        message += `📍 *IP Address:* ${connection.address || 'N/A'}\n`;
+        message += `📈 *Uptime:* ${connection.uptime || 'N/A'}\n`;
+        if (connection.comment) {
+            message += `📝 *Comment:* ${connection.comment}\n`;
+        }
+        message += `\n⏰ *Waktu:* ${new Date().toLocaleString('id-ID')}`;
+        
+        // Kirim notifikasi ke semua penerima
+        const results = [];
+        for (const phoneNumber of allRecipients) {
+            try {
+                const result = await sendNotificationToNumber(phoneNumber, message);
+                results.push({ phoneNumber, success: result.success, message: result.message });
+            } catch (sendError) {
+                console.error(`[PPPoE-NOTIFICATION] Gagal mengirim notifikasi ke ${phoneNumber}:`, sendError.message);
+                results.push({ phoneNumber, success: false, message: sendError.message });
+            }
+        }
+        
+        console.log(`[PPPoE-NOTIFICATION] Notifikasi login terkirim ke ${results.filter(r => r.success).length} dari ${results.length} penerima`);
+        return { success: true, results };
+        
+    } catch (error) {
+        console.error('[PPPoE-NOTIFICATION] Error saat mengirim notifikasi login:', error.message);
+        return { success: false, message: error.message };
+    }
+}
+
+// Fungsi untuk mengirim notifikasi logout PPPoE
+async function sendLogoutNotification(connection) {
+    try {
+        console.log('[PPPoE-NOTIFICATION] Mengirim notifikasi logout untuk:', connection.name);
+        
+        // Dapatkan pengaturan notifikasi
+        const settings = getPPPoENotificationSettings();
+        
+        // Jika notifikasi dinonaktifkan, hentikan proses
+        if (!settings.enabled) {
+            console.log('[PPPoE-NOTIFICATION] Notifikasi dinonaktifkan, melewatkan pengiriman');
+            return { success: false, message: 'Notifikasi dinonaktifkan' };
+        }
+        
+        // Jika notifikasi logout dinonaktifkan, hentikan proses
+        if (!settings.logoutNotifications) {
+            console.log('[PPPoE-NOTIFICATION] Notifikasi logout dinonaktifkan, melewatkan pengiriman');
+            return { success: false, message: 'Notifikasi logout dinonaktifkan' };
+        }
+        
+        // Dapatkan daftar nomor admin dan teknisi
+        const adminNumbers = getAdminNumbers();
+        const technicianNumbers = getTechnicianNumbers();
+        const allRecipients = [...new Set([...adminNumbers, ...technicianNumbers])];
+        
+        // Jika tidak ada penerima, hentikan proses
+        if (allRecipients.length === 0) {
+            console.log('[PPPoE-NOTIFICATION] Tidak ada penerima notifikasi, melewatkan pengiriman');
+            return { success: false, message: 'Tidak ada penerima notifikasi' };
+        }
+        
+        // Buat pesan notifikasi
+        let message = `🚪 *PPPoE LOGOUT NOTIFICATION*\n\n`;
+        message += `👤 *User:* ${connection.name}\n`;
+        if (connection.comment) {
+            message += `📝 *Comment:* ${connection.comment}\n`;
+        }
+        message += `\n⏰ *Waktu:* ${new Date().toLocaleString('id-ID')}`;
+        
+        // Kirim notifikasi ke semua penerima
+        const results = [];
+        for (const phoneNumber of allRecipients) {
+            try {
+                const result = await sendNotificationToNumber(phoneNumber, message);
+                results.push({ phoneNumber, success: result.success, message: result.message });
+            } catch (sendError) {
+                console.error(`[PPPoE-NOTIFICATION] Gagal mengirim notifikasi ke ${phoneNumber}:`, sendError.message);
+                results.push({ phoneNumber, success: false, message: sendError.message });
+            }
+        }
+        
+        console.log(`[PPPoE-NOTIFICATION] Notifikasi logout terkirim ke ${results.filter(r => r.success).length} dari ${results.length} penerima`);
+        return { success: true, results };
+        
+    } catch (error) {
+        console.error('[PPPoE-NOTIFICATION] Error saat mengirim notifikasi logout:', error.message);
+        return { success: false, message: error.message };
+    }
+}
+
+// Fungsi untuk mengirim notifikasi ke nomor tertentu
+async function sendNotificationToNumber(phoneNumber, message) {
+    try {
+        // Cek apakah WhatsApp socket tersedia
+        if (!global.whatsappSocket || !global.whatsappStatus || !global.whatsappStatus.connected) {
+            console.warn('[PPPoE-NOTIFICATION] WhatsApp tidak terhubung');
+            return { success: false, message: 'WhatsApp tidak terhubung' };
+        }
+        
+        // Format nomor telepon
+        const formattedPhone = formatWhatsAppNumber(phoneNumber);
+        if (!formattedPhone) {
+            console.warn('[PPPoE-NOTIFICATION] Format nomor telepon tidak valid:', phoneNumber);
+            return { success: false, message: 'Format nomor telepon tidak valid' };
+        }
+        
+        // Kirim pesan
+        await global.whatsappSocket.sendMessage(formattedPhone, { text: message });
+        console.log('[PPPoE-NOTIFICATION] Pesan terkirim ke:', phoneNumber);
+        return { success: true, message: 'Pesan terkirim' };
+        
+    } catch (error) {
+        console.error('[PPPoE-NOTIFICATION] Gagal mengirim pesan ke:', phoneNumber, error.message);
+        return { success: false, message: error.message };
+    }
+}
+
 module.exports = {
     setSock,
     getPPPoENotificationSettings,
@@ -505,6 +653,8 @@ module.exports = {
     removeAdminNumber,
     removeTechnicianNumber,
     sendNotification,
+    sendLoginNotification,
+    sendLogoutNotification,
     getActivePPPoEConnections,
     getOfflinePPPoEUsers,
     formatLoginMessage,
