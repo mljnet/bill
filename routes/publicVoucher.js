@@ -5,6 +5,15 @@ const { getSettingsWithCache } = require('../config/settingsManager');
 const billingManager = require('../config/billing');
 const logger = require('../config/logger');
 
+// Helper function to get color based on price
+function getPriceColor(price) {
+    if (price <= 5000) return 'primary';
+    if (price <= 10000) return 'success';
+    if (price <= 20000) return 'info';
+    if (price <= 30000) return 'warning';
+    return 'danger';
+}
+
 // Helper function untuk mendapatkan customer_id voucher publik
 async function getVoucherCustomerId() {
     const sqlite3 = require('sqlite3').verbose();
@@ -67,6 +76,9 @@ async function getVoucherOnlineSettings() {
                             name: row.name || `${row.package_id} - Paket`,
                             profile: row.profile,
                             digits: row.digits || 5,
+                            price: row.price || 0,
+                            duration: row.duration || 24,
+                            duration_type: row.duration_type || 'hours',
                             enabled: row.enabled === 1
                         };
                     });
@@ -79,12 +91,12 @@ async function getVoucherOnlineSettings() {
                 console.log('voucher_online_settings table not found, using default settings');
                 db.close();
                 resolve({
-                    '3k': { profile: '3k', enabled: true },
-                    '5k': { profile: '5k', enabled: true },
-                    '10k': { profile: '10k', enabled: true },
-                    '15k': { profile: '15k', enabled: true },
-                    '25k': { profile: '25k', enabled: true },
-                    '50k': { profile: '50k', enabled: true }
+                    '3k': { profile: '3k', enabled: true, price: 3000, duration: 24, duration_type: 'hours' },
+                    '5k': { profile: '5k', enabled: true, price: 5000, duration: 48, duration_type: 'hours' },
+                    '10k': { profile: '10k', enabled: true, price: 10000, duration: 120, duration_type: 'hours' },
+                    '15k': { profile: '15k', enabled: true, price: 15000, duration: 192, duration_type: 'hours' },
+                    '25k': { profile: '25k', enabled: true, price: 25000, duration: 360, duration_type: 'hours' },
+                    '50k': { profile: '50k', enabled: true, price: 50000, duration: 720, duration_type: 'hours' }
                 });
             }
         });
@@ -134,69 +146,152 @@ router.get('/', async (req, res) => {
         // Ambil settings voucher online dari database
         const voucherSettings = await getVoucherOnlineSettings();
 
-        // Data paket voucher berdasarkan setting online
-        const allPackages = [
-            {
-                id: '3k',
-                name: '3rb - 1 Hari',
-                duration: '1 hari',
-                price: 3000,
-                profile: voucherSettings['3k']?.profile || '3k',
-                description: 'Akses WiFi 1 hari penuh',
-                color: 'primary',
-                enabled: voucherSettings['3k']?.enabled !== false
-            },
-            {
-                id: '5k',
-                name: '5rb - 2 Hari',
-                duration: '2 hari',
-                price: 5000,
-                profile: voucherSettings['5k']?.profile || '5k',
-                description: 'Akses WiFi 2 hari penuh',
-                color: 'success',
-                enabled: voucherSettings['5k']?.enabled !== false
-            },
-            {
-                id: '10k',
-                name: '10rb - 5 Hari',
-                duration: '5 hari',
-                price: 10000,
-                profile: voucherSettings['10k']?.profile || '10k',
-                description: 'Akses WiFi 5 hari penuh',
-                color: 'info',
-                enabled: voucherSettings['10k']?.enabled !== false
-            },
-            {
-                id: '15k',
-                name: '15rb - 8 Hari',
-                duration: '8 hari',
-                price: 15000,
-                profile: voucherSettings['15k']?.profile || '15k',
-                description: 'Akses WiFi 8 hari penuh',
-                color: 'warning',
-                enabled: voucherSettings['15k']?.enabled !== false
-            },
-            {
-                id: '25k',
-                name: '25rb - 15 Hari',
-                duration: '15 hari',
-                price: 25000,
-                profile: voucherSettings['25k']?.profile || '25k',
-                description: 'Akses WiFi 15 hari penuh',
-                color: 'danger',
-                enabled: voucherSettings['25k']?.enabled !== false
-            },
-            {
-                id: '50k',
-                name: '50rb - 30 Hari',
-                duration: '30 hari',
-                price: 50000,
-                profile: voucherSettings['50k']?.profile || '50k',
-                description: 'Akses WiFi 30 hari penuh',
-                color: 'secondary',
-                enabled: voucherSettings['50k']?.enabled !== false
-            }
-        ];
+        // Ambil paket voucher dari database voucher_pricing
+        const sqlite3 = require('sqlite3').verbose();
+        const db = new sqlite3.Database('./data/billing.db');
+        
+        const voucherPackagesFromDB = await new Promise((resolve, reject) => {
+            const sql = 'SELECT * FROM voucher_pricing WHERE is_active = 1 ORDER BY customer_price ASC';
+            db.all(sql, [], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            });
+        });
+        
+        db.close();
+
+        // Format paket dari database atau gunakan data dari voucher_online_settings jika tidak ada
+        let allPackages;
+        if (Object.keys(voucherSettings).length > 0) {
+            // Gunakan data dari voucher_online_settings (prioritas utama)
+            allPackages = Object.keys(voucherSettings).map(packageId => {
+                const setting = voucherSettings[packageId];
+                // Format nama paket berdasarkan nama yang disimpan di database
+                const packageName = setting.name || `${packageId} - Paket`;
+                // Format durasi menggunakan data dari database
+                const durationText = getDurationText(packageId, setting.duration, setting.duration_type);
+                
+                return {
+                    id: packageId,
+                    name: packageName,
+                    duration: durationText,
+                    duration_value: setting.duration || 24,
+                    duration_type: setting.duration_type || 'hours',
+                    price: setting.price || 0,
+                    profile: setting.profile || 'default',
+                    description: packageName,
+                    color: getPriceColor(setting.price || 0),
+                    enabled: setting.enabled !== false
+                };
+            });
+        } else if (voucherPackagesFromDB.length > 0) {
+            // Fallback ke data dari voucher_pricing jika voucher_online_settings kosong
+            allPackages = voucherPackagesFromDB.map(pkg => {
+                // Format durasi menggunakan data dari database
+                const durationText = getDurationText(pkg.package_id || `pkg-${pkg.id}`, pkg.duration, pkg.duration_type);
+                
+                // Format harga
+                const price = pkg.customer_price;
+                
+                // Format nama paket
+                const packageName = pkg.package_name;
+                
+                return {
+                    id: `pkg-${pkg.id}`,
+                    name: packageName,
+                    duration: durationText,
+                    duration_value: pkg.duration || 24,
+                    duration_type: pkg.duration_type || 'hours',
+                    price: price,
+                    profile: pkg.hotspot_profile || 'default',
+                    description: pkg.description || `Voucher ${packageName}`,
+                    color: getPriceColor(price),
+                    enabled: true
+                };
+            });
+        } else {
+            // Fallback ke data hardcoded jika kedua tabel kosong
+            allPackages = [
+                {
+                    id: '3k',
+                    name: '3rb - 1 Hari',
+                    duration: getDurationText('3k'),
+                    duration_value: 24,
+                    duration_type: 'hours',
+                    price: 3000,
+                    profile: voucherSettings['3k']?.profile || '3k',
+                    description: 'Akses WiFi 1 hari penuh',
+                    color: 'primary',
+                    enabled: voucherSettings['3k']?.enabled !== false
+                },
+                {
+                    id: '5k',
+                    name: '5rb - 2 Hari',
+                    duration: getDurationText('5k'),
+                    duration_value: 48,
+                    duration_type: 'hours',
+                    price: 5000,
+                    profile: voucherSettings['5k']?.profile || '5k',
+                    description: 'Akses WiFi 2 hari penuh',
+                    color: 'success',
+                    enabled: voucherSettings['5k']?.enabled !== false
+                },
+                {
+                    id: '10k',
+                    name: '10rb - 5 Hari',
+                    duration: getDurationText('10k'),
+                    duration_value: 120,
+                    duration_type: 'hours',
+                    price: 10000,
+                    profile: voucherSettings['10k']?.profile || '10k',
+                    description: 'Akses WiFi 5 hari penuh',
+                    color: 'info',
+                    enabled: voucherSettings['10k']?.enabled !== false
+                },
+                {
+                    id: '15k',
+                    name: '15rb - 8 Hari',
+                    duration: getDurationText('15k'),
+                    duration_value: 192,
+                    duration_type: 'hours',
+                    price: 15000,
+                    profile: voucherSettings['15k']?.profile || '15k',
+                    description: 'Akses WiFi 8 hari penuh',
+                    color: 'warning',
+                    enabled: voucherSettings['15k']?.enabled !== false
+                },
+                {
+                    id: '25k',
+                    name: '25rb - 15 Hari',
+                    duration: getDurationText('25k'),
+                    duration_value: 360,
+                    duration_type: 'hours',
+                    price: 25000,
+                    profile: voucherSettings['25k']?.profile || '25k',
+                    description: 'Akses WiFi 15 hari penuh',
+                    color: 'danger',
+                    enabled: voucherSettings['25k']?.enabled !== false
+                },
+                {
+                    id: '50k',
+                    name: '50rb - 30 Hari',
+                    duration: getDurationText('50k'),
+                    duration_value: 720,
+                    duration_type: 'hours',
+                    price: 50000,
+                    profile: voucherSettings['50k']?.profile || '50k',
+                    description: 'Akses WiFi 30 hari penuh',
+                    color: 'secondary',
+                    enabled: voucherSettings['50k']?.enabled !== false
+                }
+            ];
+        }
+
+        // Urutkan paket berdasarkan harga dari yang terkecil ke yang terbesar
+        allPackages.sort((a, b) => a.price - b.price);
 
         // Filter hanya paket yang enabled
         const voucherPackages = allPackages.filter(pkg => pkg.enabled);
@@ -238,79 +333,166 @@ router.post('/purchase', async (req, res) => {
         // Ambil settings voucher online dari database
         const voucherSettings = await getVoucherOnlineSettings();
 
-        // Data paket voucher berdasarkan setting online
-        const allPackages = [
-            {
-                id: '3k',
-                name: '3rb - 1 Hari',
-                duration: '1 hari',
-                price: 3000,
-                profile: voucherSettings['3k']?.profile || '3k',
-                description: 'Akses WiFi 1 hari penuh',
-                color: 'primary',
-                enabled: voucherSettings['3k']?.enabled !== false
-            },
-            {
-                id: '5k',
-                name: '5rb - 2 Hari',
-                duration: '2 hari',
-                price: 5000,
-                profile: voucherSettings['5k']?.profile || '5k',
-                description: 'Akses WiFi 2 hari penuh',
-                color: 'success',
-                enabled: voucherSettings['5k']?.enabled !== false
-            },
-            {
-                id: '10k',
-                name: '10rb - 5 Hari',
-                duration: '5 hari',
-                price: 10000,
-                profile: voucherSettings['10k']?.profile || '10k',
-                description: 'Akses WiFi 5 hari penuh',
-                color: 'info',
-                enabled: voucherSettings['10k']?.enabled !== false
-            },
-            {
-                id: '15k',
-                name: '15rb - 8 Hari',
-                duration: '8 hari',
-                price: 15000,
-                profile: voucherSettings['15k']?.profile || '15k',
-                description: 'Akses WiFi 8 hari penuh',
-                color: 'warning',
-                enabled: voucherSettings['15k']?.enabled !== false
-            },
-            {
-                id: '25k',
-                name: '25rb - 15 Hari',
-                duration: '15 hari',
-                price: 25000,
-                profile: voucherSettings['25k']?.profile || '25k',
-                description: 'Akses WiFi 15 hari penuh',
-                color: 'danger',
-                enabled: voucherSettings['25k']?.enabled !== false
-            },
-            {
-                id: '50k',
-                name: '50rb - 30 Hari',
-                duration: '30 hari',
-                price: 50000,
-                profile: voucherSettings['50k']?.profile || '50k',
-                description: 'Akses WiFi 30 hari penuh',
-                color: 'secondary',
-                enabled: voucherSettings['50k']?.enabled !== false
-            }
-        ];
+        // Ambil paket voucher dari database voucher_pricing
+        const sqlite3 = require('sqlite3').verbose();
+        const db = new sqlite3.Database('./data/billing.db');
+        
+        const voucherPackagesFromDB = await new Promise((resolve, reject) => {
+            const sql = 'SELECT * FROM voucher_pricing WHERE is_active = 1 ORDER BY customer_price ASC';
+            db.all(sql, [], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            });
+        });
+        
+        db.close();
+
+        // Format paket dari database atau gunakan data dari voucher_online_settings jika tidak ada
+        let allPackages;
+        if (Object.keys(voucherSettings).length > 0) {
+            // Gunakan data dari voucher_online_settings (prioritas utama)
+            allPackages = Object.keys(voucherSettings).map(packageId => {
+                const setting = voucherSettings[packageId];
+                // Format nama paket berdasarkan nama yang disimpan di database
+                const packageName = setting.name || `${packageId} - Paket`;
+                // Format durasi menggunakan data dari database
+                const durationText = getDurationText(packageId, setting.duration, setting.duration_type);
+                
+                return {
+                    id: packageId,
+                    name: packageName,
+                    duration: durationText,
+                    price: setting.price || 0,
+                    profile: setting.profile || 'default',
+                    description: packageName,
+                    color: getPriceColor(setting.price || 0),
+                    enabled: setting.enabled !== false
+                };
+            });
+        } else if (voucherPackagesFromDB.length > 0) {
+            // Fallback ke data dari voucher_pricing jika voucher_online_settings kosong
+            allPackages = voucherPackagesFromDB.map(pkg => {
+                // Format durasi menggunakan data dari database
+                const durationText = getDurationText(pkg.package_id || `pkg-${pkg.id}`, pkg.duration, pkg.duration_type);
+                
+                // Format harga
+                const price = pkg.customer_price;
+                
+                // Format nama paket
+                const packageName = pkg.package_name;
+                
+                return {
+                    id: `pkg-${pkg.id}`,
+                    name: packageName,
+                    duration: durationText,
+                    price: price,
+                    profile: pkg.hotspot_profile || 'default',
+                    description: pkg.description || `Voucher ${packageName}`,
+                    color: getPriceColor(price),
+                    enabled: true
+                };
+            });
+        } else {
+            // Fallback ke data hardcoded jika kedua tabel kosong
+            allPackages = [
+                {
+                    id: '3k',
+                    name: '3rb - 1 Hari',
+                    duration: getDurationText('3k'),
+                    price: 3000,
+                    profile: voucherSettings['3k']?.profile || '3k',
+                    description: 'Akses WiFi 1 hari penuh',
+                    color: 'primary',
+                    enabled: voucherSettings['3k']?.enabled !== false
+                },
+                {
+                    id: '5k',
+                    name: '5rb - 2 Hari',
+                    duration: getDurationText('5k'),
+                    price: 5000,
+                    profile: voucherSettings['5k']?.profile || '5k',
+                    description: 'Akses WiFi 2 hari penuh',
+                    color: 'success',
+                    enabled: voucherSettings['5k']?.enabled !== false
+                },
+                {
+                    id: '10k',
+                    name: '10rb - 5 Hari',
+                    duration: getDurationText('10k'),
+                    price: 10000,
+                    profile: voucherSettings['10k']?.profile || '10k',
+                    description: 'Akses WiFi 5 hari penuh',
+                    color: 'info',
+                    enabled: voucherSettings['10k']?.enabled !== false
+                },
+                {
+                    id: '15k',
+                    name: '15rb - 8 Hari',
+                    duration: getDurationText('15k'),
+                    price: 15000,
+                    profile: voucherSettings['15k']?.profile || '15k',
+                    description: 'Akses WiFi 8 hari penuh',
+                    color: 'warning',
+                    enabled: voucherSettings['15k']?.enabled !== false
+                },
+                {
+                    id: '25k',
+                    name: '25rb - 15 Hari',
+                    duration: getDurationText('25k'),
+                    price: 25000,
+                    profile: voucherSettings['25k']?.profile || '25k',
+                    description: 'Akses WiFi 15 hari penuh',
+                    color: 'danger',
+                    enabled: voucherSettings['25k']?.enabled !== false
+                },
+                {
+                    id: '50k',
+                    name: '50rb - 30 Hari',
+                    duration: getDurationText('50k'),
+                    price: 50000,
+                    profile: voucherSettings['50k']?.profile || '50k',
+                    description: 'Akses WiFi 30 hari penuh',
+                    color: 'secondary',
+                    enabled: voucherSettings['50k']?.enabled !== false
+                }
+            ];
+        }
+
+        // Urutkan paket berdasarkan harga dari yang terkecil ke yang terbesar
+        allPackages.sort((a, b) => a.price - b.price);
 
         // Filter hanya paket yang enabled
         const voucherPackages = allPackages.filter(pkg => pkg.enabled);
-        const selectedPackage = voucherPackages.find(pkg => pkg.id === packageId);
+        // Temukan paket berdasarkan ID (bisa berupa ID database atau ID hardcoded)
+        let selectedPackage = voucherPackages.find(pkg => pkg.id === packageId);
+        
+        // Jika tidak ditemukan, coba cari dengan ID database (format: pkg-1, pkg-2, dll)
+        if (!selectedPackage) {
+            selectedPackage = voucherPackages.find(pkg => pkg.id === `pkg-${packageId}`);
+        }
+        
+        // Jika masih tidak ditemukan, fallback ke pencarian berdasarkan nama paket
+        if (!selectedPackage) {
+            selectedPackage = voucherPackages.find(pkg => 
+                pkg.name.toLowerCase().includes(packageId.toLowerCase()) ||
+                pkg.name.toLowerCase().includes(packageId.replace('k', 'K').toLowerCase())
+            );
+        }
+        
         if (!selectedPackage) {
             return res.status(400).json({
                 success: false,
                 message: 'Paket voucher tidak ditemukan'
             });
         }
+        
+        // Untuk kompatibilitas backward, pastikan packageId dalam format yang benar
+        const actualPackageId = selectedPackage.id.startsWith('pkg-') 
+            ? selectedPackage.id.replace('pkg-', '') 
+            : selectedPackage.id;
 
         const totalAmount = selectedPackage.price * parseInt(quantity);
 
@@ -328,7 +510,7 @@ router.post('/purchase', async (req, res) => {
             customerPhone: customerPhone,
             amount: totalAmount,
             description: `Voucher Hotspot ${selectedPackage.name} x${quantity}`,
-            packageId: packageId,
+            packageId: actualPackageId,
             quantity: parseInt(quantity),
             profile: selectedPackage.profile,
             voucherData: voucherDataString, // Simpan voucher yang sudah di-generate
@@ -352,7 +534,7 @@ router.post('/purchase', async (req, res) => {
             await new Promise((resolve, reject) => {
                 const sql = `INSERT INTO invoices (customer_id, invoice_number, amount, status, created_at, due_date, notes, package_id, package_name, invoice_type)
                            VALUES (?, ?, ?, 'pending', datetime('now'), ?, ?, ?, ?, 'voucher')`;
-                db.run(sql, [voucherCustomerId, invoiceId, totalAmount, dueDate, `Voucher Hotspot ${selectedPackage.name} x${quantity}`, 1, selectedPackage.name], function(err) {
+                db.run(sql, [voucherCustomerId, invoiceId, totalAmount, dueDate, `Voucher Hotspot ${selectedPackage.name} x${quantity}`, actualPackageId, selectedPackage.name], function(err) {
                     if (err) reject(err);
                     else {
                         invoiceDbId = this.lastID;
@@ -616,6 +798,54 @@ function getPackageDuration(packageId) {
         '50k': '30 hari'
     };
     return durations[packageId] || 'Tidak diketahui';
+}
+
+// Helper function untuk mendapatkan teks durasi berdasarkan ID paket
+function getDurationText(packageId) {
+    const durations = {
+        '3k': '1 Hari',
+        '5k': '2 Hari',
+        '10k': '5 Hari',
+        '15k': '8 Hari',
+        '25k': '15 Hari',
+        '50k': '30 Hari'
+    };
+    return durations[packageId] || '1 Hari';
+}
+
+// Memperbaiki fungsi getDurationText untuk menggunakan data yang lebih dinamis
+function getDurationText(packageId, duration, durationType) {
+    // Jika duration dan durationType tersedia, gunakan itu
+    if (duration !== undefined && durationType !== undefined) {
+        if (durationType === 'days') {
+            return `${duration} Hari`;
+        } else if (durationType === 'hours') {
+            // Konversi jam ke hari jika memungkinkan
+            if (duration === 24) return '1 Hari';
+            if (duration === 48) return '2 Hari';
+            if (duration === 72) return '3 Hari';
+            if (duration === 96) return '4 Hari';
+            if (duration === 120) return '5 Hari';
+            if (duration === 144) return '6 Hari';
+            if (duration === 168) return '7 Hari';
+            if (duration === 192) return '8 Hari';
+            if (duration === 240) return '10 Hari';
+            if (duration === 360) return '15 Hari';
+            if (duration === 720) return '30 Hari';
+            return `${duration} Jam`;
+        }
+    }
+    
+    // Fallback ke mapping statis jika tidak ada data durasi
+    const defaultDurations = {
+        '3k': '1 Hari',
+        '5k': '2 Hari',
+        '10k': '5 Hari',
+        '15k': '8 Hari',
+        '25k': '15 Hari',
+        '50k': '30 Hari'
+    };
+    return defaultDurations[packageId] || '1 Hari';
 }
 
 // Helper function untuk format pesan voucher WhatsApp
