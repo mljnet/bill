@@ -259,6 +259,17 @@
                                         <input type="number" class="form-control form-control-sm" id="price_3k" value="<%= voucherOnlineSettings['3k']?.price || 3000 %>">
                                     </div>
                                     <div class="mb-2">
+                                        <small class="text-muted">Tipe Durasi:</small>
+                                        <select class="form-select form-select-sm" id="duration_type_3k">
+                                            <option value="hours" <%= (voucherOnlineSettings['3k']?.duration_type || 'hours') === 'hours' ? 'selected' : '' %>>Jam</option>
+                                            <option value="days" <%= (voucherOnlineSettings['3k']?.duration_type || 'hours') === 'days' ? 'selected' : '' %>>Hari</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Durasi:</small>
+                                        <input type="number" class="form-control form-control-sm" id="duration_3k" value="<%= voucherOnlineSettings['3k']?.duration || 24 %>">
+                                    </div>
+                                    <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
                                         <select class="form-select form-select-sm" id="digits_3k">
                                             <option value="4" <%= (voucherOnlineSettings['3k']?.digits || 5) === 4 ? 'selected' : '' %>>4 digit</option>
@@ -304,6 +315,17 @@
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
                                         <input type="number" class="form-control form-control-sm" id="price_5k" value="<%= voucherOnlineSettings['5k']?.price || 5000 %>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Tipe Durasi:</small>
+                                        <select class="form-select form-select-sm" id="duration_type_5k">
+                                            <option value="hours" <%= (voucherOnlineSettings['5k']?.duration_type || 'hours') === 'hours' ? 'selected' : '' %>>Jam</option>
+                                            <option value="days" <%= (voucherOnlineSettings['5k']?.duration_type || 'hours') === 'days' ? 'selected' : '' %>>Hari</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Durasi:</small>
+                                        <input type="number" class="form-control form-control-sm" id="duration_5k" value="<%= voucherOnlineSettings['5k']?.duration || 48 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -353,6 +375,17 @@
                                         <input type="number" class="form-control form-control-sm" id="price_10k" value="<%= voucherOnlineSettings['10k']?.price || 10000 %>">
                                     </div>
                                     <div class="mb-2">
+                                        <small class="text-muted">Tipe Durasi:</small>
+                                        <select class="form-select form-select-sm" id="duration_type_10k">
+                                            <option value="hours" <%= (voucherOnlineSettings['10k']?.duration_type || 'hours') === 'hours' ? 'selected' : '' %>>Jam</option>
+                                            <option value="days" <%= (voucherOnlineSettings['10k']?.duration_type || 'hours') === 'days' ? 'selected' : '' %>>Hari</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Durasi:</small>
+                                        <input type="number" class="form-control form-control-sm" id="duration_10k" value="<%= voucherOnlineSettings['10k']?.duration || 120 %>">
+                                    </div>
+                                    <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
                                         <select class="form-select form-select-sm" id="digits_10k">
                                             <option value="4" <%= (voucherOnlineSettings['10k']?.digits || 5) === 4 ? 'selected' : '' %>>4 digit</option>
@@ -398,6 +431,17 @@
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
                                         <input type="number" class="form-control form-control-sm" id="price_15k" value="<%= voucherOnlineSettings['15k']?.price || 15000 %>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Tipe Durasi:</small>
+                                        <select class="form-select form-select-sm" id="duration_type_15k">
+                                            <option value="hours" <%= (voucherOnlineSettings['15k']?.duration_type || 'hours') === 'hours' ? 'selected' : '' %>>Jam</option>
+                                            <option value="days" <%= (voucherOnlineSettings['15k']?.duration_type || 'hours') === 'days' ? 'selected' : '' %>>Hari</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Durasi:</small>
+                                        <input type="number" class="form-control form-control-sm" id="duration_15k" value="<%= voucherOnlineSettings['15k']?.duration || 192 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -447,6 +491,17 @@
                                         <input type="number" class="form-control form-control-sm" id="price_25k" value="<%= voucherOnlineSettings['25k']?.price || 25000 %>">
                                     </div>
                                     <div class="mb-2">
+                                        <small class="text-muted">Tipe Durasi:</small>
+                                        <select class="form-select form-select-sm" id="duration_type_25k">
+                                            <option value="hours" <%= (voucherOnlineSettings['25k']?.duration_type || 'hours') === 'hours' ? 'selected' : '' %>>Jam</option>
+                                            <option value="days" <%= (voucherOnlineSettings['25k']?.duration_type || 'hours') === 'days' ? 'selected' : '' %>>Hari</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Durasi:</small>
+                                        <input type="number" class="form-control form-control-sm" id="duration_25k" value="<%= voucherOnlineSettings['25k']?.duration || 360 %>">
+                                    </div>
+                                    <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
                                         <select class="form-select form-select-sm" id="digits_25k">
                                             <option value="4" <%= (voucherOnlineSettings['25k']?.digits || 5) === 4 ? 'selected' : '' %>>4 digit</option>
@@ -492,6 +547,17 @@
                                     <div class="mb-2">
                                         <small class="text-muted">Harga:</small>
                                         <input type="number" class="form-control form-control-sm" id="price_50k" value="<%= voucherOnlineSettings['50k']?.price || 50000 %>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Tipe Durasi:</small>
+                                        <select class="form-select form-select-sm" id="duration_type_50k">
+                                            <option value="hours" <%= (voucherOnlineSettings['50k']?.duration_type || 'hours') === 'hours' ? 'selected' : '' %>>Jam</option>
+                                            <option value="days" <%= (voucherOnlineSettings['50k']?.duration_type || 'hours') === 'days' ? 'selected' : '' %>>Hari</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Durasi:</small>
+                                        <input type="number" class="form-control form-control-sm" id="duration_50k" value="<%= voucherOnlineSettings['50k']?.duration || 720 %>">
                                     </div>
                                     <div class="mb-2">
                                         <small class="text-muted">Digit Voucher:</small>
@@ -1915,8 +1981,16 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Error membuat voucher otomatis', 'error');
+            showToast('Error menyimpan setting voucher online', 'error');
         });
+    };
+
+    // Function untuk test generate voucher (incomplete implementation)
+    window.testGenerateVoucher = function() {
+        // This function appears to be incomplete
+        // Placeholder implementation
+        console.warn('Test generate voucher function is not fully implemented');
+        showToast('Fitur test generate voucher belum diimplementasikan sepenuhnya', 'warning');
     };
 
     // Function untuk menyimpan pengaturan generate voucher
@@ -1950,6 +2024,20 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Error:', error);
             showToast('Error menyimpan pengaturan generate voucher', 'error');
         });
+    };
+
+    // Function untuk edit nama paket
+    window.editPackageName = function(packageId) {
+        const nameInput = document.getElementById(`name_${packageId}`);
+        const headerElement = document.querySelector(`#profile_${packageId}`).closest('.card').querySelector('.card-header h6');
+        
+        if (nameInput && headerElement) {
+            // Update header dengan nama baru
+            headerElement.textContent = nameInput.value;
+            
+            // Tampilkan toast konfirmasi
+            showToast(`Nama paket ${packageId} berhasil diupdate`, 'success');
+        }
     };
 
     // Function untuk toggle password length field berdasarkan tipe akun
@@ -2004,31 +2092,102 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
+    // Function untuk simpan setting voucher online
+    window.saveVoucherOnlineSettings = function() {
+        const settings = {
+            online_50k: {
+                enabled: document.getElementById('online_50k').checked
+            }
+        };
+
+        fetch('/admin/hotspot/save-voucher-online-settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ settings: settings })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Setting voucher online berhasil disimpan!', 'success');
+            } else {
+                showToast('Gagal menyimpan setting: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error menyimpan setting voucher online', 'error');
+        });
+    };
+
+    // Function untuk test generate voucher (incomplete implementation)
+    window.testGenerateVoucher = function() {
+        // This function appears to be incomplete
+        // Placeholder implementation
+        console.warn('Test generate voucher function is not fully implemented');
+        showToast('Fitur test generate voucher belum diimplementasikan sepenuhnya', 'warning');
+    };
+
     // Function untuk menyimpan setting voucher online
     window.saveVoucherOnlineSettings = function() {
-        const settings = {};
-
-        // Ambil setting dari setiap paket
-        const packages = ['3k', '5k', '10k', '15k', '25k', '50k'];
-        packages.forEach(pkg => {
-            const nameInput = document.getElementById(`name_${pkg}`);
-            const profileSelect = document.getElementById(`profile_${pkg}`);
-            const digitsSelect = document.getElementById(`digits_${pkg}`);
-            const priceInput = document.getElementById(`price_${pkg}`);
-            const enabledCheckbox = document.getElementById(`online_${pkg}`);
-
-            if (profileSelect && enabledCheckbox) {
-                settings[pkg] = {
-                    name: nameInput ? nameInput.value : `${pkg} - Paket`,
-                    profile: profileSelect.value,
-                    digits: digitsSelect ? parseInt(digitsSelect.value) : 5,
-                    price: priceInput ? parseInt(priceInput.value) : 0,
-                    enabled: enabledCheckbox.checked
-                };
+        const settings = {
+            '3k': {
+                name: document.getElementById('name_3k').value,
+                profile: document.getElementById('profile_3k').value,
+                price: parseInt(document.getElementById('price_3k').value) || 0,
+                duration: parseInt(document.getElementById('duration_3k').value) || 24,
+                duration_type: document.getElementById('duration_type_3k').value || 'hours',
+                digits: parseInt(document.getElementById('digits_3k').value) || 5,
+                enabled: document.getElementById('online_3k').checked
+            },
+            '5k': {
+                name: document.getElementById('name_5k').value,
+                profile: document.getElementById('profile_5k').value,
+                price: parseInt(document.getElementById('price_5k').value) || 0,
+                duration: parseInt(document.getElementById('duration_5k').value) || 48,
+                duration_type: document.getElementById('duration_type_5k').value || 'hours',
+                digits: parseInt(document.getElementById('digits_5k').value) || 5,
+                enabled: document.getElementById('online_5k').checked
+            },
+            '10k': {
+                name: document.getElementById('name_10k').value,
+                profile: document.getElementById('profile_10k').value,
+                price: parseInt(document.getElementById('price_10k').value) || 0,
+                duration: parseInt(document.getElementById('duration_10k').value) || 120,
+                duration_type: document.getElementById('duration_type_10k').value || 'hours',
+                digits: parseInt(document.getElementById('digits_10k').value) || 5,
+                enabled: document.getElementById('online_10k').checked
+            },
+            '15k': {
+                name: document.getElementById('name_15k').value,
+                profile: document.getElementById('profile_15k').value,
+                price: parseInt(document.getElementById('price_15k').value) || 0,
+                duration: parseInt(document.getElementById('duration_15k').value) || 192,
+                duration_type: document.getElementById('duration_type_15k').value || 'hours',
+                digits: parseInt(document.getElementById('digits_15k').value) || 5,
+                enabled: document.getElementById('online_15k').checked
+            },
+            '25k': {
+                name: document.getElementById('name_25k').value,
+                profile: document.getElementById('profile_25k').value,
+                price: parseInt(document.getElementById('price_25k').value) || 0,
+                duration: parseInt(document.getElementById('duration_25k').value) || 360,
+                duration_type: document.getElementById('duration_type_25k').value || 'hours',
+                digits: parseInt(document.getElementById('digits_25k').value) || 5,
+                enabled: document.getElementById('online_25k').checked
+            },
+            '50k': {
+                name: document.getElementById('name_50k').value,
+                profile: document.getElementById('profile_50k').value,
+                price: parseInt(document.getElementById('price_50k').value) || 0,
+                duration: parseInt(document.getElementById('duration_50k').value) || 720,
+                duration_type: document.getElementById('duration_type_50k').value || 'hours',
+                digits: parseInt(document.getElementById('digits_50k').value) || 5,
+                enabled: document.getElementById('online_50k').checked
             }
-        });
+        };
 
-        // Simpan via AJAX
         fetch('/admin/hotspot/save-voucher-online-settings', {
             method: 'POST',
             headers: {

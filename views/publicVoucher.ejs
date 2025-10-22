@@ -327,11 +327,19 @@
                                     <div class="voucher-body">
                                         <ul class="package-features">
                                             <li><i class="bi bi-wifi"></i> Kecepatan penuh sesuai paket</li>
-                                            <li><i class="bi bi-clock"></i> Aktif <%= pkg.duration %></li>
+                                            <li><i class="bi bi-clock"></i> Aktif 
+                                                <% if (pkg.duration_type === 'hours') { %>
+                                                    <%= pkg.duration_value %> Jam
+                                                <% } else if (pkg.duration_type === 'days') { %>
+                                                    <%= pkg.duration_value %> Hari
+                                                <% } else { %>
+                                                    <%= pkg.duration_value %> Jam
+                                                <% } %>
+                                            </li>
                                             <li><i class="bi bi-shield-check"></i> Keamanan terjamin</li>
                                             <li><i class="bi bi-headset"></i> Support 24/7</li>
                                         </ul>
-                                        <button class="btn btn-primary btn-purchase" onclick="selectPackage('<%= pkg.id %>', '<%= pkg.name %>', <%= pkg.price %>)">
+                                        <button class="btn btn-primary btn-purchase" data-package-id="<%= pkg.id %>" data-package-name="<%= pkg.name %>" data-package-price="<%= pkg.price %>">
                                             <i class="bi bi-cart-plus me-2"></i>Beli Sekarang
                                         </button>
                                     </div>
@@ -440,6 +448,18 @@
 
     <script>
         let selectedPackage = null;
+
+        // Handle button clicks using event delegation
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-purchase')) {
+                const button = e.target.closest('.btn-purchase');
+                const packageId = button.dataset.packageId;
+                const packageName = button.dataset.packageName;
+                const packagePrice = parseInt(button.dataset.packagePrice);
+                
+                selectPackage(packageId, packageName, packagePrice);
+            }
+        });
 
         function selectPackage(packageId, packageName, price) {
             selectedPackage = { id: packageId, name: packageName, price: price };
